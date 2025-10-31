@@ -29,25 +29,29 @@ with col1:
         "Neutre (40 < RSI < 60)",
         "Aucun filtre RSI"
     ])
-    if "X" in rsi_mode:
-        rsi_threshold = st.slider("Seuil RSI", 0, 100, 30 if "Survente" in rsi_mode else 70)
+    rsi_threshold = 30 if "Survente" in rsi_mode else 70 if "X" in rsi_mode else 50
 
 with col2:
     macd_cross = st.checkbox("Croisement MACD haussier", value=False)
 
 with col3:
-    volume_factor = st.slider("Volume > x moyenne (20j)", 0.5, 5.0, 1.0, 0.1)
-    timeframe = st.selectbox("Unité de temps", ["1d", "4h", "1h"], index=0)
+    volume_factor = st.slider("Volume > x moyenne (20j)", 0.5, 3.0, 1.0, 0.1)
+    timeframe = st.selectbox("Unité de temps", ["1d", "5d"], index=0)  # 5d pour plus de data
+
+# --- Debug : Afficher les instruments ---
+st.write(f"**Instruments à scanner :** {len(instruments)} ({', '.join([s.replace('=X','').replace('-USD','') for s in instruments[:5]])}...)")
 
 # --- Lancer le scan ---
 if st.button("Lancer le Screener", type="primary"):
     results = []
     progress = st.progress(0)
+    debug_info = []  # Pour debug si besoin
     
     for i, symbol in enumerate(instruments):
         try:
             df = yf.download(symbol, period="3mo", interval=timeframe, progress=False)
-            if len(df) < 50: 
+            if len(df) < 30:  # Assoupli à 30
+                debug_info.append(f"{symbol}: Moins de 30 jours de data")
                 continue
             
             # Indicateurs
@@ -59,35 +63,47 @@ if st.button("Lancer le Screener", type="primary"):
             last = df.iloc[-1]
             prev = df.iloc[-2]
             
-            # === CONDITIONS ===
+            # === CONDITIONS (FIXÉES) ===
             # RSI
             rsi_ok = True
             if rsi_mode == "Survente (RSI < X)":
-                rsi_ok = last['RSI'] < rsi_threshold
+                rsi_ok = last['RSI'] < rsi_threshold if not pd.isna(last['RSI']) else False
             elif rsi_mode == "Surachat (RSI > X)":
-                rsi_ok = last['RSI'] > rsi_threshold
+                rsi_ok = last['RSI'] > rsi_threshold if not pd.isna(last['RSI']) else False
             elif rsi_mode == "Neutre (40 < RSI < 60)":
-                rsi_ok = 40 < last['RSI'] < 60
+                rsi_ok = 40 < last['RSI'] < 60 if not pd.isna(last['RSI']) else False
             
             # MACD
-            macd_up = macd_cross and (prev['MACD_12_26_9'] < prev['MACDs_12_26_9']) and (last['MACD_12_26_9'] > last['MACDs_12_26_9'])
-            macd_ok = macd_up if macd_cross else True
+            macd_ok = True
+            if macd_cross:
+                macd_prev_line = prev['MACD_12_26_9'] if 'MACD_12_26_9' in prev else 0
+                macd_signal_prev = prev['MACDs_12_26_9'] if 'MACDs_12_26_9' in prev else 0
+                macd_line = last['MACD_12_26_9'] if 'MACD_12_26_9' in last else 0
+                macd_signal = last['MACDs_12_26_9'] if 'MACDs_12_26_9' in last else 0
+                macd_ok = (macd_prev_line < macd_signal_prev) and (macd_line > macd_signal)
             
-            # Volume
-            volume_ok = last['Volume'] > volume_factor * last['Vol_Avg'] if not pd.isna(last['Vol_Avg']) else False
+            # Volume (fix pour NaN)
+            vol_ok = True
+            if not pd.isna(last['Vol_Avg']) and last['Vol_Avg'] > 0:
+                vol_ok = last['Volume'] > volume_factor * last['Vol_Avg']
+            else:
+                vol_ok = last['Volume'] > 1000  # Fallback pour Forex (volume faible)
             
             # Signal final
-            if rsi_ok and macd_ok and volume_ok:
+            if rsi_ok and macd_ok and vol_ok:
                 results.append({
                     "Symbole": symbol.replace("=X", "").replace("-USD", ""),
                     "Prix": f"{last['Close']:.5f}",
-                    "RSI": f"{last['RSI']:.1f}",
-                    "MACD": f"{last['MACD_12_26_9']:.4f}",
+                    "RSI": f"{last['RSI']:.1f}" if not pd.isna(last['RSI']) else "N/A",
+                    "MACD": f"{last['MACD_12_26_9']:.4f}" if 'MACD_12_26_9' in last else "N/A",
                     "Vol x Moy": f"{last['Volume']/last['Vol_Avg']:.2f}" if not pd.isna(last['Vol_Avg']) else "N/A",
                     "Signal": "Achat potentiel"
                 })
+            else:
+                debug_info.append(f"{symbol}: RSI_ok={rsi_ok}, MACD_ok={macd_ok}, Vol_ok={vol_ok}")
         except Exception as e:
-            pass
+            debug_info.append(f"{symbol}: Erreur {str(e)}")
+        
         progress.progress((i + 1) / len(instruments))
     
     # --- Résultats ---
@@ -99,40 +115,55 @@ if st.button("Lancer le Screener", type="primary"):
         # --- Graphique ---
         choice = st.selectbox("Voir le graphique de :", [""] + df_res["Symbole"].tolist())
         if choice:
-            symbol = choice + "=X" if choice in [s.replace("=X","") for s in markets["Forex"]] else choice + "-USD" if choice in [s.replace("-USD","") for s in markets["Crypto"]] else choice
-            plot_chart(symbol, timeframe)
+            full_symbol = next((s for s in instruments if s.replace("=X", "").replace("-USD", "") == choice), choice)
+            plot_chart(full_symbol, timeframe)
     else:
-        st.warning("Aucun signal avec ces critères. Essaye d'assouplir les filtres.")
+        st.warning("Aucun signal trouvé. Debug :")
+        st.write("Premiers 5 instruments testés :")
+        for info in debug_info[:5]:
+            st.write(f"- {info}")
+    
+        st.info("**Astuce :** Choisis 'Aucun filtre RSI' + Volume 0.5 pour tester.")
 
-# --- Fonction graphique ---
+# --- Fonction graphique (FIXÉE) ---
+@st.cache_data
 def plot_chart(symbol, timeframe):
-    df = yf.download(symbol, period="3mo", interval=timeframe, progress=False)
-    if df.empty:
-        st.error("Données indisponibles pour ce symbole.")
-        return
-    
-    macd = ta.macd(df['Close'])
-    df = pd.concat([df, macd], axis=1)
-    df['RSI'] = ta.rsi(df['Close'], 14)
-    
-    fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
-                        subplot_titles=(f"{symbol} - {timeframe}", "MACD", "RSI"),
-                        vertical_spacing=0.05, row_heights=[0.6, 0.2, 0.2])
-    
-    # Candlesticks + Volume
-    fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                 low=df['Low'], close=df['Close'], name="Prix"), row=1, col=1)
-    fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name="Volume", marker_color="rgba(100,100,255,0.3)"), row=1, col=1)
-    
-    # MACD
-    fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD", line=dict(color="blue")), row=2, col=1)
-    fig.add_trace(go.Scatter(x=df.index, y=df['MACDs_12_26_9'], name="Signal", line=dict(color="orange")), row=2, col=1)
-    fig.add_trace(go.Bar(x=df.index, y=df['MACDh_12_26_9'], name="Histogram", marker_color="gray"), row=2, col=1)
-    
-    # RSI
-    fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name="RSI", line=dict(color="purple")), row=3, col=1)
-    fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
-    fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
-    
-    fig.update_layout(height=800, xaxis_rangeslider_visible=False, template="plotly_dark")
-    st.plotly_chart(fig, use_container_width=True)
+    try:
+        df = yf.download(symbol, period="3mo", interval=timeframe, progress=False)
+        if df.empty:
+            st.error("Données indisponibles.")
+            return
+        
+        macd = ta.macd(df['Close'])
+        df = pd.concat([df, macd], axis=1)
+        df['RSI'] = ta.rsi(df['Close'], 14)
+        
+        fig = make_subplots(rows=3, cols=1, shared_xaxes=True,
+                            subplot_titles=(f"{symbol} - {timeframe}", "MACD", "RSI"),
+                            vertical_spacing=0.05, row_heights=[0.6, 0.2, 0.2])
+        
+        # Candlesticks
+        fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+                                     low=df['Low'], close=df['Close'], name="Prix"), row=1, col=1)
+        
+        # Volume (optionnel)
+        if 'Volume' in df.columns and not df['Volume'].isna().all():
+            fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name="Volume", 
+                                 marker_color="rgba(100,100,255,0.3)", showlegend=False), row=1, col=1)
+        
+        # MACD
+        if 'MACD_12_26_9' in df.columns:
+            fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD", line=dict(color="blue")), row=2, col=1)
+            fig.add_trace(go.Scatter(x=df.index, y=df['MACDs_12_26_9'], name="Signal", line=dict(color="orange")), row=2, col=1)
+            fig.add_trace(go.Bar(x=df.index, y=df['MACDh_12_26_9'], name="Histogram", marker_color="gray", showlegend=False), row=2, col=1)
+        
+        # RSI
+        if 'RSI' in df.columns:
+            fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name="RSI", line=dict(color="purple")), row=3, col=1)
+            fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
+            fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
+        
+        fig.update_layout(height=800, xaxis_rangeslider_visible=False, template="plotly_dark")
+        st.plotly_chart(fig, use_container_width=True)
+    except:
+        st.error("Erreur lors du chargement du graphique.")
