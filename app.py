@@ -49,9 +49,11 @@ if st.button("LANCER LE SCANNER", type="primary"):
             macd = ta.macd(close)
             df = pd.concat([df, macd], axis=1)
             df['EMA200'] = ta.ema(close, length=200)  # EMA200
+            df['EMA50']  = ta.ema(close, length=50)
 
             last = df.iloc[-1]
             prev = df.iloc[-2]
+
 
             # === CONDITIONS ===
             # 1. RSI
@@ -67,7 +69,7 @@ if st.button("LANCER LE SCANNER", type="primary"):
                           (last['MACD_12_26_9'] > last['MACDs_12_26_9'])
 
             # 3. EMA200 CROISSANTE
-            ema_trend_ok = True
+            ema_trend_ok = trend_and_pullback if ema200_trend else True
             if ema200_trend:
                 ema_today = last['EMA200']
                 ema_yesterday = prev['EMA200']
@@ -108,6 +110,16 @@ if st.button("LANCER LE SCANNER", type="primary"):
     else:
         st.warning("Aucun signal. Essaie sans MACD ou RSI.")
 
+    results.append({
+    "Symbole": symbol,
+    "Prix": f"{last['Close']:.2f}",
+    "RSI": f"{last['RSI']:.1f}",
+    "EMA200": f"{last['EMA200']:.2f}",
+    "EMA50": f"{last['EMA50']:.2f}",
+    "ΔEMA200": f"{last['EMA200'] - prev['EMA200']:+.2f}",
+    "ΔEMA50": f"{last['EMA50'] - prev['EMA50']:+.2f}",
+    "Signal": "ACHAT (pullback dans trend)"
+})
 # === GRAPHIQUE ===
 @st.cache_data
 def plot_chart(symbol):
