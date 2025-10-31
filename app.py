@@ -5,32 +5,38 @@ import pandas_ta as ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+# === CONFIG ===
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("ProScreener Pro – EMA200 Croissante")
+st.title("ProScreener Pro – EMA200 ↑ + EMA50 ↓ (Pullback)")
 
-# === MARCHÉS (on garde petit pour affiner) ===
+# === MARCHÉS (CAC40 + NASDAQ 100) ===
 markets = {
-    "CAC 40": ["MC.PA", "OR.PA", "SAN.PA", "TTE.PA", "SU.PA", "BNP.PA", "AIR.PA", "RMS.PA", "KER.PA", "DG.PA"],
-    "NASDAQ 100": ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA", "META", "AMZN", "AVGO"]
+    "CAC 40": [
+        "MC.PA", "OR.PA", "SAN.PA", "TTE.PA", "SU.PA", "BNP.PA", "AIR.PA", "RMS.PA",
+        "KER.PA", "DG.PA", "CAP.PA", "SAF.PA", "EN.PA", "ACA.PA", "BN.PA", "HO.PA"
+    ],
+    "NASDAQ 100": [
+        "AAPL", "MSFT", "GOOGL", "TSLA", "NVDA", "META", "AMZN", "AVGO", "ASML", "PEP"
+    ]
 }
 
 selected_markets = st.multiselect("Marchés", options=list(markets.keys()), default=["CAC 40", "NASDAQ 100"])
 tickers = [t for m in selected_markets for t in markets[m]]
 
-# === PARAMÈTRES ===
+# === PARAMÈTRES (4 colonnes) ===
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     rsi_filter = st.selectbox("RSI", ["Aucun", "< 30", "> 70", "30-70"])
 
 with col2:
-    macd_filter = st.checkbox("MACD Haussier")
+    macd_filter = st.checkbox("MACD Haussier", value=False)
 
 with col3:
-    ema200_up = st.checkbox("EMA200 ↑ (trend)", value=True)
+    ema200_up_filter = st.checkbox("EMA200 ↑ (trend)", value=True)
 
 with col4:
-    ema50_down = st.checkbox("EMA50 ↓ (pullback)", value=True)
+    ema50_down_filter = st.checkbox("EMA50 ↓ (pullback)", value=True)
 
 st.write(f"**{len(tickers)} actions à scanner**")
 
@@ -42,7 +48,7 @@ if st.button("LANCER LE SCANNER", type="primary"):
     for i, symbol in enumerate(tickers):
         try:
             df = yf.Ticker(symbol).history(period="1y", interval="1d")
-            if len(df) < 220:  # besoin de 200 + marge
+            if len(df) < 220:
                 continue
 
             close = df['Close']
@@ -51,48 +57,50 @@ if st.button("LANCER LE SCANNER", type="primary"):
             df['RSI'] = ta.rsi(close, length=14)
             macd = ta.macd(close)
             df = pd.concat([df, macd], axis=1)
-            df['EMA200'] = ta.ema(close, length=200)  # EMA200
-            df['EMA50']  = ta.ema(close, length=50) # EMA50
+            df['EMA200'] = ta.ema(close, length=200)
+            df['EMA50'] = ta.ema(close, length=50)
 
             last = df.iloc[-1]
             prev = df.iloc[-2]
 
-
-            # === CONDITIONS ===
-            # 1. RSI
+            # === CONDITIONS INDIVIDUELLES ===
+            # RSI
             rsi_ok = True
-            if rsi_filter == "< 30": rsi_ok = last['RSI'] < 30
-            elif rsi_filter == "> 70": rsi_ok = last['RSI'] > 70
-            elif rsi_filter == "30-70": rsi_ok = 30 <= last['RSI'] <= 70
+            if rsi_filter == "< 30":
+                rsi_ok = last['RSI'] < 30
+            elif rsi_filter == "> 70":
+                rsi_ok = last['RSI'] > 70
+            elif rsi_filter == "30-70":
+                rsi_ok = 30 <= last['RSI'] <= 70
 
-            # 2. MACD
+            # MACD
             macd_ok = True
             if macd_filter:
                 macd_ok = (prev['MACD_12_26_9'] < prev['MACDs_12_26_9']) and \
-                      (last['MACD_12_26_9'] > last['MACDs_12_26_9'])
+                          (last['MACD_12_26_9'] > last['MACDs_12_26_9'])
 
-            # 3. EMAs
-            ema200_up = last['EMA200'] > prev['EMA200']
-            ema50_down = last['EMA50'] < prev['EMA50']
+            # EMA200 ↑
+            ema200_up_ok = last['EMA200'] > prev['EMA200']
 
-            # Conditions EMA
-            ema_ok = True
-            if ema200_up_filter: ema_ok = ema_ok and ema200_up
-            if ema50_down_filter: ema_ok = ema_ok and ema50_down
+            # EMA50 ↓
+            ema50_down_ok = last['EMA50'] < prev['EMA50']
 
+            # === SIGNAL FINAL (filtres indépendants) ===
+            if (rsi_ok and
+                (not macd_filter or macd_ok) and
+                (not ema200_up_filter or ema200_up_ok) and
+                (not ema50_down_filter or ema50_down_ok)):
 
-            # === SIGNAL FINAL ===
-            if rsi_ok and macd_ok and ema_trend_ok:
                 results.append({
-        "Symbole": symbol,
-        "Prix": f"{last['Close']:.2f}",
-        "RSI": f"{last['RSI']:.1f}",
-        "EMA200": f"{last['EMA200']:.2f}",
-        "EMA50": f"{last['EMA50']:.2f}",
-        "ΔEMA200": f"{last['EMA200'] - prev['EMA200']:+.2f}",
-        "ΔEMA50": f"{last['EMA50'] - prev['EMA50']:+.2f}",
-        "Signal": "ACHAT (pullback dans trend)"
-        })
+                    "Symbole": symbol,
+                    "Prix": f"{last['Close']:.2f}",
+                    "RSI": f"{last['RSI']:.1f}",
+                    "EMA200": f"{last['EMA200']:.2f}",
+                    "EMA50": f"{last['EMA50']:.2f}",
+                    "ΔEMA200": f"{last['EMA200'] - prev['EMA200']:+.2f}",
+                    "ΔEMA50": f"{last['EMA50'] - prev['EMA50']:+.2f}",
+                    "Signal": "ACHAT (pullback)"
+                })
 
         except Exception as e:
             pass
@@ -102,8 +110,8 @@ if st.button("LANCER LE SCANNER", type="primary"):
     # === RÉSULTATS ===
     if results:
         df_res = pd.DataFrame(results)
-        st.success(f"**{len(df_res)} OPPORTUNITÉS EN TENDANCE HAUSSIÈRE**")
-        df_res = df_res.sort_values("ΔEMA", ascending=False)
+        st.success(f"**{len(df_res)} OPPORTUNITÉS EN TENDANCE**")
+        df_res = df_res.sort_values("ΔEMA200", ascending=False)
         st.dataframe(df_res, use_container_width=True)
 
         # GRAPHIQUE
@@ -112,29 +120,34 @@ if st.button("LANCER LE SCANNER", type="primary"):
             plot_chart(choice)
 
         # EXPORT
-        st.download_button("CSV", df_res.to_csv(index=False), f"signaux_ema200_{len(df_res)}.csv")
+        st.download_button("CSV", df_res.to_csv(index=False), f"pullback_{len(df_res)}.csv")
 
     else:
-        st.warning("Aucun signal. Essaie sans MACD ou RSI.")
+        st.warning("Aucun signal. Essaie :")
+        st.write("- RSI : Aucun")
+        st.write("- MACD : décoché")
+        st.write("- EMA200 ↑ : coché")
+        st.write("- EMA50 ↓ : décoché")
 
-    
 # === GRAPHIQUE ===
 @st.cache_data
 def plot_chart(symbol):
     df = yf.Ticker(symbol).history(period="1y")
     df['EMA200'] = ta.ema(df['Close'], 200)
+    df['EMA50'] = ta.ema(df['Close'], 50)
     df['RSI'] = ta.rsi(df['Close'], 14)
     macd = ta.macd(df['Close'])
     df = pd.concat([df, macd], axis=1)
 
     fig = make_subplots(rows=4, cols=1, shared_xaxes=True,
-                        subplot_titles=(f"{symbol} - Trend EMA200", "MACD", "RSI", "Volume"),
+                        subplot_titles=(f"{symbol}", "MACD", "RSI", "Volume"),
                         row_heights=[0.5, 0.15, 0.15, 0.2])
 
-    # Prix + EMA200
+    # Prix + EMA
     fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
                                  low=df['Low'], close=df['Close']), row=1, col=1)
     fig.add_trace(go.Scatter(x=df.index, y=df['EMA200'], name="EMA200", line=dict(color="orange", width=2)), row=1, col=1)
+    fig.add_trace(go.Scatter(x=df.index, y=df['EMA50'], name="EMA50", line=dict(color="purple", width=2)), row=1, col=1)
 
     # MACD
     fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD"), row=2, col=1)
