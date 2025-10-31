@@ -115,9 +115,10 @@ if st.button("LANCER LE SCANNER", type="primary"):
         st.dataframe(df_res, use_container_width=True)
 
         # GRAPHIQUE
-        choice = st.selectbox("Graphique :", [""] + df_res["Symbole"].tolist())
-        if choice:
-            plot_chart(choice)
+        if results:
+            choice = st.selectbox("Graphique :", [""] + df_res["Symbole"].tolist())
+            if choice and choice != "":
+                plot_chart(choice)
 
         # EXPORT
         st.download_button("CSV", df_res.to_csv(index=False), f"pullback_{len(df_res)}.csv")
