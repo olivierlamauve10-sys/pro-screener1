@@ -49,7 +49,7 @@ if st.button("LANCER LE SCANNER", type="primary"):
             macd = ta.macd(close)
             df = pd.concat([df, macd], axis=1)
             df['EMA200'] = ta.ema(close, length=200)  # EMA200
-            df['EMA50']  = ta.ema(close, length=50)
+            df['EMA50']  = ta.ema(close, length=50) # EMA50
 
             last = df.iloc[-1]
             prev = df.iloc[-2]
@@ -78,14 +78,15 @@ if st.button("LANCER LE SCANNER", type="primary"):
             # === SIGNAL FINAL ===
             if rsi_ok and macd_ok and ema_trend_ok:
                 results.append({
-                    "Symbole": symbol,
-                    "Prix": f"{last['Close']:.2f}",
-                    "RSI": f"{last['RSI']:.1f}",
-                    "EMA200": f"{last['EMA200']:.2f}",
-                    "ΔEMA": f"{last['EMA200'] - prev['EMA200']:+.2f}",
-                    "Trend": "HAUSSIER" if ema_trend_ok else "BAISSIER",
-                    "Signal": "ACHAT"
-                })
+        "Symbole": symbol,
+        "Prix": f"{last['Close']:.2f}",
+        "RSI": f"{last['RSI']:.1f}",
+        "EMA200": f"{last['EMA200']:.2f}",
+        "EMA50": f"{last['EMA50']:.2f}",
+        "ΔEMA200": f"{last['EMA200'] - prev['EMA200']:+.2f}",
+        "ΔEMA50": f"{last['EMA50'] - prev['EMA50']:+.2f}",
+        "Signal": "ACHAT (pullback dans trend)"
+        })
 
         except Exception as e:
             pass
@@ -110,16 +111,7 @@ if st.button("LANCER LE SCANNER", type="primary"):
     else:
         st.warning("Aucun signal. Essaie sans MACD ou RSI.")
 
-    results.append({
-    "Symbole": symbol,
-    "Prix": f"{last['Close']:.2f}",
-    "RSI": f"{last['RSI']:.1f}",
-    "EMA200": f"{last['EMA200']:.2f}",
-    "EMA50": f"{last['EMA50']:.2f}",
-    "ΔEMA200": f"{last['EMA200'] - prev['EMA200']:+.2f}",
-    "ΔEMA50": f"{last['EMA50'] - prev['EMA50']:+.2f}",
-    "Signal": "ACHAT (pullback dans trend)"
-})
+    
 # === GRAPHIQUE ===
 @st.cache_data
 def plot_chart(symbol):
