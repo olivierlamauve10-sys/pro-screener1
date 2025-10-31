@@ -40,6 +40,12 @@ with col4:
 
 st.write(f"**{len(tickers)} actions à scanner**")
 
+# === INITIALISER session_state ===
+if 'last_results' not in st.session_state:
+    st.session_state.last_results = None
+if 'selected_symbol' not in st.session_state:
+    st.session_state.selected_symbol = ""
+
 # === SCANNER ===
 if st.button("LANCER LE SCANNER", type="primary"):
     results = []
@@ -85,7 +91,7 @@ if st.button("LANCER LE SCANNER", type="primary"):
             # EMA50 ↓
             ema50_down_ok = last['EMA50'] < prev['EMA50']
 
-            # === SIGNAL FINAL (filtres indépendants) ===
+            # === SIGNAL FINAL ===
             if (rsi_ok and
                 (not macd_filter or macd_ok) and
                 (not ema200_up_filter or ema200_up_ok) and
@@ -110,15 +116,22 @@ if st.button("LANCER LE SCANNER", type="primary"):
     # === RÉSULTATS ===
     if results:
         df_res = pd.DataFrame(results)
+        st.session_state.last_results = df_res  # ← Stocker
+        st.session_state.selected_symbol = ""   # ← Réinitialiser
+
         st.success(f"**{len(df_res)} OPPORTUNITÉS EN TENDANCE**")
         df_res = df_res.sort_values("ΔEMA200", ascending=False)
         st.dataframe(df_res, use_container_width=True)
 
-        # GRAPHIQUE
-        if results:
-            choice = st.selectbox("Graphique :", [""] + df_res["Symbole"].tolist())
-            if choice and choice != "":
-                plot_chart(choice)
+        # === GRAPHIQUE DANS LE SCAN ===
+        choice = st.selectbox(
+            "Graphique :", 
+            [""] + df_res["Symbole"].tolist(),
+            key="symbol_selector"
+        )
+        if choice and choice != "":
+            st.session_state.selected_symbol = choice
+            plot_chart(choice)
 
         # EXPORT
         st.download_button("CSV", df_res.to_csv(index=False), f"pullback_{len(df_res)}.csv")
@@ -129,38 +142,62 @@ if st.button("LANCER LE SCANNER", type="primary"):
         st.write("- MACD : décoché")
         st.write("- EMA200 ↑ : coché")
         st.write("- EMA50 ↓ : décoché")
+        st.session_state.last_results = None
+        st.session_state.selected_symbol = ""
 
-# === GRAPHIQUE ===
+# === GRAPHIQUE PERSISTANT (après scan) ===
+if st.session_state.last_results is not None and st.session_state.selected_symbol:
+    # Recréer le selectbox persistant
+    choice = st.selectbox(
+        "Graphique :", 
+        [""] + st.session_state.last_results["Symbole"].tolist(),
+        index=0 if st.session_state.selected_symbol not in st.session_state.last_results["Symbole"].tolist() 
+        else st.session_state.last_results["Symbole"].tolist().index(st.session_state.selected_symbol) + 1,
+        key="persistent_selector"
+    )
+    if choice and choice != "":
+        st.session_state.selected_symbol = choice
+        plot_chart(choice)
+
+# === FONCTION GRAPHIQUE ===
 @st.cache_data
 def plot_chart(symbol):
-    df = yf.Ticker(symbol).history(period="1y")
-    df['EMA200'] = ta.ema(df['Close'], 200)
-    df['EMA50'] = ta.ema(df['Close'], 50)
-    df['RSI'] = ta.rsi(df['Close'], 14)
-    macd = ta.macd(df['Close'])
-    df = pd.concat([df, macd], axis=1)
+    try:
+        df = yf.Ticker(symbol).history(period="1y")
+        if df.empty:
+            st.error("Données indisponibles.")
+            return
 
-    fig = make_subplots(rows=4, cols=1, shared_xaxes=True,
-                        subplot_titles=(f"{symbol}", "MACD", "RSI", "Volume"),
-                        row_heights=[0.5, 0.15, 0.15, 0.2])
+        df['EMA200'] = ta.ema(df['Close'], 200)
+        df['EMA50'] = ta.ema(df['Close'], 50)
+        df['RSI'] = ta.rsi(df['Close'], 14)
+        macd = ta.macd(df['Close'])
+        df = pd.concat([df, macd], axis=1)
 
-    # Prix + EMA
-    fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                 low=df['Low'], close=df['Close']), row=1, col=1)
-    fig.add_trace(go.Scatter(x=df.index, y=df['EMA200'], name="EMA200", line=dict(color="orange", width=2)), row=1, col=1)
-    fig.add_trace(go.Scatter(x=df.index, y=df['EMA50'], name="EMA50", line=dict(color="purple", width=2)), row=1, col=1)
+        fig = make_subplots(rows=4, cols=1, shared_xaxes=True,
+                            subplot_titles=(f"{symbol}", "MACD", "RSI", "Volume"),
+                            row_heights=[0.5, 0.15, 0.15, 0.2])
 
-    # MACD
-    fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD"), row=2, col=1)
-    fig.add_trace(go.Scatter(x=df.index, y=df['MACDs_12_26_9'], name="Signal"), row=2, col=1)
+        # Prix + EMA
+        fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+                                     low=df['Low'], close=df['Close']), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df.index, y=df['EMA200'], name="EMA200", line=dict(color="orange", width=2)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df.index, y=df['EMA50'], name="EMA50", line=dict(color="purple", width=2)), row=1, col=1)
 
-    # RSI
-    fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name="RSI"), row=3, col=1)
-    fig.add_hline(y=30, line_dash="dash", line_color="green", row=3)
-    fig.add_hline(y=70, line_dash="dash", line_color="red", row=3)
+        # MACD
+        if 'MACD_12_26_9' in df.columns:
+            fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD"), row=2, col=1)
+            fig.add_trace(go.Scatter(x=df.index, y=df['MACDs_12_26_9'], name="Signal"), row=2, col=1)
 
-    # Volume
-    fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name="Volume"), row=4, col=1)
+        # RSI
+        fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name="RSI"), row=3, col=1)
+        fig.add_hline(y=30, line_dash="dash", line_color="green", row=3)
+        fig.add_hline(y=70, line_dash="dash", line_color="red", row=3)
 
-    fig.update_layout(height=900, template="plotly_dark")
-    st.plotly_chart(fig, use_container_width=True)
+        # Volume
+        fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name="Volume"), row=4, col=1)
+
+        fig.update_layout(height=900, template="plotly_dark")
+        st.plotly_chart(fig, use_container_width=True)
+    except:
+        st.error("Erreur graphique.")
