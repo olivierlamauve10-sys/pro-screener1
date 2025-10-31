@@ -18,7 +18,7 @@ selected_markets = st.multiselect("Marchés", options=list(markets.keys()), defa
 tickers = [t for m in selected_markets for t in markets[m]]
 
 # === PARAMÈTRES ===
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     rsi_filter = st.selectbox("RSI", ["Aucun", "< 30", "> 70", "30-70"])
@@ -27,7 +27,10 @@ with col2:
     macd_filter = st.checkbox("MACD Haussier")
 
 with col3:
-    ema200_trend = st.checkbox("EMA200 Croissante (trend haussier)", value=True)
+    ema200_up = st.checkbox("EMA200 ↑ (trend)", value=True)
+
+with col4:
+    ema50_down = st.checkbox("EMA50 ↓ (pullback)", value=True)
 
 st.write(f"**{len(tickers)} actions à scanner**")
 
@@ -66,14 +69,17 @@ if st.button("LANCER LE SCANNER", type="primary"):
             macd_ok = True
             if macd_filter:
                 macd_ok = (prev['MACD_12_26_9'] < prev['MACDs_12_26_9']) and \
-                          (last['MACD_12_26_9'] > last['MACDs_12_26_9'])
+                      (last['MACD_12_26_9'] > last['MACDs_12_26_9'])
 
-            # 3. EMA200 CROISSANTE
-            ema_trend_ok = trend_and_pullback if ema200_trend else True
-            if ema200_trend:
-                ema_today = last['EMA200']
-                ema_yesterday = prev['EMA200']
-                ema_trend_ok = ema_today > ema_yesterday
+            # 3. EMAs
+            ema200_up = last['EMA200'] > prev['EMA200']
+            ema50_down = last['EMA50'] < prev['EMA50']
+
+            # Conditions EMA
+            ema_ok = True
+            if ema200_up_filter: ema_ok = ema_ok and ema200_up
+            if ema50_down_filter: ema_ok = ema_ok and ema50_down
+
 
             # === SIGNAL FINAL ===
             if rsi_ok and macd_ok and ema_trend_ok:
