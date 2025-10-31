@@ -6,7 +6,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 # === FONCTION GRAPHIQUE ===
-@st.cache_data
 def plot_chart(symbol):
     try:
         df = yf.Ticker(symbol).history(period="1y")
