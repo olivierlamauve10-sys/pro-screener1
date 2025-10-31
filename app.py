@@ -5,6 +5,50 @@ import pandas_ta as ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
+# === FONCTION GRAPHIQUE ===
+@st.cache_data
+def plot_chart(symbol):
+    try:
+        df = yf.Ticker(symbol).history(period="1y")
+        if df.empty:
+            st.error("Données indisponibles.")
+            return
+
+        df['EMA200'] = ta.ema(df['Close'], 200)
+        df['EMA50'] = ta.ema(df['Close'], 50)
+        df['RSI'] = ta.rsi(df['Close'], 14)
+        macd = ta.macd(df['Close'])
+        df = pd.concat([df, macd], axis=1)
+
+        fig = make_subplots(rows=4, cols=1, shared_xaxes=True,
+                            subplot_titles=(f"{symbol}", "MACD", "RSI", "Volume"),
+                            row_heights=[0.5, 0.15, 0.15, 0.2])
+
+        # Prix + EMA
+        fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
+                                     low=df['Low'], close=df['Close']), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df.index, y=df['EMA200'], name="EMA200", line=dict(color="orange", width=2)), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df.index, y=df['EMA50'], name="EMA50", line=dict(color="purple", width=2)), row=1, col=1)
+
+        # MACD
+        if 'MACD_12_26_9' in df.columns:
+            fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD"), row=2, col=1)
+            fig.add_trace(go.Scatter(x=df.index, y=df['MACDs_12_26_9'], name="Signal"), row=2, col=1)
+
+        # RSI
+        fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name="RSI"), row=3, col=1)
+        fig.add_hline(y=30, line_dash="dash", line_color="green", row=3)
+        fig.add_hline(y=70, line_dash="dash", line_color="red", row=3)
+
+        # Volume
+        fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name="Volume"), row=4, col=1)
+
+        fig.update_layout(height=900, template="plotly_dark")
+        st.plotly_chart(fig, use_container_width=True)
+    except:
+        st.error("Erreur graphique.")
+
+
 # === CONFIG ===
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
 st.title("ProScreener Pro – EMA200 ↑ + EMA50 ↓ (Pullback)")
@@ -158,46 +202,3 @@ if st.session_state.last_results is not None and st.session_state.selected_symbo
     if choice and choice != "":
         st.session_state.selected_symbol = choice
         plot_chart(choice)
-
-# === FONCTION GRAPHIQUE ===
-@st.cache_data
-def plot_chart(symbol):
-    try:
-        df = yf.Ticker(symbol).history(period="1y")
-        if df.empty:
-            st.error("Données indisponibles.")
-            return
-
-        df['EMA200'] = ta.ema(df['Close'], 200)
-        df['EMA50'] = ta.ema(df['Close'], 50)
-        df['RSI'] = ta.rsi(df['Close'], 14)
-        macd = ta.macd(df['Close'])
-        df = pd.concat([df, macd], axis=1)
-
-        fig = make_subplots(rows=4, cols=1, shared_xaxes=True,
-                            subplot_titles=(f"{symbol}", "MACD", "RSI", "Volume"),
-                            row_heights=[0.5, 0.15, 0.15, 0.2])
-
-        # Prix + EMA
-        fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                     low=df['Low'], close=df['Close']), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df['EMA200'], name="EMA200", line=dict(color="orange", width=2)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df['EMA50'], name="EMA50", line=dict(color="purple", width=2)), row=1, col=1)
-
-        # MACD
-        if 'MACD_12_26_9' in df.columns:
-            fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD"), row=2, col=1)
-            fig.add_trace(go.Scatter(x=df.index, y=df['MACDs_12_26_9'], name="Signal"), row=2, col=1)
-
-        # RSI
-        fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name="RSI"), row=3, col=1)
-        fig.add_hline(y=30, line_dash="dash", line_color="green", row=3)
-        fig.add_hline(y=70, line_dash="dash", line_color="red", row=3)
-
-        # Volume
-        fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name="Volume"), row=4, col=1)
-
-        fig.update_layout(height=900, template="plotly_dark")
-        st.plotly_chart(fig, use_container_width=True)
-    except:
-        st.error("Erreur graphique.")
