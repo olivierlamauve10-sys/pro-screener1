@@ -129,7 +129,7 @@ def plot_chart(symbol):
         for i in range(1, len(rsi)):
         # Si le RSI monte → bleu, sinon → rouge
             color = 'blue' if rsi.iloc[i] >= rsi.iloc[i - 1] else 'red'
-            fig.add_trace(go.Scatter(
+                fig.add_trace(go.Scatter(
                 x=df.index[i-1:i+1],
                 y=rsi.iloc[i-1:i+1],
                 mode='lines',
@@ -138,9 +138,9 @@ def plot_chart(symbol):
                 showlegend=(i == 1)
             ), row=3, col=1)
 
-# Lignes de surachat/survente
-fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
-fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
+        # Lignes de surachat/survente
+        fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
+        fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
 
         # === 4. VOLUME ===
         fig.add_trace(go.Bar(
