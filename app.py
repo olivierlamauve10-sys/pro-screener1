@@ -18,21 +18,25 @@ st.title("📈 ProScreener Pro – EMA200 ↑ + EMA50 ↓ + EMA7 ↑ (Rebond tec
 # ======================================
 @st.cache_data
 def load_markets():
-    """Charge les tickers depuis un fichier local JSON."""
+    """Charge les tickers depuis des fichiers locaux JSON."""
     try:
+        # === Chargement du fichier principal (SBF120, Europe, etc.) ===
         json_path = os.path.join(os.path.dirname(__file__), "markets.json")
         with open(json_path, "r", encoding="utf-8") as f:
             markets = json.load(f)
-                # Ajout du S&P 500 depuis fichier externe
+
+        # === Ajout du S&P 500 depuis fichier externe ===
         sp500_path = os.path.join(os.path.dirname(__file__), "sp500.json")
         if os.path.exists(sp500_path):
             with open(sp500_path, "r", encoding="utf-8") as f:
                 sp500_data = json.load(f)
             if "S&P 500" in sp500_data:
                 markets["🇺🇸 S&P 500 (USA)"] = sp500_data["S&P 500"]
+
         return markets
+
     except Exception as e:
-        st.error(f"Erreur de lecture du fichier markets.json : {e}")
+        st.error(f"Erreur de lecture des fichiers de marchés : {e}")
         return {"⚠️ Aucun marché disponible": []}
 
 st.subheader("🌍 Sélection des marchés")
