@@ -55,10 +55,11 @@ def plot_chart(symbol):
             return
 
         # === INDICATEURS TECHNIQUES ===
+        # === INDICATEURS TECHNIQUES ===
         df['EMA200'] = ta.ema(df['Close'], 200)
         df['EMA50'] = ta.ema(df['Close'], 50)
         df['EMA7'] = ta.ema(df['Close'], 7)
-        df['RSI'] = ta.rsi(df['Close'], 14)
+        df['RSI'] = ta.rsi(df['Close'], 32)
         macd = ta.macd(df['Close'])
         df = pd.concat([df, macd], axis=1)
 
@@ -107,24 +108,24 @@ def plot_chart(symbol):
             ), row=1, col=1)
 
         # === 2. MACD ===
-        if all(col in df.columns for col in ['MACD_12_26_9', 'MACDs_12_26_9', 'MACDh_12_26_9']):
+        if all(col in df.columns for col in ['MACD_10_104_10', 'MACDs_10_104_10', 'MACDh_10_104_10']):
             fig.add_trace(go.Bar(
-                x=df.index, y=df['MACDh_12_26_9'],
-                name='Histogramme MACD', marker_color='gray', opacity=0.5
+                x=df.index, y=df['MACDh_10_104_10'],
+                name='Histogramme MACD ZL Week', marker_color='gray', opacity=0.5
             ), row=2, col=1)
             fig.add_trace(go.Scatter(
-                x=df.index, y=df['MACD_12_26_9'],
+                x=df.index, y=df['MACD_10_104_10'],
                 mode='lines', name='MACD', line=dict(color='blue', width=1.2)
             ), row=2, col=1)
             fig.add_trace(go.Scatter(
-                x=df.index, y=df['MACDs_12_26_9'],
+                x=df.index, y=df['MACDs_10_104_10'],
                 mode='lines', name='Signal', line=dict(color='red', width=1)
             ), row=2, col=1)
 
-        # === 3. RSI ===
+        # === 3. RSI 30===
         fig.add_trace(go.Scatter(
             x=df.index, y=df['RSI'],
-            mode='lines', name='RSI',
+            mode='lines', name='RSI Week',
             line=dict(color='cyan', width=1.2)
         ), row=3, col=1)
         fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
@@ -158,6 +159,8 @@ def plot_chart(symbol):
 # ======================================
 #        SCANNER TECHNIQUE
 # ======================================
+#        SCANNER TECHNIQUE
+# ======================================
 if st.button("🚀 LANCER LE SCANNER", type="primary"):
     with st.spinner("Analyse des marchés en cours..."):
         results = []
@@ -172,6 +175,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 close = df['Close']
 
                 # === Calcul des indicateurs ===
+                # === Calcul des indicateurs ===
                 df['EMA200'] = ta.ema(close, length=200)
                 df['EMA50'] = ta.ema(close, length=50)
                 df['EMA7'] = ta.ema(close, length=7)
@@ -180,10 +184,12 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 prev = df.iloc[-2]
 
                 # === Conditions de détection ===
+                # === Conditions de détection ===
                 ema200_up_ok = last['EMA200'] > prev['EMA200']    # tendance haussière
                 ema50_down_ok = last['EMA50'] < prev['EMA50']     # retracement
                 ema7_up_ok = last['EMA7'] > prev['EMA7']          # rebond technique
 
+                # === Validation du signal global ===
                 # === Validation du signal global ===
                 if ema200_up_ok and ema50_down_ok and ema7_up_ok:
                     results.append({
