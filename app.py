@@ -139,8 +139,8 @@ def plot_chart(symbol):
             ), row=2, col=1)
 
         # Lignes de surachat/survente
-        fig.add_hline(y=65, line_dash="dash", line_color="red", row=3, col=1)
-        fig.add_hline(y=35, line_dash="dash", line_color="green", row=3, col=1)
+        fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
+        fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
         # === 4. VOLUME ===
         fig.add_trace(go.Bar(
