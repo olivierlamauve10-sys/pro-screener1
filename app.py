@@ -67,7 +67,7 @@ def plot_chart(symbol):
         fig = make_subplots(
             rows=4, cols=1, shared_xaxes=True,
             vertical_spacing=0.02,
-            row_heights=[0.5, 0.2, 0.15, 0.15],
+            row_heights=[0.6, 0.22, 0.13, 0.05],
             subplot_titles=[f"{symbol} – Prix & Moyennes Mobiles", "MACD", "RSI", "Volume"]
         )
 
