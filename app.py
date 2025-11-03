@@ -28,7 +28,7 @@ def plot_chart(symbol):
         show_volume = st.checkbox("Afficher le Volume", value=True)
 
         # === Détermination dynamique du nombre de lignes ===
-        rows = 1  # Prix toujours affiché
+        rows = 1
         if show_macd:
             rows += 1
         if show_rsi:
@@ -36,7 +36,6 @@ def plot_chart(symbol):
         if show_volume:
             rows += 1
 
-        # === Hauteurs dynamiques des sous-graphiques ===
         heights = [0.5]
         if show_macd:
             heights.append(0.2)
@@ -45,7 +44,7 @@ def plot_chart(symbol):
         if show_volume:
             heights.append(0.15)
 
-        # === Construction du graphique ===
+        # === Création du graphique ===
         fig = make_subplots(
             rows=rows, cols=1, shared_xaxes=True,
             vertical_spacing=0.02,
@@ -65,38 +64,44 @@ def plot_chart(symbol):
             decreasing_line_color='red'
         ), row=current_row, col=1)
 
+        # EMA50 (violet)
         fig.add_trace(go.Scatter(
             x=df.index, y=df['EMA50'],
             mode='lines', name='EMA50',
             line=dict(color='purple', width=1.5)
         ), row=current_row, col=1)
 
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df['EMA200'],
-            mode='lines', name='EMA200',
-            line=dict(color='orange', width=1.5)
-        ), row=current_row, col=1)
+        # === EMA200 colorée selon la pente ===
+        segments = []
+        for i in range(1, len(df)):
+            color = 'blue' if df['EMA200'].iloc[i] >= df['EMA200'].iloc[i - 1] else 'red'
+            segments.append(go.Scatter(
+                x=df.index[i-1:i+1],
+                y=df['EMA200'].iloc[i-1:i+1],
+                mode='lines',
+                line=dict(color=color, width=1.8),
+                name='EMA200',
+                showlegend=False
+            ))
+        for seg in segments:
+            fig.add_trace(seg, row=current_row, col=1)
 
         # === 2. MACD ===
         if show_macd:
             current_row += 1
-            fig.add_trace(go.Bar(
-                x=df.index, y=df['MACDh_12_26_9'],
-                name='Histogramme MACD', marker_color='gray', opacity=0.5
-            ), row=current_row, col=1)
-            fig.add_trace(go.Scatter(
-                x=df.index, y=df['MACD_12_26_9'],
-                mode='lines', name='MACD', line=dict(color='blue', width=1.2)
-            ), row=current_row, col=1)
-            fig.add_trace(go.Scatter(
-                x=df.index, y=df['MACDs_12_26_9'],
-                mode='lines', name='Signal', line=dict(color='red', width=1)
-            ), row=current_row, col=1)
-            fig.layout.annotations += (dict(
-                text="MACD", xref="paper", yref="paper", x=0.02,
-                y=1 - sum(heights[:current_row-1]), showarrow=False,
-                font=dict(size=10, color="white")
-            ),)
+            if all(col in df.columns for col in ['MACD_12_26_9', 'MACDs_12_26_9', 'MACDh_12_26_9']):
+                fig.add_trace(go.Bar(
+                    x=df.index, y=df['MACDh_12_26_9'],
+                    name='Histogramme MACD', marker_color='gray', opacity=0.5
+                ), row=current_row, col=1)
+                fig.add_trace(go.Scatter(
+                    x=df.index, y=df['MACD_12_26_9'],
+                    mode='lines', name='MACD', line=dict(color='blue', width=1.2)
+                ), row=current_row, col=1)
+                fig.add_trace(go.Scatter(
+                    x=df.index, y=df['MACDs_12_26_9'],
+                    mode='lines', name='Signal', line=dict(color='red', width=1)
+                ), row=current_row, col=1)
 
         # === 3. RSI ===
         if show_rsi:
@@ -108,11 +113,6 @@ def plot_chart(symbol):
             ), row=current_row, col=1)
             fig.add_hline(y=70, line_dash="dash", line_color="red", row=current_row, col=1)
             fig.add_hline(y=30, line_dash="dash", line_color="green", row=current_row, col=1)
-            fig.layout.annotations += (dict(
-                text="RSI", xref="paper", yref="paper", x=0.02,
-                y=1 - sum(heights[:current_row-1]), showarrow=False,
-                font=dict(size=10, color="white")
-            ),)
 
         # === 4. Volume ===
         if show_volume:
@@ -121,11 +121,6 @@ def plot_chart(symbol):
                 x=df.index, y=df['Volume'],
                 name='Volume', marker_color='lightblue'
             ), row=current_row, col=1)
-            fig.layout.annotations += (dict(
-                text="Volume", xref="paper", yref="paper", x=0.02,
-                y=1 - sum(heights[:current_row-1]), showarrow=False,
-                font=dict(size=10, color="white")
-            ),)
 
         # === Layout global ===
         fig.update_layout(
@@ -136,18 +131,18 @@ def plot_chart(symbol):
             margin=dict(l=30, r=30, t=40, b=30)
         )
 
+        # === Afficher toute la période ===
+        fig.update_xaxes(range=[df.index.min(), df.index.max()])
+
         # === Masquer les week-ends ===
-        fig.update_xaxes(
-            rangebreaks=[dict(bounds=["sat", "mon"])]  # supprime Samedi-Dimanche
-        )
+        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
 
         # === Déplacer les axes Y à droite ===
         for i in range(1, current_row + 1):
             fig.update_yaxes(side="right", row=i, col=1)
 
+        # === Affichage final ===
         st.plotly_chart(fig, use_container_width=True)
-
-
 
     except Exception as e:
         st.error(f"Erreur graphique : {e}")
