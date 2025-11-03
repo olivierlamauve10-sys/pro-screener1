@@ -47,7 +47,7 @@ st.write(f"**{len(tickers)} actions sélectionnées pour le scan**")
 #        FONCTION D'AFFICHAGE GRAPHIQUE
 # ======================================
 def plot_chart(symbol):
-    """Affiche le graphique complet : Prix, EMA, RSI 30, MACD Week, Volume."""
+    """Affiche le graphique complet : Prix, EMA, RSI 32, MACD Week, Volume."""
     try:
         df = yf.Ticker(symbol).history(period="1y")
         if df.empty:
@@ -68,7 +68,7 @@ def plot_chart(symbol):
             rows=4, cols=1, shared_xaxes=True,
             vertical_spacing=0.02,
             row_heights=[0.65, 0.15, 0.15, 0.05],
-            subplot_titles=[f"{symbol} – Prix & Moyennes Mobiles", "RSI", "MACD", "Volume"]
+            subplot_titles=[f"{symbol} – Prix & Moyennes Mobiles", "RSI 32", "MACD Week", "Volume"]
         )
 
         # === 1. PRIX + EMA ===
@@ -112,15 +112,15 @@ def plot_chart(symbol):
             fig.add_trace(go.Bar(
                 x=df.index, y=df['MACDh_10_104_10'],
                 name='Histogramme MACD ZL Week', marker_color='gray', opacity=0.5
-            ), row=2, col=1)
+            ), row=3, col=1)
             fig.add_trace(go.Scatter(
                 x=df.index, y=df['MACD_10_104_10'],
                 mode='lines', name='MACD', line=dict(color='blue', width=1.2)
-            ), row=2, col=1)
+            ), row=3, col=1)
             fig.add_trace(go.Scatter(
                 x=df.index, y=df['MACDs_10_104_10'],
                 mode='lines', name='Signal', line=dict(color='red', width=1)
-            ), row=2, col=1)
+            ), row=3, col=1)
 
         # === 3. RSI (30j) – coloré selon la pente ===
         rsi = df['RSI']
@@ -136,7 +136,7 @@ def plot_chart(symbol):
                 line=dict(color=color, width=2),
                 name='RSI' if i == 1 else None,  # une seule légende
                 showlegend=(i == 1)
-            ), row=3, col=1)
+            ), row=2, col=1)
 
         # Lignes de surachat/survente
         fig.add_hline(y=65, line_dash="dash", line_color="red", row=3, col=1)
