@@ -1,0 +1,33 @@
+{
+  "S&P 500": [
+    "AAPL","MSFT","AMZN","NVDA","META","GOOGL","GOOG","BRK-B","TSLA","UNH",
+    "JNJ","V","PG","XOM","LLY","JPM","HD","AVGO","MA","CVX",
+    "ABBV","PFE","KO","PEP","COST","MRK","WMT","DIS","CRM","CSCO",
+    "ACN","TMO","ABT","DHR","MCD","INTC","NFLX","LIN","NKE","BMY",
+    "TXN","UPS","PM","ADBE","NEE","HON","IBM","ORCL","CAT","AMGN",
+    "QCOM","MS","GS","AMD","BLK","CVS","COP","RTX","BA","LOW",
+    "INTU","DE","PLD","SPGI","MDT","NOW","BKNG","AXP","SCHW","GE",
+    "C","LMT","T","UNP","ADI","ELV","SYK","MO","AMAT","TJX",
+    "MDLZ","ISRG","GILD","AMT","DUK","TGT","BDX","SO","ADP","MMC",
+    "ZTS","PNC","REGN","EOG","GM","SLB","USB","CI","CB","CL",
+    "CSX","FDX","PGR","VRTX","SHW","NOC","NSC","HCA","PSX","MPC",
+    "WM","TRV","ETN","CME","MAR","FIS","APD","GD","AON","ITW",
+    "EW","SPG","KDP","EMR","D","PSA","ROP","AIG","ROST","AFL",
+    "ECL","KLAC","MCK","OXY","CTAS","MET","F","SBUX","KR","ALL",
+    "TEL","PRU","MSI","BK","TT","CARR","AEP","WMB","COF","PAYX","PCAR",
+    "AJG","ORLY","MNST","RSG","DLR","MCO","DOW","HUM","PH","APH","VLO",
+    "IQV","PSX","A","OTIS","FTNT","MSCI","WELL","PEG","OKE","CBRE",
+    "VICI","MLM","AMP","IDXX","GIS","AEE","PPG","FAST","WEC","ROK",
+    "HES","EXC","ES","VRSK","LEN","KR","TFC","IR","GWW","DD","WBD","BIIB",
+    "CHTR","HIG","FANG","HPQ","EIX","RCL","VMC","CNC","HLT","STZ",
+    "LHX","AEP","HWM","YUM","TRGP","ZBH","MTD","ED","DFS","CTVA",
+    "ADM","WBA","DHI","DAL","DVN","SBAC","CMS","KMB","XYL","CDNS",
+    "EXR","CMI","FISV","CPRT","PCG","NEM","TTWO","TSN","KMI","O",
+    "KEYS","PAYC","AWK","EA","NUE","PHM","EFX","LRCX","CLX","WAT",
+    "AVB","NDAQ","ACGL","TDG","CB","MLM","WST","ANSS","ETR","FITB",
+    "AES","HPE","APA","EBAY","BBY","SWK","SNA","CTSH","CCL","CAG",
+    "HUBB","RJF","JKHY","FTV","NVR","ALLE","BALL","LDOS","QRVO","NTRS",
+    "BKR","UAL","BF-B","ZBRA","LUV","MAS","CF","LKQ","IP","PWR",
+    "LEN","MOS","DRI","VTR","HIG","CBOE","BEN","PPL","PNR","GLW"
+  ]
+}
