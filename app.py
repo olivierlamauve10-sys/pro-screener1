@@ -122,11 +122,11 @@ def plot_chart(symbol):
                 mode='lines', name='Signal', line=dict(color='red', width=1)
             ), row=2, col=1)
 
-        # === 3. RSI 30===
+        # === 3. RSI 30 ===
         fig.add_trace(go.Scatter(
             x=df.index, y=df['RSI'],
             mode='lines', name='RSI Week',
-            line=dict(color='cyan', width=1.2)
+            line=dict(color='cyan', width=2)
         ), row=3, col=1)
         fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
         fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
