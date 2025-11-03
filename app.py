@@ -122,14 +122,25 @@ def plot_chart(symbol):
                 mode='lines', name='Signal', line=dict(color='red', width=1)
             ), row=2, col=1)
 
-        # === 3. RSI 30 ===
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df['RSI'],
-            mode='lines', name='RSI Week',
-            line=dict(color='cyan', width=2)
-        ), row=3, col=1)
-        fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
-        fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
+        # === 3. RSI (30j) – coloré selon la pente ===
+        rsi = df['RSI']
+
+        # Boucle pour tracer les segments colorés
+        for i in range(1, len(rsi)):
+        # Si le RSI monte → bleu, sinon → rouge
+        color = 'blue' if rsi.iloc[i] >= rsi.iloc[i - 1] else 'red'
+            fig.add_trace(go.Scatter(
+                x=df.index[i-1:i+1],
+                y=rsi.iloc[i-1:i+1],
+                mode='lines',
+                line=dict(color=color, width=2),
+                name='RSI' if i == 1 else None,  # une seule légende
+                showlegend=(i == 1)
+            ), row=3, col=1)
+
+# Lignes de surachat/survente
+fig.add_hline(y=70, line_dash="dash", line_color="red", row=3, col=1)
+fig.add_hline(y=30, line_dash="dash", line_color="green", row=3, col=1)
 
         # === 4. VOLUME ===
         fig.add_trace(go.Bar(
