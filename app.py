@@ -128,7 +128,7 @@ def plot_chart(symbol):
         # Boucle pour tracer les segments colorés
         for i in range(1, len(rsi)):
         # Si le RSI monte → bleu, sinon → rouge
-        color = 'blue' if rsi.iloc[i] >= rsi.iloc[i - 1] else 'red'
+            color = 'blue' if rsi.iloc[i] >= rsi.iloc[i - 1] else 'red'
             fig.add_trace(go.Scatter(
                 x=df.index[i-1:i+1],
                 y=rsi.iloc[i-1:i+1],
