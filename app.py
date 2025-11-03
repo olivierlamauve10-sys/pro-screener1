@@ -136,7 +136,15 @@ def plot_chart(symbol):
             margin=dict(l=30, r=30, t=40, b=30)
         )
 
+        # === Masquer les week-ends ===
+        fig.update_xaxes(
+            rangebreaks=[
+                dict(bounds=["sat", "mon"])  # supprime Samedi-Dimanche
+            ]
+        )
+
         st.plotly_chart(fig, use_container_width=True)
+
 
     except Exception as e:
         st.error(f"Erreur graphique : {e}")
