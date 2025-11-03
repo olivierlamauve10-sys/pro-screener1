@@ -1,0 +1,43 @@
+{
+  "🇫🇷 SBF 120 (France)": [
+    "MC.PA", "OR.PA", "SAN.PA", "TTE.PA", "SU.PA", "BNP.PA", "AIR.PA", "RMS.PA", "KER.PA",
+    "DG.PA", "CAP.PA", "SAF.PA", "EN.PA", "ACA.PA", "BN.PA", "HO.PA", "SGO.PA", "AI.PA",
+    "VIE.PA", "CA.PA", "GLE.PA", "DSY.PA", "STM.PA", "WLN.PA", "VIV.PA", "PUB.PA",
+    "RNO.PA", "EDF.PA", "ML.PA", "ATO.PA", "UL.PA", "ALO.PA", "SW.PA", "ACA.PA"
+  ],
+
+  "🇩🇪 DAX 40 (Allemagne)": [
+    "ADS.DE", "ALV.DE", "BAS.DE", "BAYN.DE", "BMW.DE", "CON.DE", "1COV.DE", "DTE.DE",
+    "DPW.DE", "FME.DE", "FRE.DE", "HEI.DE", "HEN3.DE", "IFX.DE", "LIN.DE", "MRK.DE",
+    "MUV2.DE", "RWE.DE", "SAP.DE", "SIE.DE", "VNA.DE", "VOW3.DE", "PUM.DE", "ZAL.DE"
+  ],
+
+  "🇮🇹 FTSE MIB (Italie)": [
+    "ENEL.MI", "ENI.MI", "ISP.MI", "UCG.MI", "STM.MI", "PST.MI", "CNHI.MI", "TEN.MI", "G.MI"
+  ],
+
+  "🇪🇸 IBEX 35 (Espagne)": [
+    "ITX.MC", "SAN.MC", "IBE.MC", "BBVA.MC", "CABK.MC", "REP.MC", "ACS.MC", "AENA.MC"
+  ],
+
+  "🇬🇧 FTSE 100 (Royaume-Uni)": [
+    "AZN.L", "BP.L", "HSBA.L", "ULVR.L", "RIO.L", "GSK.L", "BATS.L", "DGE.L", "LLOY.L"
+  ],
+
+  "🇳🇱 AEX 25 (Pays-Bas)": [
+    "ASML.AS", "AD.AS", "NN.AS", "PHIA.AS", "DSM.AS", "AKZA.AS", "RAND.AS", "AALB.AS"
+  ],
+
+  "🇸🇪 OMX 30 (Suède)": [
+    "ERIC-B.ST", "VOLV-B.ST", "ATCO-A.ST", "SAND.ST", "INVE-B.ST", "SWED-A.ST", "SEB-A.ST"
+  ],
+
+  "🇧🇪 BEL 20 (Belgique)": [
+    "ABI.BR", "SOLB.BR", "KBC.BR", "GBLB.BR", "UMI.BR", "COLR.BR", "ACKB.BR", "ELI.BR"
+  ],
+
+  "🇺🇸 S&P 500 (USA)": [
+    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B", "JPM", "V",
+    "PG", "JNJ", "UNH", "HD", "XOM", "PFE", "DIS", "KO", "PEP", "NFLX", "INTC", "CSCO"
+  ]
+}
