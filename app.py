@@ -60,7 +60,7 @@ def plot_chart(symbol):
         df['EMA50'] = ta.ema(df['Close'], 50)
         df['EMA7'] = ta.ema(df['Close'], 7)
         df['RSI'] = ta.rsi(df['Close'], 32)
-        macd = ta.macd(df['Close'])
+        macd = ta.macd(df['Close'], fast=10, slow=104, signal=10)
         df = pd.concat([df, macd], axis=1)
 
         # === STRUCTURE DU GRAPHIQUE ===
