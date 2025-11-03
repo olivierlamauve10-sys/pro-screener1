@@ -45,7 +45,7 @@
   ],
 
   "🇺🇸 S&P 500 (USA)": [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK-B", "JPM", "V",
+    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "JPM", "V",
     "PG", "JNJ", "UNH", "HD", "XOM", "PFE", "DIS", "KO", "PEP", "NFLX", "INTC", "CSCO"
   ]
 }
