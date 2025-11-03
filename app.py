@@ -151,77 +151,40 @@ def plot_chart(symbol):
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
 st.title("ProScreener Pro – EMA200 ↑ + EMA50 ↓ (Pullback)")
 
+
 # === MARCHÉS ===
-# === MARCHÉS ===
-import pandas as pd
+import json
+import os
 
 @st.cache_data
 def load_markets():
-    """Charge automatiquement les tickers principaux des marchés 🇫🇷 🇪🇺 🇺🇸"""
+    """Charge les tickers depuis un fichier local JSON (plus stable que Wikipedia)."""
     try:
-        markets = {}
-
-        # --- 🇫🇷 France : SBF120 (CAC40 + CAC Mid 60) ---
-        cac_url = "https://en.wikipedia.org/wiki/CAC_40"
-        mid_url = "https://en.wikipedia.org/wiki/CAC_Mid_60"
-        cac = pd.read_html(cac_url)[3]['Ticker'].tolist()
-        mid = pd.read_html(mid_url)[3]['Ticker'].tolist()
-        fr_tickers = list(set(cac + mid))
-        fr_tickers = [t + ".PA" if not t.endswith(".PA") else t for t in fr_tickers]
-        markets["🇫🇷 SBF 120 (France)"] = sorted(fr_tickers)
-
-        # --- 🇺🇸 USA : S&P500 ---
-        sp_url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-        sp500 = pd.read_html(sp_url)[0]['Symbol'].tolist()
-        markets["🇺🇸 S&P 500 (USA)"] = sorted(sp500)
-
-        # --- 🇩🇪 Allemagne : DAX40 ---
-        dax_url = "https://en.wikipedia.org/wiki/DAX"
-        dax = pd.read_html(dax_url)[3]['Ticker'].tolist()
-        dax = [t + ".DE" for t in dax]
-        markets["🇩🇪 DAX 40 (Allemagne)"] = sorted(dax)
-
-        # --- 🇮🇹 Italie : FTSE MIB ---
-        mib_url = "https://en.wikipedia.org/wiki/FTSE_MIB"
-        mib = pd.read_html(mib_url)[3]['Ticker'].tolist()
-        mib = [t + ".MI" for t in mib]
-        markets["🇮🇹 FTSE MIB (Italie)"] = sorted(mib)
-
-        # --- 🇪🇸 Espagne : IBEX 35 ---
-        ibex_url = "https://en.wikipedia.org/wiki/IBEX_35"
-        ibex = pd.read_html(ibex_url)[3]['Ticker'].tolist()
-        ibex = [t + ".MC" for t in ibex]
-        markets["🇪🇸 IBEX 35 (Espagne)"] = sorted(ibex)
-
-        # --- 🇬🇧 Royaume-Uni : FTSE 100 ---
-        ftse_url = "https://en.wikipedia.org/wiki/FTSE_100_Index"
-        ftse = pd.read_html(ftse_url)[3]['EPIC'].tolist()
-        ftse = [t + ".L" for t in ftse]
-        markets["🇬🇧 FTSE 100 (Royaume-Uni)"] = sorted(ftse)
-
-        # --- 🇳🇱 Pays-Bas : AEX ---
-        aex_url = "https://en.wikipedia.org/wiki/AEX_index"
-        aex = pd.read_html(aex_url)[3]['Ticker'].tolist()
-        aex = [t + ".AS" for t in aex]
-        markets["🇳🇱 AEX 25 (Pays-Bas)"] = sorted(aex)
-
-        # --- 🇸🇪 Suède : OMX Stockholm 30 ---
-        omx_url = "https://en.wikipedia.org/wiki/OMX_Stockholm_30"
-        omx = pd.read_html(omx_url)[3]['Ticker'].tolist()
-        omx = [t + ".ST" for t in omx]
-        markets["🇸🇪 OMX 30 (Suède)"] = sorted(omx)
-
-        # --- 🇧🇪 Belgique : BEL 20 ---
-        bel_url = "https://en.wikipedia.org/wiki/BEL_20"
-        bel = pd.read_html(bel_url)[3]['Ticker'].tolist()
-        bel = [t + ".BR" for t in bel]
-        markets["🇧🇪 BEL 20 (Belgique)"] = sorted(bel)
-
+        json_path = os.path.join(os.path.dirname(__file__), "markets.json")
+        with open(json_path, "r", encoding="utf-8") as f:
+            markets = json.load(f)
         return markets
-
     except Exception as e:
-        st.error(f"Erreur de chargement des marchés : {e}")
-        return {"⚠️ Erreur": []}
+        st.error(f"Erreur de lecture du fichier markets.json : {e}")
+        return {"⚠️ Aucun marché disponible": []}
+
+st.subheader("🌍 Sélection des marchés")
+
+# Bouton pour forcer la mise à jour (si tu modifies le JSON)
+if st.button("🔁 Recharger les marchés"):
+    load_markets.clear()
+    st.success("Fichier local rechargé ✅")
+
+markets = load_markets()
+
+selected_markets = st.multiselect(
+    "Marchés à scanner",
+    options=list(markets.keys()),
+    default=["🇫🇷 SBF 120 (France)", "🇺🇸 S&P 500 (USA)", "🇩🇪 DAX 40 (Allemagne)"]
+)
+
+tickers = [t for m in selected_markets for t in markets[m]]
+st.write(f"**{len(tickers)} actions sélectionnées pour le scan**")
 
 
 # === Interface utilisateur ===
