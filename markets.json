@@ -1,5 +1,5 @@
 {
-"🇫🇷 SBF 120 (France)": [
+  "🇫🇷 SBF 120 (France)": [
     "ACA.PA","AC.PA","ADP.PA","AF.PA","AI.PA","AIR.PA","ALO.PA","ALV.PA","AM.PA","AN.PA",
     "ATO.PA","ATOS.PA","BN.PA","BNP.PA","BOUY.PA","CA.PA","CAP.PA","CARL.PA","CGG.PA","CNP.PA",
     "COFA.PA","CO.PA","CS.PA","DAN.PA","DBV.PA","DEC.PA","DG.PA","DIM.PA","DSY.PA","EDF.PA",
@@ -12,35 +12,48 @@
     "TEC.PA","TFI.PA","TTE.PA","UBI.PA","UL.PA","URW.AS","VIE.PA","VIN.PA","VIRP.PA","VIV.PA",
     "VK.PA","WLN.PA","WPP.PA","ZC.PA","NXI.PA","OD.PA","PIG.PA","SBT.PA","SEQU.PA","STLA.PA",
     "TI.PA","UMG.AS","VERI.PA","VRLA.PA","ALMRP.PA","ALTHE.PA","ALVIV.PA","ALPHI.PA","ALTUV.PA","ALFIG.PA"
-],
+  ],
 
   "🇩🇪 DAX 40 (Allemagne)": [
-    "ADS.DE", "ALV.DE", "BAS.DE", "BAYN.DE", "BMW.DE", "CON.DE", "1COV.DE", "DTE.DE",
-    "DPW.DE", "FME.DE", "FRE.DE", "HEI.DE", "HEN3.DE", "IFX.DE", "LIN.DE", "MRK.DE",
-    "MUV2.DE", "RWE.DE", "SAP.DE", "SIE.DE", "VNA.DE", "VOW3.DE", "PUM.DE", "ZAL.DE"
+    "ADS.DE","ALV.DE","BAS.DE","BAYN.DE","BMW.DE","CON.DE","1COV.DE","DTE.DE","DPW.DE","FME.DE",
+    "FRE.DE","HEI.DE","HEN3.DE","IFX.DE","LIN.DE","MRK.DE","MUV2.DE","RWE.DE","SAP.DE","SIE.DE",
+    "VNA.DE","VOW3.DE","PUM.DE","ZAL.DE","BEI.DE","DB1.DE","DBK.DE","HNR1.DE","MTX.DE","PAH3.DE",
+    "QIA.DE","RHK.DE","SY1.DE","HFG.DE","MBG.DE","BNR.DE","RWE.DE","SHL.DE","EOAN.DE","BOSS.DE"
   ],
 
   "🇮🇹 FTSE MIB (Italie)": [
-    "ENEL.MI", "ENI.MI", "ISP.MI", "UCG.MI", "STM.MI", "PST.MI", "CNHI.MI", "TEN.MI", "G.MI"
+    "ENEL.MI","ENI.MI","ISP.MI","UCG.MI","STM.MI","PST.MI","CNHI.MI","TEN.MI","G.MI","ATL.MI",
+    "AZM.MI","BMED.MI","BAMI.MI","BPE.MI","DIA.MI","ERG.MI","FCA.MI","EXO.MI","LEON.MI","MONC.MI",
+    "PRY.MI","REC.MI","SAF.MI","SFER.MI","SRG.MI","TIT.MI","TRN.MI","TWR.MI","UNI.MI","IG.MI"
   ],
 
   "🇪🇸 IBEX 35 (Espagne)": [
-    "ITX.MC", "SAN.MC", "IBE.MC", "BBVA.MC", "CABK.MC", "REP.MC", "ACS.MC", "AENA.MC"
+    "ITX.MC","SAN.MC","IBE.MC","BBVA.MC","CABK.MC","REP.MC","ACS.MC","AENA.MC","CLNX.MC","FER.MC",
+    "GRF.MC","MEL.MC","MRL.MC","MAP.MC","TEF.MC","ENG.MC","RED.MC","ROVI.MC","SGRE.MC","COL.MC",
+    "IDR.MC","SAB.MC","BKT.MC","ACX.MC","ELE.MC","ENAG.MC","LOG.MC","ARC.MC","ALM.MC","VIS.MC"
   ],
 
   "🇬🇧 FTSE 100 (Royaume-Uni)": [
-    "AZN.L", "BP.L", "HSBA.L", "ULVR.L", "RIO.L", "GSK.L", "BATS.L", "DGE.L", "LLOY.L"
+    "AZN.L","BP.L","HSBA.L","ULVR.L","RIO.L","GSK.L","BATS.L","DGE.L","LLOY.L","BARC.L",
+    "BP.L","SHEL.L","RDSA.L","RDSB.L","AV.L","VOD.L","RR.L","PRU.L","NXT.L","GLEN.L",
+    "NG.L","RKT.L","REL.L","SGE.L","AUTO.L","HLMA.L","SMIN.L","ANTO.L","JD.L","KGF.L",
+    "LAND.L","AAL.L","EXPN.L","ADM.L","BDEV.L","BHP.L","CRDA.L","SMT.L","WTB.L","TW.L"
   ],
 
   "🇳🇱 AEX 25 (Pays-Bas)": [
-    "ASML.AS", "AD.AS", "NN.AS", "PHIA.AS", "DSM.AS", "AKZA.AS", "RAND.AS", "AALB.AS"
+    "ASML.AS","AD.AS","NN.AS","PHIA.AS","DSM.AS","AKZA.AS","RAND.AS","AALB.AS","ASRNL.AS","HEIA.AS",
+    "IMCD.AS","INVE.AS","KPN.AS","LIGHT.AS","MT.AS","PROS.AS","REN.AS","SBMO.AS","TKWY.AS","URW.AS",
+    "WHA.AS","WKL.AS","PHIA.AS","NN.AS","AEX.AS"
   ],
 
   "🇸🇪 OMX 30 (Suède)": [
-    "ERIC-B.ST", "VOLV-B.ST", "ATCO-A.ST", "SAND.ST", "INVE-B.ST", "SWED-A.ST", "SEB-A.ST"
+    "ERIC-B.ST","VOLV-B.ST","ATCO-A.ST","SAND.ST","INVE-B.ST","SWED-A.ST","SEB-A.ST","TEL2-B.ST","SHB-A.ST","SKF-B.ST",
+    "ESSITY-B.ST","ABB.ST","BOL.ST","ELUX-B.ST","GETI-B.ST","SCA-B.ST","SINCH.ST","HEXA-B.ST","ALFA.ST","SSAB-A.ST",
+    "AZA.ST","EVO.ST","LUPE.ST","SOBI.ST","NDA-SE.ST","HM-B.ST","CATE.ST","BEIJ-B.ST","INDT.ST","CAST.ST"
   ],
 
   "🇧🇪 BEL 20 (Belgique)": [
-    "ABI.BR", "SOLB.BR", "KBC.BR", "GBLB.BR", "UMI.BR", "COLR.BR", "ACKB.BR", "ELI.BR"
+    "ABI.BR","SOLB.BR","KBC.BR","GBLB.BR","UMI.BR","COLR.BR","ACKB.BR","ELI.BR","BELG.BR","AGEAS.BR",
+    "COFB.BR","BEFB.BR","ONDD.BR","WDP.BR","UCB.BR","PROX.BR","MELE.BR","FAG.BR","BAR.BR","IBA.BR"
   ]
 }
