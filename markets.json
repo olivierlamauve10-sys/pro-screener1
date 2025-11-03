@@ -42,10 +42,5 @@
 
   "🇧🇪 BEL 20 (Belgique)": [
     "ABI.BR", "SOLB.BR", "KBC.BR", "GBLB.BR", "UMI.BR", "COLR.BR", "ACKB.BR", "ELI.BR"
-  ],
-
-  "🇺🇸 S&P 500 (USA)": [
-    "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "JPM", "V",
-    "PG", "JNJ", "UNH", "HD", "XOM", "PFE", "DIS", "KO", "PEP", "NFLX", "INTC", "CSCO"
   ]
 }
