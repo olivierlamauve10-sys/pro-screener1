@@ -170,22 +170,19 @@ def load_markets():
 
 st.subheader("🌍 Sélection des marchés")
 
-# Bouton pour forcer la mise à jour (si tu modifies le JSON)
-if st.button("🔁 Recharger les marchés"):
-    load_markets.clear()
-    st.success("Fichier local rechargé ✅")
-
+# Chargement du fichier local
 markets = load_markets()
 
+# Sélection des marchés à scanner
 selected_markets = st.multiselect(
     "Marchés à scanner",
     options=list(markets.keys()),
-    default=["🇫🇷 SBF 120 (France)", "🇺🇸 S&P 500 (USA)", "🇩🇪 DAX 40 (Allemagne)"]
+    default=["🇫🇷 SBF 120 (France)", "🇺🇸 S&P 500 (USA)", "🇩🇪 DAX 40 (Allemagne)"],
+    key="market_selector"  # <-- clé unique pour éviter toute duplication
 )
 
 tickers = [t for m in selected_markets for t in markets[m]]
 st.write(f"**{len(tickers)} actions sélectionnées pour le scan**")
-
 
 # === Interface utilisateur ===
 st.subheader("🌍 Sélection des marchés")
