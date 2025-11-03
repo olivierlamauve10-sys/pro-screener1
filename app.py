@@ -47,7 +47,7 @@ st.write(f"**{len(tickers)} actions sélectionnées pour le scan**")
 #        FONCTION D'AFFICHAGE GRAPHIQUE
 # ======================================
 def plot_chart(symbol):
-    """Affiche le graphique complet : Prix, EMA, RSI, MACD, Volume."""
+    """Affiche le graphique complet : Prix, EMA, RSI 30, MACD Week, Volume."""
     try:
         df = yf.Ticker(symbol).history(period="1y")
         if df.empty:
