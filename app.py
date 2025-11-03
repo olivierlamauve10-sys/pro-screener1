@@ -8,41 +8,134 @@ from plotly.subplots import make_subplots
 # === FONCTION GRAPHIQUE ===
 def plot_chart(symbol):
     try:
+        # === Données ===
         df = yf.Ticker(symbol).history(period="1y")
         if df.empty:
             st.error("Données indisponibles.")
             return
 
+        # === Indicateurs ===
         df['EMA200'] = ta.ema(df['Close'], 200)
         df['EMA50'] = ta.ema(df['Close'], 50)
         df['RSI'] = ta.rsi(df['Close'], 14)
         macd = ta.macd(df['Close'])
         df = pd.concat([df, macd], axis=1)
 
-        fig = make_subplots(rows=4, cols=1, shared_xaxes=True,
-                            subplot_titles=(f"{symbol}", "MACD", "RSI", "Volume"),
-                            row_heights=[0.5, 0.15, 0.15, 0.2])
+        # === Options d'affichage ===
+        st.subheader("🧩 Options d’affichage du graphique")
+        show_macd = st.checkbox("Afficher le MACD", value=True)
+        show_rsi = st.checkbox("Afficher le RSI", value=True)
+        show_volume = st.checkbox("Afficher le Volume", value=True)
 
-        # Prix + EMA
-        fig.add_trace(go.Candlestick(x=df.index, open=df['Open'], high=df['High'],
-                                     low=df['Low'], close=df['Close']), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df['EMA200'], name="EMA200", line=dict(color="orange", width=2)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df['EMA50'], name="EMA50", line=dict(color="purple", width=2)), row=1, col=1)
+        # === Détermination dynamique du nombre de lignes ===
+        rows = 1  # Prix toujours affiché
+        if show_macd:
+            rows += 1
+        if show_rsi:
+            rows += 1
+        if show_volume:
+            rows += 1
 
-        # MACD
-        if 'MACD_12_26_9' in df.columns:
-            fig.add_trace(go.Scatter(x=df.index, y=df['MACD_12_26_9'], name="MACD"), row=2, col=1)
-            fig.add_trace(go.Scatter(x=df.index, y=df['MACDs_12_26_9'], name="Signal"), row=2, col=1)
+        # === Hauteurs dynamiques des sous-graphiques ===
+        heights = [0.5]
+        if show_macd:
+            heights.append(0.2)
+        if show_rsi:
+            heights.append(0.15)
+        if show_volume:
+            heights.append(0.15)
 
-        # RSI
-        fig.add_trace(go.Scatter(x=df.index, y=df['RSI'], name="RSI"), row=3, col=1)
-        fig.add_hline(y=30, line_dash="dash", line_color="green", row=3)
-        fig.add_hline(y=70, line_dash="dash", line_color="red", row=3)
+        # === Construction du graphique ===
+        fig = make_subplots(
+            rows=rows, cols=1, shared_xaxes=True,
+            vertical_spacing=0.02,
+            row_heights=heights,
+            subplot_titles=[f"{symbol} – Prix & Moyennes Mobiles"]
+        )
 
-        # Volume
-        fig.add_trace(go.Bar(x=df.index, y=df['Volume'], name="Volume"), row=4, col=1)
+        current_row = 1
 
-        fig.update_layout(height=900, template="plotly_dark")
+        # === 1. PRIX + EMA ===
+        fig.add_trace(go.Candlestick(
+            x=df.index,
+            open=df['Open'], high=df['High'],
+            low=df['Low'], close=df['Close'],
+            name='Prix',
+            increasing_line_color='green',
+            decreasing_line_color='red'
+        ), row=current_row, col=1)
+
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df['EMA50'],
+            mode='lines', name='EMA50',
+            line=dict(color='purple', width=1.5)
+        ), row=current_row, col=1)
+
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df['EMA200'],
+            mode='lines', name='EMA200',
+            line=dict(color='orange', width=1.5)
+        ), row=current_row, col=1)
+
+        # === 2. MACD ===
+        if show_macd:
+            current_row += 1
+            fig.add_trace(go.Bar(
+                x=df.index, y=df['MACDh_12_26_9'],
+                name='Histogramme MACD', marker_color='gray', opacity=0.5
+            ), row=current_row, col=1)
+            fig.add_trace(go.Scatter(
+                x=df.index, y=df['MACD_12_26_9'],
+                mode='lines', name='MACD', line=dict(color='blue', width=1.2)
+            ), row=current_row, col=1)
+            fig.add_trace(go.Scatter(
+                x=df.index, y=df['MACDs_12_26_9'],
+                mode='lines', name='Signal', line=dict(color='red', width=1)
+            ), row=current_row, col=1)
+            fig.layout.annotations += (dict(
+                text="MACD", xref="paper", yref="paper", x=0.02,
+                y=1 - sum(heights[:current_row-1]), showarrow=False,
+                font=dict(size=10, color="white")
+            ),)
+
+        # === 3. RSI ===
+        if show_rsi:
+            current_row += 1
+            fig.add_trace(go.Scatter(
+                x=df.index, y=df['RSI'],
+                mode='lines', name='RSI',
+                line=dict(color='cyan', width=1.2)
+            ), row=current_row, col=1)
+            fig.add_hline(y=70, line_dash="dash", line_color="red", row=current_row, col=1)
+            fig.add_hline(y=30, line_dash="dash", line_color="green", row=current_row, col=1)
+            fig.layout.annotations += (dict(
+                text="RSI", xref="paper", yref="paper", x=0.02,
+                y=1 - sum(heights[:current_row-1]), showarrow=False,
+                font=dict(size=10, color="white")
+            ),)
+
+        # === 4. Volume ===
+        if show_volume:
+            current_row += 1
+            fig.add_trace(go.Bar(
+                x=df.index, y=df['Volume'],
+                name='Volume', marker_color='lightblue'
+            ), row=current_row, col=1)
+            fig.layout.annotations += (dict(
+                text="Volume", xref="paper", yref="paper", x=0.02,
+                y=1 - sum(heights[:current_row-1]), showarrow=False,
+                font=dict(size=10, color="white")
+            ),)
+
+        # === Layout global ===
+        fig.update_layout(
+            height=900,
+            template="plotly_dark",
+            xaxis_rangeslider_visible=False,
+            showlegend=True,
+            margin=dict(l=30, r=30, t=40, b=30)
+        )
+
         st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
