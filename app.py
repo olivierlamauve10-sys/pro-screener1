@@ -8,7 +8,7 @@ from plotly.subplots import make_subplots
 # === FONCTION GRAPHIQUE ===
 def plot_chart(symbol):
     try:
-        df = yf.Ticker(symbol).history(period="2y")
+        df = yf.Ticker(symbol).history(period="1y")
         if df.empty:
             st.error("Données indisponibles.")
             return
