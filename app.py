@@ -138,12 +138,15 @@ def plot_chart(symbol):
 
         # === Masquer les week-ends ===
         fig.update_xaxes(
-            rangebreaks=[
-                dict(bounds=["sat", "mon"])  # supprime Samedi-Dimanche
-            ]
+            rangebreaks=[dict(bounds=["sat", "mon"])]  # supprime Samedi-Dimanche
         )
 
+        # === Déplacer les axes Y à droite ===
+        for i in range(1, current_row + 1):
+            fig.update_yaxes(side="right", row=i, col=1)
+
         st.plotly_chart(fig, use_container_width=True)
+
 
 
     except Exception as e:
