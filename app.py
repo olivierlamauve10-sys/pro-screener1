@@ -211,8 +211,8 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 # --- Vérifie que le DataFrame contient assez de données ---
                 if len(df) >= 230:  # pour être sûr d’avoir au moins 200 + 30 jours
                     ema200_now = df['EMA200'].iloc[-1]
-                    ema200_10 = df['EMA200'].iloc[-10]
-                    ema200_30 = df['EMA200'].iloc[-30]
+                    ema200_10 = df['EMA200'].iloc[-5]
+                    ema200_30 = df['EMA200'].iloc[-10]
 
                     ema200_up_ok = (ema200_now > ema200_10) and (ema200_10 > ema200_30)
                 else:
