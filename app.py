@@ -206,22 +206,10 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 close = df['Close']
 
                 # === Calcul des indicateurs ===
-                # === Conditions de détection (version améliorée) ===
-
-                # --- Vérifie que le DataFrame contient assez de données ---
-                if len(df) >= 230:  # pour être sûr d’avoir au moins 200 + 30 jours
-                    ema200_now = df['EMA200'].iloc[-1]
-                    ema200_10 = df['EMA200'].iloc[-5]
-                    ema200_30 = df['EMA200'].iloc[-10]
-
-                    ema200_up_ok = (ema200_now > ema200_10) # and (ema200_10 > ema200_30)
-                else:
-                    ema200_up_ok = False  # pas assez de données historiques
-
-                # --- Autres conditions inchangées ---
-                ema50_down_ok = last['EMA50'] < prev['EMA50']     # retracement
-                ema7_up_ok = last['EMA7'] > prev['EMA7']          # rebond technique
-
+                # === Calcul des indicateurs ===
+                df['EMA200'] = ta.ema(close, length=200)
+                df['EMA50'] = ta.ema(close, length=50)
+                df['EMA7'] = ta.ema(close, length=7)
 
                 last = df.iloc[-1]
                 prev = df.iloc[-2]
