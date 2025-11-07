@@ -216,7 +216,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
 
                 # === Conditions de détection ===
                 # === Conditions de détection ===
-                ema200_up_ok = last['EMA200'] > prev['EMA200']    # tendance haussière
+                ema200_up_ok = last['EMA200'] > ['EMA200'].iloc[-10]    # tendance haussière
                 ema50_down_ok = last['EMA50'] < prev['EMA50']     # retracement
                 ema7_up_ok = last['EMA7'] > prev['EMA7']          # rebond technique
 
