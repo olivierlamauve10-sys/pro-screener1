@@ -214,7 +214,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                     ema200_10 = df['EMA200'].iloc[-5]
                     ema200_30 = df['EMA200'].iloc[-10]
 
-                    ema200_up_ok = (ema200_now > ema200_10) and (ema200_10 > ema200_30)
+                    ema200_up_ok = (ema200_now > ema200_10) # and (ema200_10 > ema200_30)
                 else:
                     ema200_up_ok = False  # pas assez de données historiques
 
