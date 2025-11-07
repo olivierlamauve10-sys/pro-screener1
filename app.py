@@ -69,10 +69,7 @@ st.write(f"**{len(tickers)} actions sélectionnées pour le scan**")
 def plot_chart(symbol):
     """Affiche le graphique complet : Prix, EMA, RSI 32, MACD Week, Volume."""
     try:
-        from datetime import datetime, timedelta
-        end = datetime.now()
-        start = end - timedelta(days=400)  # un peu plus d’un an pour marge
-        df = yf.download(symbol, start=start, end=end, interval="1d", progress=False)
+        df = yf.Ticker(symbol).history(period="1y")
         if df.empty:
             st.error("Données indisponibles.")
             return
