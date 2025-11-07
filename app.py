@@ -55,7 +55,7 @@ markets = load_markets()
 selected_markets = st.multiselect(
     "Marchés à scanner",
     options=list(markets.keys()),
-    default=["🇩🇪 DAX 40 (Allemagne)", "🇮🇹 FTSE MIB (Italie)", "🇪🇸 IBEX 35 (Espagne)","🇳🇱 AEX 25 (Pays-Bas)", "🇳🇱 AEX 25 (Pays-Bas)", "🇸🇪 OMX 30 (Suède)"],
+    default=["🇩🇪 DAX 40 (Allemagne)", "🇮🇹 FTSE MIB (Italie)", "🇪🇸 IBEX 35 (Espagne)","🇧🇪 BEL 20 (Belgique)", "🇳🇱 AEX 25 (Pays-Bas)", "🇸🇪 OMX 30 (Suède)"],
     key="market_selector"
 )
 
