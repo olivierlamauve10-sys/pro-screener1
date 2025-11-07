@@ -211,6 +211,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 df['EMA50'] = ta.ema(close, length=50)
                 df['EMA7'] = ta.ema(close, length=7)
                 ema200 = df['EMA200']
+                ema50 = df['EMA50']
 
                 last = df.iloc[-1]
                 prev = df.iloc[-2]
@@ -218,7 +219,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 # === Conditions de détection ===
                 # === Conditions de détection ===
                 ema200_up_ok = ema200.iloc[-1] > ema200.iloc[-11] and ema200.iloc[-11] > ema200.iloc[-33] and ema200.iloc[-33] > ema200.iloc[-45]    # tendance haussière
-                ema50_down_ok = last['EMA50'] < prev['EMA50']     # retracement
+                ema50_down_ok = ema50.iloc[-2] < ema50.iloc[-5]     # retracement
                 ema7_up_ok = last['EMA7'] > prev['EMA7']          # rebond technique
 
                 # === Validation du signal global ===
