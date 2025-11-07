@@ -20,9 +20,6 @@ st.title("📈 ProScreener Pro – EMA200 ↑ + EMA50 ↓ + EMA7 ↑ (Rebond tec
 def load_markets():
     """Charge les tickers depuis des fichiers locaux JSON."""
     try:
-        json_path = os.path.join(os.path.dirname(__file__), "markets.json")
-        with open(json_path, "r", encoding="utf-8") as f:
-            markets = json.load(f)
 
         # Ajout du S&P 500 depuis fichier externe
         sp500_path = os.path.join(os.path.dirname(__file__), "sp500.json")
@@ -31,6 +28,11 @@ def load_markets():
                 sp500_data = json.load(f)
             if "S&P 500" in sp500_data:
                 markets["🇺🇸 S&P 500 (USA)"] = sp500_data["S&P 500"]
+
+        # Ajout des Valeur Euro depuis fichier externe
+        json_path = os.path.join(os.path.dirname(__file__), "markets.json")        
+        with open(json_path, "r", encoding="utf-8") as f:
+            markets = json.load(f)
 
         return markets
 
