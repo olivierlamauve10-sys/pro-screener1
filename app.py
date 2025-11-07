@@ -247,22 +247,74 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             st.session_state.last_results = None
 
 # ======================================
-#        AFFICHAGE DES RÉSULTATS
+#        AFFICHAGE DES RÉSULTATS (version stylée + interactive)
 # ======================================
 if "last_results" in st.session_state and st.session_state.last_results is not None:
     st.subheader("📊 Résultats du scan")
-    st.dataframe(st.session_state.last_results, use_container_width=True)
 
-    choice = st.selectbox(
-        "🔎 Sélectionne un symbole pour voir le graphique :",
-        [""] + st.session_state.last_results["Symbole"].tolist()
-    )
+    df_res = st.session_state.last_results.copy()
 
-    if choice:
-        plot_chart(choice)
+    st.markdown("Clique sur le bouton **📈 Voir le graphique** pour afficher la valeur correspondante :")
 
-    st.download_button(
-        "💾 Exporter les résultats (CSV)",
-        st.session_state.last_results.to_csv(index=False),
-        "scan_rebond_technique.csv"
-    )
+    # --- Style CSS pour un rendu plus propre ---
+    st.markdown("""
+        <style>
+        .result-card {
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 10px 20px;
+            margin-bottom: 8px;
+            box-shadow: 0 0 6px rgba(0,0,0,0.3);
+        }
+        .result-card:hover {
+            background-color: #262626;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .symbol {
+            font-weight: 700;
+            color: #4da6ff;
+            font-size: 17px;
+        }
+        .price {
+            font-weight: 500;
+            color: #d9d9d9;
+        }
+        .metric {
+            color: #aaaaaa;
+            font-size: 14px;
+        }
+        div[data-testid="stButton"] button {
+            background-color: #4da6ff;
+            color: white;
+            border-radius: 6px;
+            border: none;
+            padding: 0.3em 0.8em;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        div[data-testid="stButton"] button:hover {
+            background-color: #1E90FF;
+            color: white;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # --- Affichage sous forme de "cartes" avec bouton ---
+    for idx, row in df_res.iterrows():
+        with st.container():
+            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+            cols = st.columns([1.2, 1, 1, 1, 1, 0.8])
+
+            cols[0].markdown(f"<span class='symbol'>{row['Symbole']}</span>", unsafe_allow_html=True)
+            cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
+            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
+            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
+            cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
+
+            if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
+                st.markdown(f"### 📊 Graphique pour {row['Symbole']}")
+                plot_chart(row['Symbole'])
+                st.markdown("---")
+
+            st.markdown("</div>", unsafe_allow_html=True)
