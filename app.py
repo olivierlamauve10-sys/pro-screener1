@@ -197,7 +197,34 @@ def plot_chart(symbol):
                 "MACD Week"
             ]
         )
+        
+        # === AFFICHAGE INTERACTIF AVEC EVENTS ===
+        clicked_points = plotly_events(
+            fig,
+            click_event=True,
+            hover_event=False,
+            select_event=False,
+            override_height=750
+        )
 
+        # Si 2 clics → on trace une ligne entre les deux points
+        if len(clicked_points) == 2:
+            x0 = clicked_points[0]['x']
+            y0 = clicked_points[0]['y']
+            x1 = clicked_points[1]['x']
+            y1 = clicked_points[1]['y']
+
+            fig.add_shape(
+                type="line",
+                x0=x0, y0=y0,
+                x1=x1, y1=y1,
+                line=dict(color="yellow", width=2)
+            )
+
+        # Réafficher le graphique mis à jour
+        st.plotly_chart(fig, use_container_width=True)
+
+        
         # === Candlesticks
         fig.add_trace(go.Candlestick(
             x=df.index,
