@@ -5,6 +5,7 @@ import pandas_ta as ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from streamlit_plotly_events import plotly_events  # <--- NOUVEAU
 import json
 import os
 
@@ -40,7 +41,7 @@ def load_markets():
 
 st.subheader("🌍 Sélection des marchés")
 
-col_refresh, _ = st.columns([1,5])
+col_refresh, _ = st.columns([1, 5])
 with col_refresh:
     if st.button("🔁 Rafraîchir les marchés"):
         load_markets.clear()
@@ -79,8 +80,8 @@ def get_data(symbol):
     df = yf.Ticker(symbol).history(period="1y", interval="1d")
     if df is None or df.empty or len(df) < 220:
         return None
-    df = df[df["Volume"] > 0]  # supprimer week-ends
-    df = df.dropna(subset=["Close"])  # supprimer week-ends
+    df = df[df["Volume"] > 0]          # supprimer jours sans volume
+    df = df.dropna(subset=["Close"])   # supprimer lignes sans cours
     return df
 
 
@@ -173,7 +174,7 @@ def analyze_symbol(symbol, retracement_percent):
 
 
 # ======================================
-#        GRAPHIQUE
+#        GRAPHIQUE AVEC DESSIN INTERACTIF
 # ======================================
 def plot_chart(symbol):
     try:
@@ -183,6 +184,12 @@ def plot_chart(symbol):
             return
 
         df = compute_indicators_cached(df)
+
+        # --- Initialisation stockage des lignes / point en attente ---
+        if "trendlines" not in st.session_state:
+            st.session_state["trendlines"] = []
+        if "pending_point" not in st.session_state:
+            st.session_state["pending_point"] = None
 
         fig = make_subplots(
             rows=3, cols=1, shared_xaxes=True,
@@ -246,7 +253,7 @@ def plot_chart(symbol):
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
         # ======== 3. MACD ========
-        if all(c in df.columns for c in ["MACD_10_104_10","MACDs_10_104_10","MACDh_10_104_10"]):
+        if all(c in df.columns for c in ["MACD_10_104_10", "MACDs_10_104_10", "MACDh_10_104_10"]):
             fig.add_trace(go.Bar(
                 x=df.index,
                 y=df["MACDh_10_104_10"],
@@ -276,12 +283,77 @@ def plot_chart(symbol):
 
         # Cacher complètement les week-ends (samedi -> lundi)
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
-        
+
         # Y-axis à droite
         for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
 
-        st.plotly_chart(fig, use_container_width=True)
+        # ======== AJOUT DES LIGNES DÉJÀ DESSINÉES ========
+        for line in st.session_state["trendlines"]:
+            fig.add_shape(
+                type="line",
+                x0=line["x0"], y0=line["y0"],
+                x1=line["x1"], y1=line["y1"],
+                line=dict(color=line["color"], width=2)
+            )
+
+        # ======== CAPTURE DES CLICS (DESSIN D'OBLIQUES) ========
+        clicked_points = plotly_events(
+            fig,
+            click_event=True,
+            hover_event=False,
+            select_event=False,
+            override_height=750
+        )
+
+        # Logique : 1er clic = point de départ, 2e clic = point d'arrivée -> crée une ligne
+        if clicked_points:
+            pt = clicked_points[0]
+            x, y = pt["x"], pt["y"]
+
+            if st.session_state["pending_point"] is None:
+                # Premier point en attente
+                st.session_state["pending_point"] = {"x": x, "y": y}
+            else:
+                # Deuxième point : on crée la ligne
+                p0 = st.session_state["pending_point"]
+                st.session_state["trendlines"].append({
+                    "x0": p0["x"], "y0": p0["y"],
+                    "x1": x,       "y1": y,
+                    "color": "yellow"
+                })
+                st.session_state["pending_point"] = None
+                st.experimental_rerun()
+
+        # ======== BOUTONS D'ACTION SUR LES LIGNES ========
+        col1, col2, col3 = st.columns(3)
+
+        # Effacer la dernière oblique
+        if col1.button("🗑️ Effacer dernière oblique"):
+            if st.session_state["trendlines"]:
+                st.session_state["trendlines"].pop()
+                st.experimental_rerun()
+
+        # Créer un canal parallèle à la dernière oblique
+        if col2.button("📐 Canal parallèle"):
+            if st.session_state["trendlines"]:
+                last = st.session_state["trendlines"][-1]
+                # Décalage vertical = hauteur de la droite
+                dy = last["y1"] - last["y0"]
+                st.session_state["trendlines"].append({
+                    "x0": last["x0"],
+                    "y0": last["y0"] + dy,
+                    "x1": last["x1"],
+                    "y1": last["y1"] + dy,
+                    "color": "cyan"
+                })
+                st.experimental_rerun()
+
+        # Effacer toutes les obliques
+        if col3.button("❌ Tout effacer"):
+            st.session_state["trendlines"] = []
+            st.session_state["pending_point"] = None
+            st.experimental_rerun()
 
     except Exception as e:
         st.error(f"Erreur graphique : {e}")
@@ -296,7 +368,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
         results = []
         progress = st.progress(0)
 
-        max_workers = min(8, len(tickers)) if len(tickers)>0 else 1
+        max_workers = min(8, len(tickers)) if len(tickers) > 0 else 1
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
@@ -305,7 +377,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             }
 
             done = 0
-            total = len(tickers) if len(tickers)>0 else 1
+            total = len(tickers) if len(tickers) > 0 else 1
 
             for future in as_completed(futures):
                 result = future.result()
@@ -350,7 +422,7 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
     for idx, row in df_res.iterrows():
         with st.container():
             st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-            cols = st.columns([1.2,1,1,1,1,0.8])
+            cols = st.columns([1.8, 1, 1, 1, 1, 0.8])
 
             cols[0].markdown(
                 f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
