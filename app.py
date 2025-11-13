@@ -253,6 +253,9 @@ def plot_chart(symbol):
             xaxis_rangeslider_visible=False,
             showlegend=True
         )
+        # Axe Y à droite pour tous les graphiques
+        for i in range(1, 5):
+            fig.update_yaxes(side="right", row=i, col=1)
 
         st.plotly_chart(fig, use_container_width=True)
 
