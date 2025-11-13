@@ -354,7 +354,10 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             st.markdown("<div class='result-card'>", unsafe_allow_html=True)
             cols = st.columns([1.2,1,1,1,1,0.8])
 
-            cols[0].markdown(f"<span class='symbol'>{row['Symbole']}</span>", unsafe_allow_html=True)
+            cols[0].markdown(
+                f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
+                unsafe_allow_html=True
+            )
             cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
             cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
             cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
