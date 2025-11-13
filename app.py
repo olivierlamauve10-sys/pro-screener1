@@ -183,18 +183,17 @@ def plot_chart(symbol):
         df = compute_indicators_cached(df)
 
         fig = make_subplots(
-            rows=4, cols=1, shared_xaxes=True,
-            vertical_spacing=0.02,
-            row_heights=[0.65, 0.15, 0.15, 0.05],
+            rows=3, cols=1, shared_xaxes=True,
+            vertical_spacing=0.03,
+            row_heights=[0.65, 0.20, 0.15],
             subplot_titles=[
                 f"{symbol} – Prix & Moyennes Mobiles",
                 "RSI 32",
-                "MACD Week",
-                "Volume"
+                "MACD Week"
             ]
         )
 
-        # Prix
+        # ======== 1. PRIX + EMA ========
         fig.add_trace(go.Candlestick(
             x=df.index,
             open=df["Open"], high=df["High"],
@@ -204,11 +203,17 @@ def plot_chart(symbol):
             decreasing_line_color="red"
         ), row=1, col=1)
 
-        # EMA50 & EMA7
-        fig.add_trace(go.Scatter(x=df.index, y=df["EMA50"], mode="lines",
-                                 name="EMA50", line=dict(color="purple", width=1.5)), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df.index, y=df["EMA7"], mode="lines",
-                                 name="EMA7", line=dict(color="cyan", width=1.5)), row=1, col=1)
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df["EMA50"],
+            mode="lines", name="EMA50",
+            line=dict(color="purple", width=1.5)
+        ), row=1, col=1)
+
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df["EMA7"],
+            mode="lines", name="EMA7",
+            line=dict(color="cyan", width=1.5)
+        ), row=1, col=1)
 
         # EMA200 colorée
         for i in range(1, len(df)):
@@ -222,7 +227,7 @@ def plot_chart(symbol):
                 showlegend=(i == 1)
             ), row=1, col=1)
 
-        # RSI 32
+        # ======== 2. RSI 32 ========
         rsi = df["RSI32"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i-1] else "red"
@@ -238,29 +243,44 @@ def plot_chart(symbol):
         fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
-        # MACD
+        # ======== 3. MACD ========
         if all(c in df.columns for c in ["MACD_10_104_10","MACDs_10_104_10","MACDh_10_104_10"]):
-            fig.add_trace(go.Bar(x=df.index, y=df["MACDh_10_104_10"], name="MACD Hist"), row=3, col=1)
-            fig.add_trace(go.Scatter(x=df.index, y=df["MACD_10_104_10"], mode="lines", name="MACD"), row=3, col=1)
-            fig.add_trace(go.Scatter(x=df.index, y=df["MACDs_10_104_10"], mode="lines", name="Signal"), row=3, col=1)
+            fig.add_trace(go.Bar(
+                x=df.index,
+                y=df["MACDh_10_104_10"],
+                name="MACD Hist",
+                opacity=0.5
+            ), row=3, col=1)
 
-        # Volume
-        fig.add_trace(go.Bar(x=df.index, y=df["Volume"], name="Volume"), row=4, col=1)
+            fig.add_trace(go.Scatter(
+                x=df.index,
+                y=df["MACD_10_104_10"],
+                mode="lines", name="MACD"
+            ), row=3, col=1)
 
+            fig.add_trace(go.Scatter(
+                x=df.index,
+                y=df["MACDs_10_104_10"],
+                mode="lines", name="Signal"
+            ), row=3, col=1)
+
+        # ======== MISE EN FORME ========
         fig.update_layout(
-            height=900,
+            height=750,
             template="plotly_dark",
             xaxis_rangeslider_visible=False,
             showlegend=True
         )
-        # Axe Y à droite pour tous les graphiques
-        for i in range(1, 5):
+
+        # Y-axis à droite
+        for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
 
         st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
         st.error(f"Erreur graphique : {e}")
+
 
 # ======================================
 #        SCANNER TECHNIQUE RAPIDE
