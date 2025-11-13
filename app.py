@@ -5,6 +5,7 @@ import pandas_ta as ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from streamlit_plotly_events import plotly_events
 import json
 import os
 
