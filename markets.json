@@ -18,35 +18,20 @@
     "ADS.DE","ALV.DE","BAS.DE","BAYN.DE","BMW.DE","CON.DE","1COV.DE","DTE.DE","DPW.DE","FME.DE",
     "FRE.DE","HEI.DE","HEN3.DE","IFX.DE","LHA.DE","LIN.DE","MRK.DE","MUV2.DE","RWE.DE","SAP.DE","SIE.DE",
     "VNA.DE","VOW3.DE","PUM.DE","ZAL.DE","BEI.DE","DB1.DE","DBK.DE","HNR1.DE","MTX.DE","PAH3.DE",
-    "QIA.DE","RHK.DE","SY1.DE","HFG.DE","MBG.DE","BNR.DE","RWE.DE","SHL.DE","EOAN.DE","BOSS.DE"
-  ],
-
-  "🇮🇹 FTSE MIB (Italie)": [
+    "QIA.DE","RHK.DE","SY1.DE","HFG.DE","MBG.DE","BNR.DE","RWE.DE","SHL.DE","EOAN.DE","BOSS.DE",
     "ENEL.MI","ENI.MI","ISP.MI","UCG.MI","STM.MI","PST.MI","CNHI.MI","TEN.MI","G.MI","ATL.MI",
     "AZM.MI","BMED.MI","BAMI.MI","BPE.MI","DIA.MI","ERG.MI","FCA.MI","EXO.MI","LEON.MI","MONC.MI",
-    "PRY.MI","REC.MI","SAF.MI","SFER.MI","SRG.MI","TIT.MI","TRN.MI","TWR.MI","UNI.MI","IG.MI"
-  ],
-
-  "🇪🇸 IBEX 35 (Espagne)": [
+    "PRY.MI","REC.MI","SAF.MI","SFER.MI","SRG.MI","TIT.MI","TRN.MI","TWR.MI","UNI.MI","IG.MI",
     "ITX.MC","SAN.MC","IBE.MC","BBVA.MC","CABK.MC","REP.MC","ACS.MC","AENA.MC","CLNX.MC","FER.MC",
     "GRF.MC","MEL.MC","MRL.MC","MAP.MC","TEF.MC","ENG.MC","RED.MC","ROVI.MC","SGRE.MC","COL.MC",
-    "IDR.MC","SAB.MC","BKT.MC","ACX.MC","ELE.MC","ENAG.MC","LOG.MC","ARC.MC","ALM.MC","VIS.MC"
-  ],
-
-  "🇬🇧 FTSE 100 (Royaume-Uni)": [
+    "IDR.MC","SAB.MC","BKT.MC","ACX.MC","ELE.MC","ENAG.MC","LOG.MC","ARC.MC","ALM.MC","VIS.MC",
     "AZN.L","BP.L","HSBA.L","ULVR.L","RIO.L","GSK.L","BATS.L","DGE.L","LLOY.L","BARC.L",
     "BP.L","SHEL.L","RDSA.L","RDSB.L","AV.L","VOD.L","RR.L","PRU.L","NXT.L","GLEN.L",
     "NG.L","RKT.L","REL.L","SGE.L","AUTO.L","HLMA.L","SMIN.L","ANTO.L","JD.L","KGF.L",
-    "LAND.L","AAL.L","EXPN.L","ADM.L","BDEV.L","BHP.L","CRDA.L","SMT.L","WTB.L","TW.L"
-  ],
-
-  "🇳🇱 AEX 25 (Pays-Bas)": [
+    "LAND.L","AAL.L","EXPN.L","ADM.L","BDEV.L","BHP.L","CRDA.L","SMT.L","WTB.L","TW.L",
     "ASML.AS","AD.AS","NN.AS","PHIA.AS","DSM.AS","AKZA.AS","RAND.AS","AALB.AS","ASRNL.AS","HEIA.AS",
     "IMCD.AS","INVE.AS","KPN.AS","LIGHT.AS","MT.AS","PROS.AS","REN.AS","SBMO.AS","TKWY.AS","URW.AS",
-    "WHA.AS","WKL.AS","PHIA.AS","NN.AS","AEX.AS"
-  ],
-
-  "🇧🇪 BEL 20 (Belgique)": [
+    "WHA.AS","WKL.AS","PHIA.AS","NN.AS","AEX.AS",
     "ABI.BR","SOLB.BR","KBC.BR","GBLB.BR","UMI.BR","COLR.BR","ACKB.BR","ELI.BR","BELG.BR","AGEAS.BR",
     "COFB.BR","BEFB.BR","ONDD.BR","WDP.BR","UCB.BR","PROX.BR","MELE.BR","FAG.BR","BAR.BR","IBA.BR"
   ]
