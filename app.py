@@ -5,7 +5,6 @@ import pandas_ta as ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from streamlit_plotly_events import plotly_events
 import json
 import os
 
@@ -196,15 +195,6 @@ def plot_chart(symbol):
                 "RSI 32",
                 "MACD Week"
             ]
-        )
-        
-        # === AFFICHAGE INTERACTIF AVEC EVENTS ===
-        clicked_points = plotly_events(
-            fig,
-            click_event=True,
-            hover_event=False,
-            select_event=False,
-            override_height=750
         )
 
         # === Candlesticks
