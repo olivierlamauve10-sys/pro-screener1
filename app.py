@@ -52,7 +52,7 @@ selected_markets = st.multiselect(
     "Marchés à scanner",
     options=list(markets.keys()),
     default=[
-        "EU EUR (Europe)"
+        "🇫🇷 SBF 120 (France)"
     ]
 )
 
