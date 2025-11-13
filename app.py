@@ -57,8 +57,7 @@ selected_markets = st.multiselect(
         "🇪🇸 IBEX 35 (Espagne)",
         "🇧🇪 BEL 20 (Belgique)",
         "🇳🇱 AEX 25 (Pays-Bas)",
-        "🇬🇧 FTSE 100 (Royaume-Uni)",
-        "🇸🇪 OMX 30 (Suède)"
+        "🇬🇧 FTSE 100 (Royaume-Uni)"
     ]
 )
 
