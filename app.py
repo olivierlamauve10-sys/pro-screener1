@@ -274,6 +274,9 @@ def plot_chart(symbol):
             showlegend=True
         )
 
+        # Cacher complètement les week-ends (samedi -> lundi)
+        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+        
         # Y-axis à droite
         for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
