@@ -213,6 +213,8 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 ema200 = df['EMA200']
                 ema50 = df['EMA50']
 
+                rsi_today = df["RSI"].iat[0]
+                
                 last = df.iloc[-1]
                 prev = df.iloc[-2]
 
@@ -221,10 +223,11 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
                 ema200_up_ok = ema200.iloc[-1] > ema200.iloc[-11] and ema200.iloc[-11] > ema200.iloc[-33] and ema200.iloc[-33] > ema200.iloc[-45]    # tendance haussière
                 ema50_down_ok = ema50.iloc[-2] < ema50.iloc[-4] and ema50.iloc[-4] < ema50.iloc[-6] and ema50.iloc[-6] < ema50.iloc[-8]    # retracement
                 ema7_up_ok = last['EMA7'] > prev['EMA7']          # rebond technique
+                rsi_ok = rsi_today < 95
 
                 # === Validation du signal global ===
                 # === Validation du signal global ===
-                if ema200_up_ok and ema50_down_ok and ema7_up_ok:
+                if ema200_up_ok and ema50_down_ok and ema7_up_ok and rsi_ok
                     results.append({
                         "Symbole": symbol,
                         "Prix": f"{last['Close']:.2f}",
