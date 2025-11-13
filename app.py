@@ -155,9 +155,15 @@ def analyze_symbol(symbol, retracement_percent):
         df = compute_indicators_cached(df)
 
         if check_conditions(df, retracement_percent):
+
+            # --- Récupérer le nom de la société ---
+            info = yf.Ticker(symbol).info
+            company_name = info.get("shortName", "Nom inconnu")
+
             last = df.iloc[-1]
             return {
                 "Symbole": symbol,
+                "Nom": company_name,
                 "Prix": f"{last['Close']:.2f}",
                 "EMA200": f"{last['EMA200']:.2f}",
                 "EMA50": f"{last['EMA50']:.2f}",
@@ -169,6 +175,7 @@ def analyze_symbol(symbol, retracement_percent):
 
     except Exception:
         return None
+
 
 # ======================================
 #        GRAPHIQUE
