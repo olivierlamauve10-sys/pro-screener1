@@ -207,9 +207,6 @@ def plot_chart(symbol):
             override_height=750
         )
 
-        # Réafficher le graphique mis à jour
-        st.plotly_chart(fig, use_container_width=True)
-        
         # === Candlesticks
         fig.add_trace(go.Candlestick(
             x=df.index,
