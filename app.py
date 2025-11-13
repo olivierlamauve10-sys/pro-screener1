@@ -228,7 +228,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
 
                 # === Validation du signal global ===
                 # === Validation du signal global ===
-                if ema200_up_ok and ema50_down_ok and ema7_up_ok and rsi_ok:
+                if ema200_up_ok and ema50_down_ok and ema7_up_ok:     #and rsi_ok:
                     results.append({
                         "Symbole": symbol,
                         "Prix": f"{last['Close']:.2f}",
