@@ -1,7 +1,7 @@
-streamlit
+streamlit>=1.32
 yfinance
 pandas
 pandas-ta
-plotly
+plotly>=5.18
 lxml
 streamlit-plotly-events
