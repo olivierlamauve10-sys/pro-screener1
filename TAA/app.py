@@ -124,7 +124,7 @@ def check_conditions(df, retracement_percent):
     # ============================
 
     # période analysée pour la tasse
-    lookback = 70  
+    lookback = 90  
 
     # gauche de la tasse
     # détermination sommet gauche dans la zone -90 à -55
@@ -134,12 +134,16 @@ def check_conditions(df, retracement_percent):
 
 
     # bas de tasse
-    cup_bottom_search = close.iloc[-60:-40]
+    cup_bottom_search = close.iloc[-65:-35]
     cup_bottom_idx = cup_bottom_search.idxmin()
     cup_bottom = close.loc[cup_bottom_idx]
 
     # droite de la tasse
-    right_top = close.iloc[-1]
+    right_search = close.iloc[-35:-15]
+    right_top_idx = right_search.idxmax()
+    right_top = close.loc[right_top_idx]
+
+    right_top2 = close.iloc[-1]
 
     # profondeur relative
     cup_depth = (left_top - cup_bottom) / left_top * 100
@@ -174,7 +178,7 @@ def check_conditions(df, retracement_percent):
     # ============================
     # 5) Breakout permissif
     # ============================
-    breakout = right_top >= left_top * 0.97 and right_top >= left_top * 1.1    # autorise à -3% de la résistance
+    breakout = right_top2 >= right_top * 0.97 and right_top2 <= right_top * 1.1    # autorise à -3% de la résistance et un dépassement de 10%
 
     return (
         bullish_trend
