@@ -170,11 +170,6 @@ def check_conditions(df, retracement_percent):
         RSI7.iloc[-3] < 30
         and RSI7.iloc[-2] < 30
         and RSI7.iloc[-1] > 30
-    ) or (
-        RSI7.iloc[-4] < 30
-        and RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] > 30
-        and RSI7.iloc[-1] > 30
     )
 
     highest_52 = df["High"].tail(52).max()
@@ -229,21 +224,19 @@ def analyze_symbol(symbol, retracement_percent):
 
 def compute_heikin_ashi(df):
     ha = df.copy()
-    ha.index = df.index   # 🔥 GARANTIT que l'index datetime reste
 
     ha["HA_Close"] = (ha["Open"] + ha["High"] + ha["Low"] + ha["Close"]) / 4
 
     ha["HA_Open"] = 0.0
-    ha.iloc[0, ha.columns.get_loc("HA_Open")] = (ha["Open"].iloc[0] + ha["Close"].iloc[0]) / 2
+    ha.loc[0, "HA_Open"] = (ha.loc[0, "Open"] + ha.loc[0, "Close"]) / 2
 
     for i in range(1, len(ha)):
-        ha.iloc[i, ha.columns.get_loc("HA_Open")] = (ha["HA_Open"].iloc[i-1] + ha["HA_Close"].iloc[i-1]) / 2
+        ha.loc[i, "HA_Open"] = (ha.loc[i-1, "HA_Open"] + ha.loc[i-1, "HA_Close"]) / 2
 
     ha["HA_High"] = ha[["High", "HA_Open", "HA_Close"]].max(axis=1)
     ha["HA_Low"]  = ha[["Low", "HA_Open", "HA_Close"]].min(axis=1)
 
     return ha
-
 
 
 def plot_chart(symbol):
@@ -349,12 +342,6 @@ def plot_chart(symbol):
             showlegend=True
         )
 
-        # === Mise en forme générale pour les outils
-        fig.update_layout(
-            dragmode="drawline",
-            newshape_line_color="red"
-        )
-        
         # supprimer week-ends
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
 
@@ -362,7 +349,6 @@ def plot_chart(symbol):
         for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
 
-        fig.update_layout(modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape'])
         st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
@@ -463,7 +449,7 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
             if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
-                st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
+                st.markdown(f"### 📊 Graphique – {row['Symbole']}")
                 plot_chart(row["Symbole"])
                 st.markdown("---")
 
