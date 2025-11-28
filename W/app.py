@@ -272,6 +272,7 @@ def plot_chart(symbol):
             rows=3, cols=2,
             shared_xaxes=False,
             column_widths=[0.67, 0.33],
+            row_heights=[0.50, 0.25, 0.25],
             horizontal_spacing=0.05,
             vertical_spacing=0.03,
             subplot_titles=[
