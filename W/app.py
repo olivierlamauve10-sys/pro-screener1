@@ -85,6 +85,26 @@ def get_data(symbol):
     df = df[df["Volume"] > 0]          # supprimer week-ends
     df = df.dropna(subset=["Close"])   # supprimer lignes vides
     return df
+    
+def audit_symbol(symbol):
+    df = yf.Ticker(symbol).history(period="2y", interval="1wk")
+    
+    if df is None or df.empty:
+        return (symbol, "❗ Aucune donnée Yahoo Finance (empty)")
+
+    if len(df) < 10:
+        return (symbol, f"❗ Historique insuffisant (seulement {len(df)} semaines)")
+
+    df["RSI7"] = ta.rsi(df["Close"], length=14)
+    last_rsi = df["RSI7"].iloc[-1]
+
+    if pd.isna(last_rsi):
+        return (symbol, "❗ RSI NaN (pas assez de points exploitables)")
+
+    if last_rsi > 100 or last_rsi < 0:
+        return (symbol, f"❗ RSI anormal ({last_rsi}) — données suspectes")
+
+    return (symbol, "✔ OK — données valides")
 
 
 @st.cache_data(show_spinner=False)
@@ -291,6 +311,16 @@ def plot_chart(symbol):
 # ======================================
 #        SCANNER TECHNIQUE RAPIDE
 # ======================================
+if st.button("🧪 AUDIT COMPLET DES TICKERS"):
+    st.write("Analyse des causes des rejets…")
+    for symbol in tickers:
+        try:
+            res = audit_symbol(symbol)
+            st.write(res)
+        except Exception as e:
+            st.write(symbol, "❗ ERREUR inattendue :", e)
+
+
 if st.button("🚀 LANCER LE SCANNER", type="primary"):
     with st.spinner("Analyse accélérée (multithread + cache)…"):
 
