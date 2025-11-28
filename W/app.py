@@ -165,6 +165,7 @@ def check_conditions(df, retracement_percent):
 
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
 
+    RSI7 = df["RSI7"]
     rsi_ok = (
         RSI7.iloc[-2] < 30
         and RSI7.iloc[-1] < 30
