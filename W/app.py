@@ -167,8 +167,9 @@ def check_conditions(df, retracement_percent):
 
     RSI7 = df["RSI7"]
     rsi_ok = (
-        RSI7.iloc[-2] < 30
-        and RSI7.iloc[-1] < 30
+        RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] < 30
+        and RSI7.iloc[-1] > 30
     )
 
     highest_52 = df["High"].tail(52).max()
