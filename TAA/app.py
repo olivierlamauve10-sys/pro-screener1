@@ -54,7 +54,7 @@ markets = load_markets()
 selected_markets = st.multiselect(
     "Marchés à scanner",
     options=list(markets.keys()),
-    default=["🇫🇷 SBF 120 (France)"]
+    default=["🇫🇷 SBF 120 (France)","EU EUR (Europe)","🇺🇸 S&P 500 (USA)"]
 )
 
 tickers = [t for m in selected_markets for t in markets[m]]
