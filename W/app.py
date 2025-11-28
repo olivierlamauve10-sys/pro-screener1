@@ -319,16 +319,6 @@ if st.button("🧪 AUDIT COMPLET DES TICKERS"):
         except Exception as e:
             st.write(symbol, "❗ ERREUR inattendue :", e)
 
-valid_tickers = [sym for sym in tickers if audit_symbol(sym)[1] == "✔ OK — données valides"]
-invalid_tickers = [sym for sym in tickers if audit_symbol(sym)[1] != "✔ OK — données valides"]
-
-st.write("Tickers invalides :")
-st.write(invalid_tickers)
-
-st.write("Tickers utilisés :")
-st.write(valid_tickers)
-
-
 if st.button("🚀 LANCER LE SCANNER", type="primary"):
     with st.spinner("Analyse accélérée (multithread + cache)…"):
 
