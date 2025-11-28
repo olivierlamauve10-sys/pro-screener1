@@ -52,6 +52,7 @@ st.subheader("🌍 Sélection des marchés")
 markets = load_markets()
 
 selected_markets = st.multiselect(
+    "Marchés à scanner",
     options=list(markets.keys()),
     default=["🇫🇷 SBF 120 (France)"]
 )
