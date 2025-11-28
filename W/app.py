@@ -10,228 +10,131 @@ import os
 import pickle
 import time
 
+
+# ─────────────────────────────────────────────────────────────
+#                      CONFIG + UI
+# ─────────────────────────────────────────────────────────────
+st.set_page_config(page_title="Screener Weekly RSI", layout="wide")
+st.title("📈 Screener RSI — Weekly Reversal")
+
 CACHE_DIR = "cache_data"
 os.makedirs(CACHE_DIR, exist_ok=True)
-
-CACHE_TTL = 3600  # = 1h cache
-
-
-# ======================================
-#        CONFIGURATION GÉNÉRALE
-# ======================================
-st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener W")
+CACHE_TTL = 3600  # 1h cache local
 
 
-# ======================================
-#        CHARGEMENT DES MARCHÉS
-# ======================================
+# ─────────────────────────────────────────────────────────────
+#                  MARKET JSON
+# ─────────────────────────────────────────────────────────────
 @st.cache_data
 def load_markets():
     try:
-        json_path = os.path.join(os.getcwd(), "markets.json")
-        with open(json_path, "r", encoding="utf-8") as f:
+        with open("markets.json", "r", encoding="utf-8") as f:
             markets = json.load(f)
 
-        sp500_path = os.path.join(os.getcwd(), "sp500.json")
-        if os.path.exists(sp500_path):
-            with open(sp500_path, "r", encoding="utf-8") as f:
+        if os.path.exists("sp500.json"):
+            with open("sp500.json", "r", encoding="utf-8") as f:
                 sp500_data = json.load(f)
             if "S&P 500" in sp500_data:
                 markets["🇺🇸 S&P 500 (USA)"] = sp500_data["S&P 500"]
-
         return markets
+    except:
+        return {"⚠️ Aucun marché dispo": []}
 
-    except Exception as e:
-        st.error(f"Erreur lecture marchés : {e}")
-        return {"⚠️ Aucun marché disponible": []}
-
-
-st.subheader("🌍 Sélection des marchés")
 
 markets = load_markets()
-
 selected_markets = st.multiselect(
     "Marchés à scanner",
     options=list(markets.keys()),
     default=["🇫🇷 SBF 120 (France)"]
 )
-
 tickers = [t for m in selected_markets for t in markets[m]]
-st.write(f"**{len(tickers)} actions sélectionnées**")
+st.write(f"📊 {len(tickers)} actions sélectionnées")
 
 
-# ======================================
-#     PARAMÈTRE : % RETRACEMENT
-# ======================================
-retracement_percent = st.slider(
-    "Retracement minimal (%) par rapport au plus haut des 252 séances",
-    min_value=5,
-    max_value=30,
-    value=10,
-    step=1,
-    help="Exemple : 10% → le cours du jour doit être au moins 10% sous le plus haut atteint sur 252 séances."
-)
-
-
-# ======================================
-#        FONCTIONS TECHNIQUES
-# ======================================
+# ─────────────────────────────────────────────────────────────
+#               FETCH + CACHE WEEKLY DATA
+# ─────────────────────────────────────────────────────────────
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
     cache_path = os.path.join(CACHE_DIR, f"{symbol}.pkl")
 
-    # lire cache si valide
     if os.path.exists(cache_path):
         mtime = os.path.getmtime(cache_path)
-        if time.time() - mtime < CACHE_TTL:  
+        if time.time() - mtime < CACHE_TTL:
             try:
                 with open(cache_path, "rb") as f:
                     return pickle.load(f)
             except:
                 pass
 
-    # sinon récupérer depuis Yahoo Finance
     df = yf.Ticker(symbol).history(period="2y", interval="1wk")
 
     if df is not None and not df.empty:
         with open(cache_path, "wb") as f:
             pickle.dump(df, f)
-
     return df
 
-def audit_symbol(symbol):
-    df = yf.Ticker(symbol).history(period="2y", interval="1wk")
-    
-    if df is None or df.empty:
-        return (symbol, "❗ Aucune donnée Yahoo Finance (empty)")
 
-    if len(df) < 10:
-        return (symbol, f"❗ Historique insuffisant (seulement {len(df)} semaines)")
-
-    df["RSI7"] = ta.rsi(df["Close"], length=7)
-    last_rsi = df["RSI7"].iloc[-1]
-
-    if pd.isna(last_rsi):
-        return (symbol, "❗ RSI NaN (pas assez de points exploitables)")
-
-    if last_rsi > 100 or last_rsi < 0:
-        return (symbol, f"❗ RSI anormal ({last_rsi}) — données suspectes")
-
-    return (symbol, "✔ OK — données valides")
-
-@st.cache_data(show_spinner=False)
-def compute_indicators_cached(df):
+# ─────────────────────────────────────────────────────────────
+#                  INDICATEURS WEEKLY
+# ─────────────────────────────────────────────────────────────
+def compute_indicators(df):
     df = df.copy()
-    close = df["Close"]
+    df["EMA200"] = ta.ema(df["Close"], length=40)
+    df["EMA50"] = ta.ema(df["Close"], length=10)
+    df["EMA7"] = ta.ema(df["Close"], length=4)
+    df["RSI7"] = ta.rsi(df["Close"], length=7)
 
-    df["EMA200"] = ta.ema(close, length=40)
-    df["EMA50"] = ta.ema(close, length=10)
-    df["EMA7"] = ta.ema(close, length=4)
-
-    df["RSI7"] = ta.rsi(close, length=7)
-    df["RSI32"] = ta.rsi(close, length=32)
-
-    macd = ta.macd(close, fast=6, slow=15, signal=3)
+    macd = ta.macd(df["Close"], fast=6, slow=15, signal=3)
     if macd is not None:
         df = pd.concat([df, macd], axis=1)
-
     return df
 
 
-def check_conditions(df, retracement_percent):
-    last = df.iloc[-1]
-    prev = df.iloc[-2]
-
-    ema200 = df["EMA200"]
-    ema50 = df["EMA50"]
-
-    ema200_up_ok = (
-        ema200.iloc[-1] > ema200.iloc[-4]
-        and ema200.iloc[-4] > ema200.iloc[-8]
-        and ema200.iloc[-8] > ema200.iloc[-12]
-    )
-
-    ema50_down_ok = (
-        ema50.iloc[-2] < ema50.iloc[-4]
-        and ema50.iloc[-4] < ema50.iloc[-6]
-      )
-
-    ema7_up_ok = last["EMA7"] > prev["EMA7"]
-
-    RSI7 = df["RSI7"]
-    rsi_ok = (
-        RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] < 30
-        and RSI7.iloc[-1] > 30
-    ) or (
-        RSI7.iloc[-4] < 30
-        and RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] > 30
-        and RSI7.iloc[-1] > 30
-    )
-
-    highest_52 = df["High"].tail(52).max()
-    current_price = last["Close"]
-
-    retracement_threshold = 1 - (retracement_percent / 100)
-    retracement_ok = current_price <= highest_52 * retracement_threshold
-
+# ─────────────────────────────────────────────────────────────
+#         CONDITION REBOND RSI WEEKLY (définitif)
+# ─────────────────────────────────────────────────────────────
+def check_rsi_reversal(df):
+    R = df["RSI7"]
     return (
-        # ema200_up_ok
-        # and ema50_down_ok
-        # and ema7_up_ok
-        rsi_ok
-        # and retracement_ok
+        R.iloc[-3] < 30 and R.iloc[-2] < 30 and R.iloc[-1] > 30
+    ) or (
+        R.iloc[-4] < 30 and R.iloc[-3] < 30 and R.iloc[-2] > 30 and R.iloc[-1] > 30
     )
 
 
-def analyze_symbol(symbol, retracement_percent):
+# ─────────────────────────────────────────────────────────────
+#            ANALYSE SYMBOL — return minimal info
+# ─────────────────────────────────────────────────────────────
+def analyze_symbol(symbol):
     try:
         df = get_data(symbol)
-        if df is None:
+        if df is None or df.empty:
             return None
 
-        df = compute_indicators_cached(df)
+        df = compute_indicators(df)
 
-        if check_conditions(df, retracement_percent):
-
-            # nom société
+        if check_rsi_reversal(df):
             info = yf.Ticker(symbol).info
-            company_name = info.get("shortName", "Nom inconnu")
-
-            last = df.iloc[-1]
-            return {
-                "Symbole": symbol,
-                "Nom": company_name,
-                "Prix": f"{last['Close']:.2f}",
-                "EMA200": f"{last['EMA200']:.2f}",
-                "EMA50": f"{last['EMA50']:.2f}",
-                "EMA7": f"{last['EMA7']:.2f}",
-                "Signal": "ACHAT (rebond technique)"
-            }
+            name = info.get("shortName", "??")
+            price = float(df.iloc[-1]["Close"])
+            return {"Symbole": symbol, "Nom": name, "Prix": f"{price:.2f}"}
 
         return None
-
-    except Exception:
+    except:
         return None
 
 
-# ======================================
-#        GRAPHIQUE
-# ======================================
-
+# ─────────────────────────────────────────────────────────────
+#        HEIKIN ASHI
+# ─────────────────────────────────────────────────────────────
 def compute_heikin_ashi(df):
     ha = df.copy()
-    ha.index = df.index   # 🔥 GARANTIT que l'index datetime reste
-
     ha["HA_Close"] = (ha["Open"] + ha["High"] + ha["Low"] + ha["Close"]) / 4
-
-    ha["HA_Open"] = 0.0
-    ha.iloc[0, ha.columns.get_loc("HA_Open")] = (ha["Open"].iloc[0] + ha["Close"].iloc[0]) / 2
+    ha.loc[0, "HA_Open"] = (ha.loc[0, "Open"] + ha.loc[0, "Close"]) / 2
 
     for i in range(1, len(ha)):
-        ha.iloc[i, ha.columns.get_loc("HA_Open")] = (ha["HA_Open"].iloc[i-1] + ha["HA_Close"].iloc[i-1]) / 2
+        ha.loc[i, "HA_Open"] = (ha.loc[i-1, "HA_Open"] + ha.loc[i-1, "HA_Close"]) / 2
 
     ha["HA_High"] = ha[["High", "HA_Open", "HA_Close"]].max(axis=1)
     ha["HA_Low"]  = ha[["Low", "HA_Open", "HA_Close"]].min(axis=1)
@@ -239,183 +142,83 @@ def compute_heikin_ashi(df):
     return ha
 
 
-
+# ─────────────────────────────────────────────────────────────
+#       PLOT WEEKLY HEIKIN + DAILY ZOOM
+# ─────────────────────────────────────────────────────────────
 def plot_chart(symbol):
     try:
-        # ===========================
-        # DATA WEEKLY
-        # ===========================
+        # weekly
         df = get_data(symbol)
-        if df is None or df.empty:
-            st.error("Données introuvables.")
-            return
+        df = compute_indicators(df)
+        ha = compute_heikin_ashi(df)
 
-        df = compute_indicators_cached(df)
-
-        # ===========================
-        # DATA DAILY + EMA7 + EMA20
-        # ===========================
-        df_daily = yf.Ticker(symbol).history(period="2mo", interval="1d")
-
-        if df_daily is None or df_daily.empty:
-            st.warning("⚠️ Pas de données daily pour le zoom")
-            zoom_daily_available = False
+        # daily zoom
+        daily = yf.Ticker(symbol).history(period="2mo", interval="1d")
+        if daily is not None and not daily.empty:
+            daily["EMA7"] = ta.ema(daily["Close"], length=7)
+            daily["EMA20"] = ta.ema(daily["Close"], length=20)
+            zoom_ok = True
         else:
-            zoom_daily_available = True
-            df_daily["EMA7"] = ta.ema(df_daily["Close"], length=7)
-            df_daily["EMA20"] = ta.ema(df_daily["Close"], length=20)
+            zoom_ok = False
 
-        # =================================
-        # ❶ SUBPLOTS = 3 lignes × 2 colonnes
-        # =================================
         fig = make_subplots(
             rows=3, cols=2,
             shared_xaxes=False,
             column_widths=[0.67, 0.33],
             horizontal_spacing=0.05,
             vertical_spacing=0.03,
-            subplot_titles=[
-                "Weekly Heikin Ashi",
-                "Daily — zoom 30 derniers jours",
-                "RSI7 weekly",
-                "",
-                "MACD Weekly",
-                ""
-            ]
+            subplot_titles=["Weekly Heikin Ashi", "Daily zoom", "RSI weekly", "", "MACD", ""]
         )
 
-        # ===========================
-        # WEEKLY — Heikin Ashi
-        # ===========================
-        df_ha = compute_heikin_ashi(df)
-
+        # weekly — HA
         fig.add_trace(go.Candlestick(
-            x=df_ha.index,
-            open=df_ha["HA_Open"], high=df_ha["HA_High"],
-            low=df_ha["HA_Low"], close=df_ha["HA_Close"],
-            name="Heikin-Ashi",
-            increasing_line_color="green",
-            decreasing_line_color="red"
+            x=ha.index,
+            open=ha["HA_Open"], high=ha["HA_High"],
+            low=ha["HA_Low"], close=ha["HA_Close"],
+            increasing_line_color="green", decreasing_line_color="red"
         ), row=1, col=1)
 
-        # ===========================
-        # WEEKLY — EMA
-        # ===========================
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df["EMA50"],
-            mode="lines", name="EMA50",
-            line=dict(color="purple", width=1.5)
-        ), row=1, col=1)
-
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df["EMA7"],
-            mode="lines", name="EMA7",
-            line=dict(color="cyan", width=1.5)
-        ), row=1, col=1)
+        # weekly — EMA
+        fig.add_trace(go.Scatter(x=df.index, y=df["EMA50"], mode="lines", line=dict(color="purple")), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df.index, y=df["EMA7"], mode="lines", line=dict(color="cyan")), row=1, col=1)
 
         for i in range(1, len(df)):
-            color = "blue" if df["EMA200"].iloc[i] >= df["EMA200"].iloc[i - 1] else "red"
+            col = "blue" if df["EMA200"].iloc[i] >= df["EMA200"].iloc[i-1] else "red"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["EMA200"].iloc[i - 1:i + 1],
-                mode="lines",
-                line=dict(color=color, width=2),
-                name="EMA200" if i == 1 else None,
-                showlegend=(i == 1)
+                x=df.index[i-1:i+1], y=df["EMA200"].iloc[i-1:i+1],
+                line=dict(color=col, width=2)
             ), row=1, col=1)
 
-        # ==========================================================
-        # DAILY — bougies classiques + EMA7 + EMA20 (colonne droite)
-        # ==========================================================
-        if zoom_daily_available:
+        # DAILY
+        if zoom_ok:
             fig.add_trace(go.Candlestick(
-                x=df_daily.index,
-                open=df_daily["Open"], high=df_daily["High"],
-                low=df_daily["Low"], close=df_daily["Close"],
-                name="Daily",
-                increasing_line_color="green",
-                decreasing_line_color="red"
+                x=daily.index,
+                open=daily["Open"], high=daily["High"], low=daily["Low"], close=daily["Close"]
             ), row=1, col=2)
 
-            fig.add_trace(go.Scatter(
-                x=df_daily.index, y=df_daily["EMA7"],
-                mode="lines", name="EMA7 daily",
-                line=dict(color="cyan", width=1.3)
-            ), row=1, col=2)
+            fig.add_trace(go.Scatter(x=daily.index, y=daily["EMA7"], line=dict(color="cyan")), row=1, col=2)
+            fig.add_trace(go.Scatter(x=daily.index, y=daily["EMA20"], line=dict(color="orange")), row=1, col=2)
 
-            fig.add_trace(go.Scatter(
-                x=df_daily.index, y=df_daily["EMA20"],
-                mode="lines", name="EMA20 daily",
-                line=dict(color="orange", width=1.3)
-            ), row=1, col=2)
+            if len(daily) > 50:
+                fig.update_xaxes(range=[daily.index[-50], daily.index[-1]], row=1, col=2)
 
-            if len(df_daily) > 50:
-                fig.update_xaxes(range=[df_daily.index[-50], df_daily.index[-1]], row=1, col=2)
-
-        # ===========================
-        # RSI weekly
-        # ===========================
+        # RSI
         rsi = df["RSI7"]
-        for i in range(1, len(rsi)):
-            color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
-            fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=rsi.iloc[i - 1:i + 1],
-                mode="lines",
-                line=dict(color=color, width=2),
-                name="RSI7" if i == 1 else None,
-                showlegend=(i == 1)
-            ), row=2, col=1)
-
-        fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
+        fig.add_trace(go.Scatter(x=df.index, y=rsi, mode="lines"), row=2, col=1)
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
+        fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
 
-        # ===========================
-        # MACD weekly
-        # ===========================
-        if all(c in df.columns for c in ["MACD_6_15_3","MACDs_6_15_3","MACDh_6_15_3"]):
-            fig.add_trace(go.Bar(
-                x=df.index, y=df["MACDh_6_15_3"],
-                name="MACD Hist", opacity=0.5
-            ), row=3, col=1)
+        # MACD
+        if "MACD_6_15_3" in df:
+            fig.add_trace(go.Bar(x=df.index, y=df["MACDh_6_15_3"], opacity=0.4), row=3, col=1)
+            fig.add_trace(go.Scatter(x=df.index, y=df["MACD_6_15_3"]), row=3, col=1)
+            fig.add_trace(go.Scatter(x=df.index, y=df["MACDs_6_15_3"]), row=3, col=1)
 
-            fig.add_trace(go.Scatter(
-                x=df.index,
-                y=df["MACD_6_15_3"],
-                mode="lines", name="MACD"
-            ), row=3, col=1)
-
-            fig.add_trace(go.Scatter(
-                x=df.index,
-                y=df["MACDs_6_15_3"],
-                mode="lines", name="Signal"
-            ), row=3, col=1)
-
-        # ===========================
-        # Layout général
-        # ===========================
         fig.update_layout(
-            height=750,
+            height=780,
             template="plotly_dark",
             xaxis_rangeslider_visible=False,
-            showlegend=False
-        )
-
-        fig.update_xaxes(rangeslider_visible=False)
-
-        # Effacer week-end en weekly
-        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=1)
-        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=2)
-
-        # Y-axis à droite
-        for r in range(1, 4):
-            fig.update_yaxes(side="right", row=r, col=1)
-            fig.update_yaxes(side="right", row=r, col=2)
-
-        # OUTILS DE DESSIN
-        fig.update_layout(
             dragmode="drawline",
-            newshape_line_color="red",
             modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape']
         )
 
@@ -424,119 +227,47 @@ def plot_chart(symbol):
     except Exception as e:
         st.error(f"Erreur graphique : {e}")
 
-# ======================================
-#        BOUTON SCANNER
-# ======================================
 
+# ─────────────────────────────────────────────────────────────
+#                  SCAN BUTTON
+# ─────────────────────────────────────────────────────────────
 if st.button("🚀 LANCER LE SCANNER", type="primary"):
-    with st.spinner("Analyse accélérée (multithread + cache)…"):
+    with st.spinner("Scanning…"):
 
         results = []
         progress = st.progress(0)
+        total = len(tickers)
+        workers = min(8, total)
 
-        max_workers = min(8, len(tickers)) if len(tickers) > 0 else 1
-
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(analyze_symbol, symbol, retracement_percent): symbol
-                for symbol in tickers
-            }
-
-            done = 0
-            total = len(tickers) if len(tickers) > 0 else 1
-
-            for future in as_completed(futures):
-                result = future.result()
-                if result is not None:
-                    results.append(result)
-                done += 1
-                progress.progress(done / total)
+        with ThreadPoolExecutor(max_workers=workers) as executor:
+            futures = {executor.submit(analyze_symbol, t): t for t in tickers}
+            for i, future in enumerate(as_completed(futures)):
+                res = future.result()
+                if res:
+                    results.append(res)
+                progress.progress((i + 1) / total)
 
         if results:
             df_res = pd.DataFrame(results)
-            st.success(f"🚀 {len(df_res)} opportunités détectées")
+            st.success(f"🎯 {len(df_res)} opportunités détectées")
             st.session_state.last_results = df_res
         else:
-            st.warning("Aucun signal trouvé.")
+            st.warning("Aucun signal détecté")
             st.session_state.last_results = None
 
 
-
-# ======================================
-#        AFFICHAGE DES RÉSULTATS
-# ======================================
+# ─────────────────────────────────────────────────────────────
+#              AFFICHAGE DES RÉSULTATS
+# ─────────────────────────────────────────────────────────────
 if "last_results" in st.session_state and st.session_state.last_results is not None:
-    st.subheader("📊 Résultats du scan")
+    st.subheader("📌 Opportunités détectées")
 
-    df_res = st.session_state.last_results.copy()
-
-    st.markdown("Clique sur **📈 Voir** pour afficher le graphique :")
-
-    st.markdown("""
-    <style>
-    .result-card {
-        background-color: #1e1e1e;
-        border: 1px solid #333;
-        border-radius: 10px;
-        padding: 10px 20px;
-        margin-bottom: 8px;
-    }
-    .symbol { font-weight: 700; color: #4da6ff; font-size: 17px; }
-    .price { color: #d9d9d9; }
-    .metric { color: #aaaaaa; font-size: 14px; }
-    </style>
-    """, unsafe_allow_html=True)
+    df_res = st.session_state.last_results
 
     for idx, row in df_res.iterrows():
         with st.container():
-            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-            cols = st.columns([1.2, 1, 1, 1, 1, 0.8])
+            st.write(f"🔹 **{row['Symbole']} — {row['Nom']}** — {row['Prix']}€")
 
-            cols[0].markdown(
-                f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
-                unsafe_allow_html=True
-            )
-            cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
-            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
-            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
-            cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
-
-            if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
-                st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
+            if st.button("📈 Voir", key=f"btn_{row['Symbole']}"):
                 plot_chart(row["Symbole"])
                 st.markdown("---")
-
-            st.markdown("</div>", unsafe_allow_html=True)
-
-# ======================================
-#        SCANNER TECHNIQUE RAPIDE
-# ======================================
-if st.button("🧪 AUDIT COMPLET DES TICKERS"):
-    st.write("Analyse des causes des rejets…")
-
-    for i, symbol in enumerate(tickers):
-        try:
-            res = audit_symbol(symbol)
-            st.write(res)
-
-            # Pause automatique pour éviter ban
-            time.sleep(0.3)
-
-            # Pause + longue toutes les 20 requêtes
-            if i % 20 == 0 and i > 0:
-                time.sleep(5)
-
-        except Exception as e:
-            st.write(symbol, "❗ ERREUR inattendue :", e)
-
-# ======================================
-#        BOUTON RAFRAICHIR LES MARCHES
-# ======================================
-
-col_refresh, _ = st.columns([1, 5])
-with col_refresh:
-    if st.button("🔁 Rafraîchir les marchés"):
-        load_markets.clear()
-        st.rerun()
-
-
