@@ -357,6 +357,7 @@ def plot_chart(symbol):
         for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
 
+        fig.update_layout(modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape'])
         st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
