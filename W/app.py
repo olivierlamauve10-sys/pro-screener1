@@ -165,13 +165,7 @@ def check_conditions(df, retracement_percent):
 
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
 
-    rsi_ok = (
-    len(rsi) >= 3 and
-    rsi.iloc[-3] < 30 and
-    rsi.iloc[-2] < 30 and
-    rsi.iloc[-1] >= 30
-)
-
+    rsi_ok = last["RSI7"] < 30
 
     highest_52 = df["High"].tail(52).max()
     current_price = last["Close"]
