@@ -149,8 +149,8 @@ def check_conditions(df, retracement_percent):
     cup_depth = (left_top - cup_bottom) / left_top * 100
 
     cup_shape_ok = (
-        cup_depth >= 8     # version inclusive
-        and cup_depth <= 50
+        cup_depth >= 10     # version inclusive
+        and cup_depth <= 45
     )
 
     # ============================
@@ -163,7 +163,7 @@ def check_conditions(df, retracement_percent):
     handle_depth = (recent.max() - recent.min()) / recent.max() * 100
 
     handle_ok = (
-        handle_depth <= 25     # version inclusive
+        handle_depth <= 20     # version inclusive
     )
 
     # ============================
@@ -172,18 +172,18 @@ def check_conditions(df, retracement_percent):
     rsi = df["RSI7"]
 
     rsi_ok = (
-        rsi.iloc[-1] > 35       # inclusif
+        rsi.iloc[-1] > 40       # inclusif
     )
 
     # ============================
     # 5) Breakout permissif
     # ============================
-    breakout = right_top2 >= right_top * 0.97 and right_top2 <= right_top * 1.1    # autorise à -3% de la résistance et un dépassement de 10%
+    breakout = right_top2 >= right_top * 0.97 and right_top2 <= right_top * 1.075    # autorise à -3% de la résistance et un dépassement de 7.5%
 
     # ============================
     # 6) Cohérence niveau haut droit haut gauche tasse et haut anse
     # ============================
-    coherence = left_top >= right_top * 0.95 or left_top <= right_top * 1.05    # autorise à +-5% de variation
+    coherence = left_top >= right_top * 0.93 or left_top <= right_top * 1.03    # autorise à +-3% de variation
 
     return (
         bullish_trend
