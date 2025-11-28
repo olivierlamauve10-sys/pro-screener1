@@ -200,7 +200,7 @@ def check_conditions(df, retracement_percent):
         x = np.arange(len(window))
         coef = np.polyfit(x, window, 1)
         slope = coef[0]
-        ema50_flat_ok = abs(slope) < 0.1   # seuil à ajuster si besoin
+        ema50_flat_ok = abs(slope) < 0.125   # seuil à ajuster si besoin
 
     
     return (
