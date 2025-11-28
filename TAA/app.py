@@ -128,13 +128,15 @@ def check_conditions(df, retracement_percent):
 
     # gauche de la tasse
     # détermination sommet gauche dans la zone -80 à -60
-    left_search = close.iloc[-80:-60]
+    left_search = close.iloc[-85:-55]
     left_top_idx = left_search.idxmax()
     left_top = close.loc[left_top_idx]
 
 
     # bas de tasse
-    cup_bottom = close.iloc[-lookback:].min()
+    cup_bottom_search = close.iloc[-55:-45]
+    cup_bottom_idx = cup_bottom_search.idxmin()
+    cup_bottom = close.loc[cup_bottom_idx]
 
     # droite de la tasse
     right_top = close.iloc[-1]
