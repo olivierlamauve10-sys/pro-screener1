@@ -294,23 +294,24 @@ def plot_chart(symbol):
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
         # === MACD
-        if all(c in df.columns for c in ["MACD_10_104_10", "MACDs_10_104_10", "MACDh_10_104_10"]):
+        if all(c in df.columns for c in ["MACD_6_15_3","MACDs_6_15_3","MACDh_6_15_3"]):
             fig.add_trace(go.Bar(
-                x=df.index, y=df["MACDh_10_104_10"],
+                x=df.index, y=df["MACDh_6_15_3"],
                 name="MACD Hist", opacity=0.5
             ), row=3, col=1)
 
             fig.add_trace(go.Scatter(
                 x=df.index,
-                y=df["MACD_10_104_10"],
+                y=df["MACD_6_15_3"],
                 mode="lines", name="MACD"
             ), row=3, col=1)
 
             fig.add_trace(go.Scatter(
                 x=df.index,
-                y=df["MACDs_10_104_10"],
+                y=df["MACDs_6_15_3"],
                 mode="lines", name="Signal"
             ), row=3, col=1)
+
 
         # === Mise en forme générale
         fig.update_layout(
