@@ -127,14 +127,14 @@ def check_conditions(df, retracement_percent):
     lookback = 70  
 
     # gauche de la tasse
-    # détermination sommet gauche dans la zone -80 à -60
-    left_search = close.iloc[-85:-55]
+    # détermination sommet gauche dans la zone -90 à -55
+    left_search = close.iloc[-90:-55]
     left_top_idx = left_search.idxmax()
     left_top = close.loc[left_top_idx]
 
 
     # bas de tasse
-    cup_bottom_search = close.iloc[-55:-45]
+    cup_bottom_search = close.iloc[-60:-40]
     cup_bottom_idx = cup_bottom_search.idxmin()
     cup_bottom = close.loc[cup_bottom_idx]
 
@@ -159,7 +159,7 @@ def check_conditions(df, retracement_percent):
     handle_depth = (recent.max() - recent.min()) / recent.max() * 100
 
     handle_ok = (
-        handle_depth <= 15     # version inclusive
+        handle_depth <= 25     # version inclusive
     )
 
     # ============================
