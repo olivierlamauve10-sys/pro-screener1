@@ -49,12 +49,6 @@ def load_markets():
 
 st.subheader("🌍 Sélection des marchés")
 
-col_refresh, _ = st.columns([1, 5])
-with col_refresh:
-    if st.button("🔁 Rafraîchir les marchés"):
-        load_markets.clear()
-        st.rerun()
-
 markets = load_markets()
 
 selected_markets = st.multiselect(
@@ -534,5 +528,15 @@ if st.button("🧪 AUDIT COMPLET DES TICKERS"):
 
         except Exception as e:
             st.write(symbol, "❗ ERREUR inattendue :", e)
+
+# ======================================
+#        BOUTON RAFRAICHIR LES MARCHES
+# ======================================
+
+col_refresh, _ = st.columns([1, 5])
+with col_refresh:
+    if st.button("🔁 Rafraîchir les marchés"):
+        load_markets.clear()
+        st.rerun()
 
 
