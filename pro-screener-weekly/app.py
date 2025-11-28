@@ -20,7 +20,7 @@ CACHE_TTL = 3600  # = 1h cache
 # CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener W")
+st.title("📈 Sauvegarde Screener W")
 
 
 # ======================================
