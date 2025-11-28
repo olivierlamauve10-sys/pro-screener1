@@ -135,10 +135,10 @@ def check_conditions(df, retracement_percent):
 
     return (
         ema200_up_ok
-        and ema50_down_ok
-        and ema7_up_ok
+        # and ema50_down_ok
+        # and ema7_up_ok
         and rsi_ok
-        and retracement_ok
+        # and retracement_ok
     )
 
 
