@@ -127,7 +127,11 @@ def check_conditions(df, retracement_percent):
     lookback = 70  
 
     # gauche de la tasse
-    left_top = close.iloc[-lookback]
+    # détermination sommet gauche dans la zone -80 à -60
+    left_search = close.iloc[-80:-60]
+    left_top_idx = left_search.idxmax()
+    left_top = close.loc[left_top_idx]
+
 
     # bas de tasse
     cup_bottom = close.iloc[-lookback:].min()
@@ -162,7 +166,7 @@ def check_conditions(df, retracement_percent):
     rsi = df["RSI7"]
 
     rsi_ok = (
-        rsi.iloc[-1] > 45       # inclusif
+        rsi.iloc[-1] > 35       # inclusif
     )
 
     # ============================
