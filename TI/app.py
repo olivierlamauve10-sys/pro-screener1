@@ -26,7 +26,7 @@ def load_markets():
         with open(json_path, "r", encoding="utf-8") as f:
             markets = json.load(f)
 
-        json_path = os.path.join(os.getcwd(), "markets.json")
+        sp500_path = os.path.join(os.getcwd(), "sp500.json")
         if os.path.exists(sp500_path):
             with open(sp500_path, "r", encoding="utf-8") as f:
                 sp500_data = json.load(f)
