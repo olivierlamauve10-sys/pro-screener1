@@ -112,11 +112,13 @@ def check_conditions(df, retracement_percent):
     # ============================
     # 1) Contexte haussier de fond
     # ============================
+    ema200 = df["EMA200"]
     bullish_trend = (
-        df["EMA50"].iloc[-1] > df["EMA200"].iloc[-1] and
-        close.iloc[-1] > df["EMA200"].iloc[-1]
+        ema200.iloc[-1] > ema200.iloc[-11]
+        and ema200.iloc[-11] > ema200.iloc[-33]
+        and ema200.iloc[-33] > ema200.iloc[-45]
     )
-
+    
     # ============================
     # 2) Identification large du creux
     # ============================
