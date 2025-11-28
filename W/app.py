@@ -62,6 +62,19 @@ st.write(f"**{len(tickers)} actions sélectionnées**")
 
 
 # ======================================
+# PARAMÈTRE : % RETRACEMENT
+# ======================================
+retracement_percent = st.slider(
+    "Retracement minimal (%) par rapport au plus haut des 252 séances",
+    min_value=5,
+    max_value=30,
+    value=10,
+    step=1,
+    help="Exemple : 10% → le cours du jour doit être au moins 10% sous le plus haut atteint sur 252 séances."
+)
+
+
+# ======================================
 # FONCTIONS TECHNIQUES
 # ======================================
 @st.cache_data(show_spinner=False)
@@ -160,15 +173,22 @@ def check_conditions(df, retracement_percent):
         and RSI7.iloc[-1] > 30
     )
 
+    highest_52 = df["High"].tail(52).max()
+    current_price = last["Close"]
+
+    retracement_threshold = 1 - (retracement_percent / 100)
+    retracement_ok = current_price <= highest_52 * retracement_threshold
+
     return (
         # ema200_up_ok
         # and ema50_down_ok
         # and ema7_up_ok
         rsi_ok
+        # and retracement_ok
     )
 
 
-def analyze_symbol(symbol):
+def analyze_symbol(symbol, retracement_percent):
     try:
         df = get_data(symbol)
         if df is None:
@@ -419,7 +439,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
-                executor.submit(analyze_symbol, symbol): symbol
+                executor.submit(analyze_symbol, symbol, retracement_percent): symbol
                 for symbol in tickers
             }
 
