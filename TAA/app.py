@@ -13,7 +13,7 @@ import os
 #        CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener TI")
+st.title("📈 Screener TAA")
 
 
 # ======================================
