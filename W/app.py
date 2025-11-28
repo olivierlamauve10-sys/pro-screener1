@@ -248,52 +248,77 @@ def compute_heikin_ashi(df):
 
 def plot_chart(symbol):
     try:
+        # ===========================
+        # DATA WEEKLY
+        # ===========================
         df = get_data(symbol)
-        if df is None:
+        if df is None or df.empty:
             st.error("Données introuvables.")
             return
 
         df = compute_indicators_cached(df)
 
+        # ===========================
+        # DATA DAILY + EMA7 + EMA20
+        # ===========================
+        df_daily = yf.Ticker(symbol).history(period="2mo", interval="1d")
+
+        if df_daily is None or df_daily.empty:
+            st.warning("⚠️ Pas de données daily pour le zoom")
+            zoom_daily_available = False
+        else:
+            zoom_daily_available = True
+            df_daily["EMA7"] = ta.ema(df_daily["Close"], length=7)
+            df_daily["EMA20"] = ta.ema(df_daily["Close"], length=20)
+
+        # =================================
+        # ❶ SUBPLOTS = 3 lignes × 2 colonnes
+        # =================================
         fig = make_subplots(
-            rows=3, cols=1, shared_xaxes=True,
+            rows=3, cols=2,
+            shared_xaxes=False,
+            column_widths=[0.67, 0.33],
+            horizontal_spacing=0.05,
             vertical_spacing=0.03,
-            row_heights=[0.65, 0.20, 0.15],
             subplot_titles=[
-                f"{symbol} – Prix & Moyennes Mobiles",
-                "RSI7",
-                "MACD Week"
+                "Weekly Heikin Ashi",
+                "Daily — zoom 30 derniers jours",
+                "RSI7 weekly",
+                "",
+                "MACD Weekly",
+                ""
             ]
         )
 
-        # === Candlesticks
-        df = compute_heikin_ashi(df)
+        # ===========================
+        # WEEKLY — Heikin Ashi
+        # ===========================
+        df_ha = compute_heikin_ashi(df)
 
         fig.add_trace(go.Candlestick(
-            x=df.index,
-            open=df["HA_Open"], high=df["HA_High"],
-            low=df["HA_Low"], close=df["HA_Close"],
+            x=df_ha.index,
+            open=df_ha["HA_Open"], high=df_ha["HA_High"],
+            low=df_ha["HA_Low"], close=df_ha["HA_Close"],
             name="Heikin-Ashi",
             increasing_line_color="green",
             decreasing_line_color="red"
         ), row=1, col=1)
 
-
-        # === EMA50
+        # ===========================
+        # WEEKLY — EMA
+        # ===========================
         fig.add_trace(go.Scatter(
             x=df.index, y=df["EMA50"],
             mode="lines", name="EMA50",
             line=dict(color="purple", width=1.5)
         ), row=1, col=1)
 
-        # === EMA7
         fig.add_trace(go.Scatter(
             x=df.index, y=df["EMA7"],
             mode="lines", name="EMA7",
             line=dict(color="cyan", width=1.5)
         ), row=1, col=1)
 
-        # === EMA200 colorée
         for i in range(1, len(df)):
             color = "blue" if df["EMA200"].iloc[i] >= df["EMA200"].iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
@@ -305,7 +330,37 @@ def plot_chart(symbol):
                 showlegend=(i == 1)
             ), row=1, col=1)
 
-        # === RSI
+        # ==========================================================
+        # DAILY — bougies classiques + EMA7 + EMA20 (colonne droite)
+        # ==========================================================
+        if zoom_daily_available:
+            fig.add_trace(go.Candlestick(
+                x=df_daily.index,
+                open=df_daily["Open"], high=df_daily["High"],
+                low=df_daily["Low"], close=df_daily["Close"],
+                name="Daily",
+                increasing_line_color="green",
+                decreasing_line_color="red"
+            ), row=1, col=2)
+
+            fig.add_trace(go.Scatter(
+                x=df_daily.index, y=df_daily["EMA7"],
+                mode="lines", name="EMA7 daily",
+                line=dict(color="cyan", width=1.3)
+            ), row=1, col=2)
+
+            fig.add_trace(go.Scatter(
+                x=df_daily.index, y=df_daily["EMA20"],
+                mode="lines", name="EMA20 daily",
+                line=dict(color="orange", width=1.3)
+            ), row=1, col=2)
+
+            if len(df_daily) > 30:
+                fig.update_xaxes(range=[df_daily.index[-30], df_daily.index[-1]], row=1, col=2)
+
+        # ===========================
+        # RSI weekly
+        # ===========================
         rsi = df["RSI7"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
@@ -321,7 +376,9 @@ def plot_chart(symbol):
         fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
-        # === MACD
+        # ===========================
+        # MACD weekly
+        # ===========================
         if all(c in df.columns for c in ["MACD_6_15_3","MACDs_6_15_3","MACDh_6_15_3"]):
             fig.add_trace(go.Bar(
                 x=df.index, y=df["MACDh_6_15_3"],
@@ -340,29 +397,33 @@ def plot_chart(symbol):
                 mode="lines", name="Signal"
             ), row=3, col=1)
 
-
-        # === Mise en forme générale
+        # ===========================
+        # Layout général
+        # ===========================
         fig.update_layout(
             height=750,
             template="plotly_dark",
             xaxis_rangeslider_visible=False,
-            showlegend=True
+            showlegend=False
         )
 
-        # === Mise en forme générale pour les outils
-        fig.update_layout(
-            dragmode="drawline",
-            newshape_line_color="red"
-        )
-        
-        # supprimer week-ends
-        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+        fig.update_xaxes(rangeslider_visible=False)
+
+        # Effacer week-end en weekly
+        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=1)
 
         # Y-axis à droite
-        for i in range(1, 4):
-            fig.update_yaxes(side="right", row=i, col=1)
+        for r in range(1, 4):
+            fig.update_yaxes(side="right", row=r, col=1)
+            fig.update_yaxes(side="right", row=r, col=2)
 
-        fig.update_layout(modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape'])
+        # OUTILS DE DESSIN
+        fig.update_layout(
+            dragmode="drawline",
+            newshape_line_color="red",
+            modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape']
+        )
+
         st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
