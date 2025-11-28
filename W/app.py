@@ -221,7 +221,12 @@ def plot_chart(symbol):
             fig.add_trace(go.Scatter(x=df_daily.index, y=df_daily["EMA7"], mode="lines", name="EMA7 daily"), row=1, col=2)
             fig.add_trace(go.Scatter(x=df_daily.index, y=df_daily["EMA20"], mode="lines", name="EMA20 daily"), row=1, col=2)
 
-            fig.update_xaxes(range=[df_daily.index[-50], df_daily.index[-1]], row=1, col=2)
+            nb = len(df_daily.index)
+if nb > 50:
+    fig.update_xaxes(range=[df_daily.index[-50], df_daily.index[-1]], row=1, col=2)
+else:
+    fig.update_xaxes(range=[df_daily.index[0], df_daily.index[-1]], row=1, col=2)
+
 
         rsi = df["RSI7"]
         fig.add_trace(go.Scatter(x=df.index, y=rsi, mode="lines", name="RSI7"), row=2, col=1)
