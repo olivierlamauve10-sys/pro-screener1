@@ -178,7 +178,7 @@ def check_conditions(df, retracement_percent):
     # ============================
     # 5) Breakout permissif
     # ============================
-    breakout = right_top2 >= right_top * 1.01 and right_top2 <= right_top * 1.075    # autorise à -3% de la résistance et un dépassement de 7.5%
+    breakout = right_top2 >= right_top * 1.00 and right_top2 <= right_top * 1.075    # autorise à -3% de la résistance et un dépassement de 7.5%
 
     # ============================
     # 6) Cohérence niveau haut droit haut gauche tasse et haut anse
