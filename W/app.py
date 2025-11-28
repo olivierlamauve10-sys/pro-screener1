@@ -430,6 +430,43 @@ def plot_chart(symbol):
     except Exception as e:
         st.error(f"Erreur graphique : {e}")
 
+# ======================================
+#        BOUTON SCANNER
+# ======================================
+
+if st.button("🚀 LANCER LE SCANNER", type="primary"):
+    with st.spinner("Analyse accélérée (multithread + cache)…"):
+
+        results = []
+        progress = st.progress(0)
+
+        max_workers = min(8, len(tickers)) if len(tickers) > 0 else 1
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(analyze_symbol, symbol, retracement_percent): symbol
+                for symbol in tickers
+            }
+
+            done = 0
+            total = len(tickers) if len(tickers) > 0 else 1
+
+            for future in as_completed(futures):
+                result = future.result()
+                if result is not None:
+                    results.append(result)
+                done += 1
+                progress.progress(done / total)
+
+        if results:
+            df_res = pd.DataFrame(results)
+            st.success(f"🚀 {len(df_res)} opportunités détectées")
+            st.session_state.last_results = df_res
+        else:
+            st.warning("Aucun signal trouvé.")
+            st.session_state.last_results = None
+
+
 
 # ======================================
 #        AFFICHAGE DES RÉSULTATS
@@ -497,37 +534,5 @@ if st.button("🧪 AUDIT COMPLET DES TICKERS"):
 
         except Exception as e:
             st.write(symbol, "❗ ERREUR inattendue :", e)
-
-if st.button("🚀 LANCER LE SCANNER", type="primary"):
-    with st.spinner("Analyse accélérée (multithread + cache)…"):
-
-        results = []
-        progress = st.progress(0)
-
-        max_workers = min(8, len(tickers)) if len(tickers) > 0 else 1
-
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            futures = {
-                executor.submit(analyze_symbol, symbol, retracement_percent): symbol
-                for symbol in tickers
-            }
-
-            done = 0
-            total = len(tickers) if len(tickers) > 0 else 1
-
-            for future in as_completed(futures):
-                result = future.result()
-                if result is not None:
-                    results.append(result)
-                done += 1
-                progress.progress(done / total)
-
-        if results:
-            df_res = pd.DataFrame(results)
-            st.success(f"🚀 {len(df_res)} opportunités détectées")
-            st.session_state.last_results = df_res
-        else:
-            st.warning("Aucun signal trouvé.")
-            st.session_state.last_results = None
 
 
