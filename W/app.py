@@ -344,6 +344,12 @@ def plot_chart(symbol):
             showlegend=True
         )
 
+        # === Mise en forme générale pour les outils
+        fig.update_layout(
+            dragmode="drawline",
+            newshape_line_color="white"
+        )
+        
         # supprimer week-ends
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
 
