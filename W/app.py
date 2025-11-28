@@ -62,19 +62,6 @@ st.write(f"**{len(tickers)} actions sélectionnées**")
 
 
 # ======================================
-# PARAMÈTRE : % RETRACEMENT
-# ======================================
-retracement_percent = st.slider(
-    "Retracement minimal (%) par rapport au plus haut des 252 séances",
-    min_value=5,
-    max_value=30,
-    value=10,
-    step=1,
-    help="Exemple : 10% → le cours du jour doit être au moins 10% sous le plus haut atteint sur 252 séances."
-)
-
-
-# ======================================
 # FONCTIONS TECHNIQUES
 # ======================================
 @st.cache_data(show_spinner=False)
