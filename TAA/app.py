@@ -189,12 +189,19 @@ def check_conditions(df, retracement_percent):
     # ============================
     # 7) La EMA50 s’aplatit
     # ============================
-    window = ema50.iloc[-60:-10]
+    close = df["Close"]
+    ema50 = df["EMA50"]
+    window = ema50.iloc[-60:-10]   # 50 points environ
+    
+    if len(window) < 10:
+        # pas assez de données pour tester la platitude
+        ema50_flat_ok = False
+    else:
         x = np.arange(len(window))
         coef = np.polyfit(x, window, 1)
         slope = coef[0]
+        ema50_flat_ok = abs(slope) < 0.01   # seuil à ajuster si besoin
 
-    ema50_flat_ok = abs(slope) < 0.01
     
     return (
         bullish_trend
