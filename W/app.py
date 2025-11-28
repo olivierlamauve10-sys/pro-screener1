@@ -224,19 +224,21 @@ def analyze_symbol(symbol, retracement_percent):
 
 def compute_heikin_ashi(df):
     ha = df.copy()
+    ha.index = df.index   # 🔥 GARANTIT que l'index datetime reste
 
     ha["HA_Close"] = (ha["Open"] + ha["High"] + ha["Low"] + ha["Close"]) / 4
 
     ha["HA_Open"] = 0.0
-    ha.loc[0, "HA_Open"] = (ha.loc[0, "Open"] + ha.loc[0, "Close"]) / 2
+    ha.iloc[0, ha.columns.get_loc("HA_Open")] = (ha["Open"].iloc[0] + ha["Close"].iloc[0]) / 2
 
     for i in range(1, len(ha)):
-        ha.loc[i, "HA_Open"] = (ha.loc[i-1, "HA_Open"] + ha.loc[i-1, "HA_Close"]) / 2
+        ha.iloc[i, ha.columns.get_loc("HA_Open")] = (ha["HA_Open"].iloc[i-1] + ha["HA_Close"].iloc[i-1]) / 2
 
     ha["HA_High"] = ha[["High", "HA_Open", "HA_Close"]].max(axis=1)
     ha["HA_Low"]  = ha[["Low", "HA_Open", "HA_Close"]].min(axis=1)
 
     return ha
+
 
 
 def plot_chart(symbol):
