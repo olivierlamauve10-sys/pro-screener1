@@ -180,6 +180,11 @@ def check_conditions(df, retracement_percent):
     # ============================
     breakout = right_top2 >= right_top * 0.97 and right_top2 <= right_top * 1.1    # autorise à -3% de la résistance et un dépassement de 10%
 
+    # ============================
+    # 6) Cohérence niveau haut droit haut gauche tasse et haut anse
+    # ============================
+    # breakout = right_top2 >= right_top * 0.97 and right_top2 <= right_top * 1.1    # autorise à -3% de la résistance et un dépassement de 10%
+
     return (
         bullish_trend
         and cup_shape_ok
