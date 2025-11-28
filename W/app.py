@@ -221,6 +221,24 @@ def analyze_symbol(symbol, retracement_percent):
 # ======================================
 #        GRAPHIQUE
 # ======================================
+
+def compute_heikin_ashi(df):
+    ha = df.copy()
+
+    ha["HA_Close"] = (ha["Open"] + ha["High"] + ha["Low"] + ha["Close"]) / 4
+
+    ha["HA_Open"] = 0.0
+    ha.loc[0, "HA_Open"] = (ha.loc[0, "Open"] + ha.loc[0, "Close"]) / 2
+
+    for i in range(1, len(ha)):
+        ha.loc[i, "HA_Open"] = (ha.loc[i-1, "HA_Open"] + ha.loc[i-1, "HA_Close"]) / 2
+
+    ha["HA_High"] = ha[["High", "HA_Open", "HA_Close"]].max(axis=1)
+    ha["HA_Low"]  = ha[["Low", "HA_Open", "HA_Close"]].min(axis=1)
+
+    return ha
+
+
 def plot_chart(symbol):
     try:
         df = get_data(symbol)
@@ -242,14 +260,17 @@ def plot_chart(symbol):
         )
 
         # === Candlesticks
+        df = compute_heikin_ashi(df)
+
         fig.add_trace(go.Candlestick(
             x=df.index,
-            open=df["Open"], high=df["High"],
-            low=df["Low"], close=df["Close"],
-            name="Prix",
+            open=df["HA_Open"], high=df["HA_High"],
+            low=df["HA_Low"], close=df["HA_Close"],
+            name="Heikin-Ashi",
             increasing_line_color="green",
             decreasing_line_color="red"
         ), row=1, col=1)
+
 
         # === EMA50
         fig.add_trace(go.Scatter(
