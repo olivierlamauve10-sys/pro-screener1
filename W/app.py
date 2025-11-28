@@ -78,7 +78,7 @@ retracement_percent = st.slider(
 # ======================================
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
-    df = yf.Ticker(symbol).history(period="2y", interval="1d")
+    df = yf.Ticker(symbol).history(period="2y", interval="1wk")
     if df is None or df.empty or len(df) < 220:
         return None
 
@@ -92,11 +92,11 @@ def compute_indicators_cached(df):
     df = df.copy()
     close = df["Close"]
 
-    df["EMA200"] = ta.ema(close, length=200)
-    df["EMA50"] = ta.ema(close, length=50)
-    df["EMA7"] = ta.ema(close, length=7)
+    df["EMA200"] = ta.ema(close, length=40)
+    df["EMA50"] = ta.ema(close, length=10)
+    df["EMA7"] = ta.ema(close, length=4)
 
-    df["RSI7"] = ta.rsi(close, length=7)
+    df["RSI7"] = ta.rsi(close, length=14)
     df["RSI32"] = ta.rsi(close, length=32)
 
     macd = ta.macd(close, fast=10, slow=104, signal=10)
@@ -114,25 +114,24 @@ def check_conditions(df, retracement_percent):
     ema50 = df["EMA50"]
 
     ema200_up_ok = (
-        ema200.iloc[-1] > ema200.iloc[-11]
-        and ema200.iloc[-11] > ema200.iloc[-33]
-        and ema200.iloc[-33] > ema200.iloc[-45]
+        ema200.iloc[-1] > ema200.iloc[-4]
+        and ema200.iloc[-4] > ema200.iloc[-8]
+        and ema200.iloc[-8] > ema200.iloc[-12]
     )
 
     ema50_down_ok = (
         ema50.iloc[-2] < ema50.iloc[-4]
         and ema50.iloc[-4] < ema50.iloc[-6]
-        and ema50.iloc[-6] < ema50.iloc[-8]
-    )
+      )
 
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
     rsi_ok = last["RSI7"] < 95
 
-    highest_252 = df["High"].tail(252).max()
+    highest_52 = df["High"].tail(52).max()
     current_price = last["Close"]
 
     retracement_threshold = 1 - (retracement_percent / 100)
-    retracement_ok = current_price <= highest_252 * retracement_threshold
+    retracement_ok = current_price <= highest_52 * retracement_threshold
 
     return (
         ema200_up_ok
