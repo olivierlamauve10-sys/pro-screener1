@@ -169,9 +169,7 @@ def check_conditions(df, retracement_percent):
     len(rsi) >= 3 and
     rsi.iloc[-3] < 30 and
     rsi.iloc[-2] < 30 and
-    rsi.iloc[-2] <= rsi.iloc[-3] and   # accentuation survendue S-1
-    rsi.iloc[-1] >= 30 and
-    rsi.iloc[-1] > rsi.iloc[-2]        # RSI monte vraiment
+    rsi.iloc[-1] >= 30
 )
 
 
