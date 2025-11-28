@@ -82,7 +82,7 @@ def get_data(symbol):
     if df is None or df.empty or len(df) < 3:
         return None
 
-    df = df[df["Volume"] > 0]          # supprimer week-ends
+    # df = df[df["Volume"] > 0]          # supprimer week-ends
     df = df.dropna(subset=["Close"])   # supprimer lignes vides
     return df
     
