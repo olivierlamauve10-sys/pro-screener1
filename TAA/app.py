@@ -13,7 +13,7 @@ import os
 #        CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener TAA")
+st.title("📈 Screener TI")
 
 
 # ======================================
@@ -276,6 +276,13 @@ def plot_chart(symbol):
             showlegend=True
         )
 
+         # === Mise en forme générale outils
+        fig.update_layout(
+            dragmode="drawline",
+            newshape_line_color="red"
+        )
+
+        
         # supprimer week-ends
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
 
@@ -283,6 +290,7 @@ def plot_chart(symbol):
         for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
 
+        fig.update_layout(modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape'])
         st.plotly_chart(fig, use_container_width=True)
 
     except Exception as e:
@@ -365,7 +373,7 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
             if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
-                st.markdown(f"### 📊 Graphique – {row['Symbole']}")
+                st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
                 plot_chart(row["Symbole"])
                 st.markdown("---")
 
