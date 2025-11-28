@@ -167,144 +167,158 @@ def compute_heikin_ashi(df: pd.DataFrame) -> pd.DataFrame:
 # ──────────────────────────────────────────
 #     GRAPHIQUE WEEKLY + DAILY ZOOM
 # ──────────────────────────────────────────
-def plot_chart(symbol: str):
+def plot_chart(symbol):
     try:
-        # weekly
+        # ===========================
+        # DATA WEEKLY
+        # ===========================
         df = get_data(symbol)
         if df is None or df.empty:
-            st.error("Données weekly introuvables.")
+            st.error("Données introuvables.")
             return
 
-        df = compute_indicators(df)
-        ha = compute_heikin_ashi(df)
+        df = compute_indicators_cached(df)
 
-        # daily zoom
-        daily = yf.Ticker(symbol).history(period="2mo", interval="1d")
-        zoom_ok = daily is not None and not daily.empty
-        if zoom_ok:
-            daily["EMA7"] = ta.ema(daily["Close"], length=7)
-            daily["EMA20"] = ta.ema(daily["Close"], length=20)
+        # ===========================
+        # DATA DAILY zoom
+        # ===========================
+        df_daily = yf.Ticker(symbol).history(period="2mo", interval="1d")
+        zoom_daily_available = df_daily is not None and not df_daily.empty
 
+        if zoom_daily_available:
+            df_daily["EMA7"] = ta.ema(df_daily["Close"], length=7)
+            df_daily["EMA20"] = ta.ema(df_daily["Close"], length=20)
+
+        # ===========================
+        # STRUCTURE DES SUBPLOTS
+        # ===========================
         fig = make_subplots(
             rows=3, cols=2,
             shared_xaxes=False,
             column_widths=[0.67, 0.33],
-            row_heights=[0.60, 0.25, 0.15],   # ✔ daily gagne en hauteur
+            row_heights=[0.60, 0.25, 0.15],
             horizontal_spacing=0.05,
             vertical_spacing=0.03,
             subplot_titles=[
-                "Weekly Heikin Ashi", "Daily zoom",
-                "RSI weekly", "",
+                "Weekly Heikin Ashi", "Daily — zoom",
+                "RSI7 weekly", "",
                 "MACD Weekly", ""
             ]
         )
 
-        # ── Weekly Heikin Ashi ───────────────────
-        fig.add_trace(
-            go.Candlestick(
-                x=ha.index,
-                open=ha["HA_Open"], high=ha["HA_High"],
-                low=ha["HA_Low"], close=ha["HA_Close"],
+        # ===========================
+        # WEEKLY — Ha + EMA
+        # ===========================
+        df_ha = compute_heikin_ashi(df)
+
+        fig.add_trace(go.Candlestick(
+            x=df_ha.index,
+            open=df_ha["HA_Open"], high=df_ha["HA_High"],
+            low=df_ha["HA_Low"], close=df_ha["HA_Close"],
+            name="Heikin-Ashi",
+            increasing_line_color="green",
+            decreasing_line_color="red"
+        ), row=1, col=1)
+
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df["EMA50"],
+            mode="lines", name="EMA50",
+            line=dict(color="purple", width=1.5)
+        ), row=1, col=1)
+
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df["EMA7"],
+            mode="lines", name="EMA7",
+            line=dict(color="cyan", width=1.5)
+        ), row=1, col=1)
+
+        # ===========================
+        # DAILY — uniquement row1,col2
+        # ===========================
+        if zoom_daily_available:
+            fig.add_trace(go.Candlestick(
+                x=df_daily.index,
+                open=df_daily["Open"], high=df_daily["High"],
+                low=df_daily["Low"], close=df_daily["Close"],
+                name="Daily",
                 increasing_line_color="green",
-                decreasing_line_color="red",
-                name="Heikin-Ashi"
-            ),
-            row=1, col=1
-        )
+                decreasing_line_color="red"
+            ), row=1, col=2)
 
-        # EMA weekly
-        fig.add_trace(
-            go.Scatter(x=df.index, y=df["EMA50"], mode="lines", name="EMA50", line=dict(color="purple", width=1.5)),
-            row=1, col=1
-        )
-        fig.add_trace(
-            go.Scatter(x=df.index, y=df["EMA7"], mode="lines", name="EMA7", line=dict(color="cyan", width=1.5)),
-            row=1, col=1
-        )
+            fig.add_trace(go.Scatter(
+                x=df_daily.index, y=df_daily["EMA7"],
+                mode="lines", name="EMA7 daily",
+                line=dict(color="cyan", width=1.3)
+            ), row=1, col=2)
 
-        for i in range(1, len(df)):
-            col = "blue" if df["EMA200"].iloc[i] >= df["EMA200"].iloc[i-1] else "red"
-            fig.add_trace(
-                go.Scatter(
-                    x=df.index[i-1:i+1],
-                    y=df["EMA200"].iloc[i-1:i+1],
-                    mode="lines",
-                    line=dict(color=col, width=2),
-                    name="EMA200" if i == 1 else None,
-                    showlegend=(i == 1)
-                ),
-                row=1, col=1
-            )
+            fig.add_trace(go.Scatter(
+                x=df_daily.index, y=df_daily["EMA20"],
+                mode="lines", name="EMA20 daily",
+                line=dict(color="orange", width=1.3)
+            ), row=1, col=2)
 
-        # ── Daily zoom ───────────────────────────
-        if zoom_ok:
-            fig.add_trace(
-                go.Candlestick(
-                    x=daily.index,
-                    open=daily["Open"], high=daily["High"],
-                    low=daily["Low"], close=daily["Close"],
-                    increasing_line_color="green",
-                    decreasing_line_color="red",
-                    name="Daily"
-                ),
-                row=1, col=2
-            )
+            # zoom sur 50 derniers jours
+            if len(df_daily) > 50:
+                fig.update_xaxes(range=[df_daily.index[-50], df_daily.index[-1]], row=1, col=2)
 
-            fig.add_trace(
-                go.Scatter(x=daily.index, y=daily["EMA7"], mode="lines", name="EMA7 daily",
-                           line=dict(color="cyan", width=1.3)),
-                row=1, col=2
-            )
-            fig.add_trace(
-                go.Scatter(x=daily.index, y=daily["EMA20"], mode="lines", name="EMA20 daily",
-                           line=dict(color="orange", width=1.3)),
-                row=1, col=2
-            )
-
-            # zoom ~50 derniers jours si dispo
-            if len(daily) > 50:
-                fig.update_xaxes(range=[daily.index[-50], daily.index[-1]], row=1, col=2)
-
-        # ── RSI weekly ───────────────────────────
+        # ===========================
+        # RSI weekly — uniquement col1
+        # ===========================
         rsi = df["RSI7"]
-        fig.add_trace(
-            go.Scatter(x=df.index, y=rsi, mode="lines", name="RSI7"),
-            row=2, col=1
-        )
-        fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
+        fig.add_trace(go.Scatter(
+            x=df.index, y=rsi,
+            mode="lines",
+            line=dict(color="white", width=2),
+            name="RSI7"
+        ), row=2, col=1)
+
         fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
+        fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
-        # ── MACD weekly ─────────────────────────
-        if all(c in df.columns for c in ["MACD_6_15_3", "MACDs_6_15_3", "MACDh_6_15_3"]):
-            fig.add_trace(
-                go.Bar(x=df.index, y=df["MACDh_6_15_3"], name="MACD Hist", opacity=0.4),
-                row=3, col=1
-            )
-            fig.add_trace(
-                go.Scatter(x=df.index, y=df["MACD_6_15_3"], mode="lines", name="MACD"),
-                row=3, col=1
-            )
-            fig.add_trace(
-                go.Scatter(x=df.index, y=df["MACDs_6_15_3"], mode="lines", name="Signal"),
-                row=3, col=1
-            )
+        # ===========================
+        # MACD weekly — uniquement col1
+        # ===========================
+        if all(c in df.columns for c in ["MACD_6_15_3","MACDs_6_15_3","MACDh_6_15_3"]):
+            fig.add_trace(go.Bar(
+                x=df.index, y=df["MACDh_6_15_3"],
+                name="MACD Hist", opacity=0.5
+            ), row=3, col=1)
 
-        # ── Layout + rangebreaks week-ends ───────
+            fig.add_trace(go.Scatter(
+                x=df.index,
+                y=df["MACD_6_15_3"],
+                mode="lines", name="MACD"
+            ), row=3, col=1)
+
+            fig.add_trace(go.Scatter(
+                x=df.index,
+                y=df["MACDs_6_15_3"],
+                mode="lines", name="Signal"
+            ), row=3, col=1)
+
+
+        # ===========================
+        # LAYOUT FINAL
+        # ===========================
         fig.update_layout(
-            height=780,
+            height=750,
             template="plotly_dark",
             xaxis_rangeslider_visible=False,
             showlegend=False,
             dragmode="drawline",
+            newshape_line_color="red",
             modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape']
         )
 
-        # supprimer week-ends (weekly & daily)
+        # WEEKENDS OFF
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=1)
-        
-        # Y-axis à droite
-        for r in range(1, 4):
-            fig.update_yaxes(side="right", row=r, col=1)
+        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=2)
+
+        # Y axis only for col1 except daily
+        fig.update_yaxes(side="right", row=1, col=1)
+        fig.update_yaxes(side="right", row=2, col=1)
+        fig.update_yaxes(side="right", row=3, col=1)
+        fig.update_yaxes(side="right", row=1, col=2)
 
         st.plotly_chart(fig, use_container_width=True)
 
