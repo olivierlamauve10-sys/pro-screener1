@@ -13,7 +13,7 @@ import os
 #        CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 ProScreener Pro – EMA200 ↑ + EMA50 ↓ + EMA7 ↑ (Rebond technique)")
+st.title("📈 Screener W")
 
 
 # ======================================
