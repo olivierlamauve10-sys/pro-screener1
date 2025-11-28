@@ -106,6 +106,14 @@ def audit_symbol(symbol):
 
     return (symbol, "✔ OK — données valides")
 
+valid_tickers = [sym for sym in tickers if audit_symbol(sym)[1] == "✔ OK — données valides"]
+invalid_tickers = [sym for sym in tickers if audit_symbol(sym)[1] != "✔ OK — données valides"]
+
+st.write("Tickers invalides :")
+st.write(invalid_tickers)
+
+st.write("Tickers utilisés :")
+st.write(valid_tickers)
 
 @st.cache_data(show_spinner=False)
 def compute_indicators_cached(df):
