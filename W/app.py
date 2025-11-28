@@ -78,7 +78,7 @@ retracement_percent = st.slider(
 # ======================================
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
-    df = yf.Ticker(symbol).history(period="1y", interval="1d")
+    df = yf.Ticker(symbol).history(period="2y", interval="1wk")
     if df is None or df.empty or len(df) < 220:
         return None
 
