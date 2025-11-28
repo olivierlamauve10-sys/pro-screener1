@@ -7,6 +7,13 @@ from plotly.subplots import make_subplots
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
+import pickle
+import time
+
+CACHE_DIR = "cache_data"
+os.makedirs(CACHE_DIR, exist_ok=True)
+
+CACHE_TTL = 3600  # = 1h cache
 
 
 # ======================================
@@ -78,14 +85,27 @@ retracement_percent = st.slider(
 # ======================================
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
-    df = yf.Ticker(symbol).history(period="2y", interval="1wk")
-    if df is None or df.empty or len(df) < 3:
-        return None
+    cache_path = os.path.join(CACHE_DIR, f"{symbol}.pkl")
 
-    df = df[df["Volume"] > 0]          # supprimer week-ends
-    df = df.dropna(subset=["Close"])   # supprimer lignes vides
+    # lire cache si valide
+    if os.path.exists(cache_path):
+        mtime = os.path.getmtime(cache_path)
+        if time.time() - mtime < CACHE_TTL:  
+            try:
+                with open(cache_path, "rb") as f:
+                    return pickle.load(f)
+            except:
+                pass
+
+    # sinon récupérer depuis Yahoo Finance
+    df = yf.Ticker(symbol).history(period="2y", interval="1wk")
+
+    if df is not None and not df.empty:
+        with open(cache_path, "wb") as f:
+            pickle.dump(df, f)
+
     return df
-    
+
 def audit_symbol(symbol):
     df = yf.Ticker(symbol).history(period="2y", interval="1wk")
     
@@ -312,10 +332,19 @@ def plot_chart(symbol):
 # ======================================
 if st.button("🧪 AUDIT COMPLET DES TICKERS"):
     st.write("Analyse des causes des rejets…")
-    for symbol in tickers:
+
+    for i, symbol in enumerate(tickers):
         try:
             res = audit_symbol(symbol)
             st.write(res)
+
+            # Pause automatique pour éviter ban
+            time.sleep(0.3)
+
+            # Pause + longue toutes les 20 requêtes
+            if i % 20 == 0 and i > 0:
+                time.sleep(5)
+
         except Exception as e:
             st.write(symbol, "❗ ERREUR inattendue :", e)
 
