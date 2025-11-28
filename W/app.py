@@ -347,7 +347,7 @@ def plot_chart(symbol):
         # === Mise en forme générale pour les outils
         fig.update_layout(
             dragmode="drawline",
-            newshape_line_color="white"
+            newshape_line_color="red"
         )
         
         # supprimer week-ends
