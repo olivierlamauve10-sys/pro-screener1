@@ -189,6 +189,7 @@ def plot_chart(symbol: str):
             rows=3, cols=2,
             shared_xaxes=False,
             column_widths=[0.67, 0.33],
+            row_heights=[0.60, 0.25, 0.15],   # ✔ daily gagne en hauteur
             horizontal_spacing=0.05,
             vertical_spacing=0.03,
             subplot_titles=[
