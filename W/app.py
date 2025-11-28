@@ -115,7 +115,7 @@ def audit_symbol(symbol):
     if len(df) < 10:
         return (symbol, f"❗ Historique insuffisant (seulement {len(df)} semaines)")
 
-    df["RSI7"] = ta.rsi(df["Close"], length=14)
+    df["RSI7"] = ta.rsi(df["Close"], length=7)
     last_rsi = df["RSI7"].iloc[-1]
 
     if pd.isna(last_rsi):
@@ -230,7 +230,7 @@ def plot_chart(symbol):
             row_heights=[0.65, 0.20, 0.15],
             subplot_titles=[
                 f"{symbol} – Prix & Moyennes Mobiles",
-                "RSI 32",
+                "RSI7",
                 "MACD Week"
             ]
         )
@@ -272,7 +272,7 @@ def plot_chart(symbol):
             ), row=1, col=1)
 
         # === RSI
-        rsi = df["RSI32"]
+        rsi = df["RSI7"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
@@ -280,7 +280,7 @@ def plot_chart(symbol):
                 y=rsi.iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2),
-                name="RSI 32" if i == 1 else None,
+                name="RSI7" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=2, col=1)
 
