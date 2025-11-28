@@ -411,6 +411,7 @@ def plot_chart(symbol):
 
         # Effacer week-end en weekly
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=1)
+        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=2)
 
         # Y-axis à droite
         for r in range(1, 4):
