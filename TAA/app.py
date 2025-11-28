@@ -107,39 +107,73 @@ def compute_indicators_cached(df):
 
 
 def check_conditions(df, retracement_percent):
-    last = df.iloc[-1]
-    prev = df.iloc[-2]
+    close = df["Close"]
 
-    ema200 = df["EMA200"]
-    ema50 = df["EMA50"]
-
-    ema200_up_ok = (
-        ema200.iloc[-1] > ema200.iloc[-11]
-        and ema200.iloc[-11] > ema200.iloc[-33]
-        and ema200.iloc[-33] > ema200.iloc[-45]
+    # ============================
+    # 1) Contexte haussier de fond
+    # ============================
+    bullish_trend = (
+        df["EMA50"].iloc[-1] > df["EMA200"].iloc[-1] and
+        close.iloc[-1] > df["EMA200"].iloc[-1]
     )
 
-    ema50_down_ok = (
-        ema50.iloc[-2] < ema50.iloc[-4]
-        and ema50.iloc[-4] < ema50.iloc[-6]
-        and ema50.iloc[-6] < ema50.iloc[-8]
+    # ============================
+    # 2) Identification large du creux
+    # ============================
+
+    # période analysée pour la tasse
+    lookback = 90  
+
+    # gauche de la tasse
+    left_top = close.iloc[-lookback]
+
+    # bas de tasse
+    cup_bottom = close.iloc[-lookback:].min()
+
+    # droite de la tasse
+    right_top = close.iloc[-1]
+
+    # profondeur relative
+    cup_depth = (left_top - cup_bottom) / left_top * 100
+
+    cup_shape_ok = (
+        cup_depth >= 8     # version inclusive
+        and cup_depth <= 50
     )
 
-    ema7_up_ok = last["EMA7"] > prev["EMA7"]
-    rsi_ok = last["RSI7"] < 95
+    # ============================
+    # 3) Anse
+    # ============================
 
-    highest_252 = df["High"].tail(252).max()
-    current_price = last["Close"]
+    # partie droite récente
+    recent = close.tail(20)
 
-    retracement_threshold = 1 - (retracement_percent / 100)
-    retracement_ok = current_price <= highest_252 * retracement_threshold
+    handle_depth = (recent.max() - recent.min()) / recent.max() * 100
+
+    handle_ok = (
+        handle_depth <= 15     # version inclusive
+    )
+
+    # ============================
+    # 4) Compression RSI
+    # ============================
+    rsi = df["RSI7"]
+
+    rsi_ok = (
+        rsi.iloc[-1] > 45       # inclusif
+    )
+
+    # ============================
+    # 5) Breakout permissif
+    # ============================
+    breakout = right_top >= left_top * 0.97   # autorise à -3% de la résistance
 
     return (
-        ema200_up_ok
-        and ema50_down_ok
-        and ema7_up_ok
+        bullish_trend
+        and cup_shape_ok
+        and handle_ok
         and rsi_ok
-        and retracement_ok
+        and breakout
     )
 
 
