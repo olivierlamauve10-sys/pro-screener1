@@ -79,7 +79,7 @@ retracement_percent = st.slider(
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
     df = yf.Ticker(symbol).history(period="2y", interval="1wk")
-    if df is None or df.empty or len(df) < 220:
+    if df is None or df.empty or len(df) < 50:
         return None
 
     df = df[df["Volume"] > 0]          # supprimer week-ends
@@ -96,7 +96,7 @@ def compute_indicators_cached(df):
     df["EMA50"] = ta.ema(close, length=10)
     df["EMA7"] = ta.ema(close, length=4)
 
-    df["RSI7"] = ta.rsi(close, length=14)
+    df["RSI7"] = ta.rsi(close, length=7)
     df["RSI32"] = ta.rsi(close, length=32)
 
     macd = ta.macd(close, fast=10, slow=104, signal=10)
