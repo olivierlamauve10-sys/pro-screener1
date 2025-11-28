@@ -301,12 +301,10 @@ def plot_chart(symbol: str):
 
         # supprimer week-ends (weekly & daily)
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=1)
-        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])], row=1, col=2)
-
+        
         # Y-axis à droite
         for r in range(1, 4):
             fig.update_yaxes(side="right", row=r, col=1)
-            fig.update_yaxes(side="right", row=r, col=2)
 
         st.plotly_chart(fig, use_container_width=True)
 
