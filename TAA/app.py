@@ -174,7 +174,7 @@ def check_conditions(df, retracement_percent):
     # ============================
     # 5) Breakout permissif
     # ============================
-    breakout = right_top >= left_top * 0.97   # autorise à -3% de la résistance
+    breakout = right_top >= left_top * 0.97 and right_top >= left_top * 1.1    # autorise à -3% de la résistance
 
     return (
         bullish_trend
