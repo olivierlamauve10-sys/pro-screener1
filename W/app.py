@@ -432,6 +432,52 @@ def plot_chart(symbol):
 
 
 # ======================================
+#        AFFICHAGE DES RÉSULTATS
+# ======================================
+if "last_results" in st.session_state and st.session_state.last_results is not None:
+    st.subheader("📊 Résultats du scan")
+
+    df_res = st.session_state.last_results.copy()
+
+    st.markdown("Clique sur **📈 Voir** pour afficher le graphique :")
+
+    st.markdown("""
+    <style>
+    .result-card {
+        background-color: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 10px;
+        padding: 10px 20px;
+        margin-bottom: 8px;
+    }
+    .symbol { font-weight: 700; color: #4da6ff; font-size: 17px; }
+    .price { color: #d9d9d9; }
+    .metric { color: #aaaaaa; font-size: 14px; }
+    </style>
+    """, unsafe_allow_html=True)
+
+    for idx, row in df_res.iterrows():
+        with st.container():
+            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+            cols = st.columns([1.2, 1, 1, 1, 1, 0.8])
+
+            cols[0].markdown(
+                f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
+                unsafe_allow_html=True
+            )
+            cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
+            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
+            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
+            cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
+
+            if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
+                st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
+                plot_chart(row["Symbole"])
+                st.markdown("---")
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+# ======================================
 #        SCANNER TECHNIQUE RAPIDE
 # ======================================
 if st.button("🧪 AUDIT COMPLET DES TICKERS"):
@@ -485,48 +531,3 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             st.session_state.last_results = None
 
 
-# ======================================
-#        AFFICHAGE DES RÉSULTATS
-# ======================================
-if "last_results" in st.session_state and st.session_state.last_results is not None:
-    st.subheader("📊 Résultats du scan")
-
-    df_res = st.session_state.last_results.copy()
-
-    st.markdown("Clique sur **📈 Voir** pour afficher le graphique :")
-
-    st.markdown("""
-    <style>
-    .result-card {
-        background-color: #1e1e1e;
-        border: 1px solid #333;
-        border-radius: 10px;
-        padding: 10px 20px;
-        margin-bottom: 8px;
-    }
-    .symbol { font-weight: 700; color: #4da6ff; font-size: 17px; }
-    .price { color: #d9d9d9; }
-    .metric { color: #aaaaaa; font-size: 14px; }
-    </style>
-    """, unsafe_allow_html=True)
-
-    for idx, row in df_res.iterrows():
-        with st.container():
-            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-            cols = st.columns([1.2, 1, 1, 1, 1, 0.8])
-
-            cols[0].markdown(
-                f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
-                unsafe_allow_html=True
-            )
-            cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
-            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
-            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
-            cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
-
-            if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
-                st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
-                plot_chart(row["Symbole"])
-                st.markdown("---")
-
-            st.markdown("</div>", unsafe_allow_html=True)
