@@ -122,7 +122,7 @@ def check_conditions(df, retracement_percent):
     # ============================
 
     # période analysée pour la tasse
-    lookback = 45  
+    lookback = 70  
 
     # gauche de la tasse
     left_top = close.iloc[-lookback]
