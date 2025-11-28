@@ -7,6 +7,7 @@ from plotly.subplots import make_subplots
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
+import numpy as np
 
 
 # ======================================
@@ -185,6 +186,16 @@ def check_conditions(df, retracement_percent):
     # ============================
     coherence = left_top >= right_top * 0.93 or left_top <= right_top * 1.03    # autorise à +-3% de variation
 
+    # ============================
+    # 7) La EMA50 s’aplatit
+    # ============================
+    window = ema50.iloc[-60:-10]
+        x = np.arange(len(window))
+        coef = np.polyfit(x, window, 1)
+        slope = coef[0]
+
+    ema50_flat_ok = abs(slope) < 0.01
+    
     return (
         bullish_trend
         and cup_shape_ok
@@ -192,6 +203,7 @@ def check_conditions(df, retracement_percent):
         and rsi_ok
         and breakout
         and coherence
+        and ema50_flat_ok
     )
 
 
