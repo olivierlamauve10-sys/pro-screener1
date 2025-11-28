@@ -99,7 +99,7 @@ def compute_indicators_cached(df):
     df["RSI7"] = ta.rsi(close, length=7)
     df["RSI32"] = ta.rsi(close, length=32)
 
-    macd = ta.macd(close, fast=10, slow=104, signal=10)
+    macd = ta.macd(close, fast=30, slow=75, signal=15)
     if macd is not None:
         df = pd.concat([df, macd], axis=1)
 
