@@ -79,7 +79,7 @@ retracement_percent = st.slider(
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
     df = yf.Ticker(symbol).history(period="2y", interval="1wk")
-    if df is None or df.empty or len(df) < 10:
+    if df is None or df.empty or len(df) < 3:
         return None
 
     df = df[df["Volume"] > 0]          # supprimer week-ends
