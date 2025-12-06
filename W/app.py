@@ -149,9 +149,9 @@ def check_conditions(df, retracement_percent):
     ema50 = df["EMA50"]
 
     ema200_up_ok = (
-        ema200.iloc[-1] > ema200.iloc[-4]
-        and ema200.iloc[-4] > ema200.iloc[-8]
-        and ema200.iloc[-8] > ema200.iloc[-12]
+        # ema200.iloc[-1] > ema200.iloc[-4]
+        # and ema200.iloc[-4] > ema200.iloc[-8]
+        ema200.iloc[-8] > ema200.iloc[-12]
     )
 
     ema50_down_ok = (
@@ -180,7 +180,7 @@ def check_conditions(df, retracement_percent):
     retracement_ok = current_price <= highest_52 * retracement_threshold
 
     return (
-        # ema200_up_ok
+        ema200_up_ok
         # and ema50_down_ok
         # and ema7_up_ok
         rsi_ok
