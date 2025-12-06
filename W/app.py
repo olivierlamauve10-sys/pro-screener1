@@ -489,8 +489,8 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
 
     for idx, row in df_res.iterrows():
         with st.container():
-        st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-        cols = st.columns([1.2, 1, 1, 1, 1])
+            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+            cols = st.columns([1.2, 1, 1, 1, 1])
 
         cols[0].markdown(
             f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
