@@ -488,26 +488,25 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
     """, unsafe_allow_html=True)
 
     for idx, row in df_res.iterrows():
-        with st.container():
-            st.markdown("<div class='result-card'>", unsafe_allow_html=True)
-            cols = st.columns([1.2, 1, 1, 1, 1, 0.8])
+    with st.container():
+        st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+        cols = st.columns([1.2, 1, 1, 1, 1])
 
-            cols[0].markdown(
-                f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
-                unsafe_allow_html=True
-            )
-            cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
-            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
-            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
-            cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
+        cols[0].markdown(
+            f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
+            unsafe_allow_html=True
+        )
+        cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
+        cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
+        cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
+        cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
-            if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
-                st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
-                plot_chart(row["Symbole"])
-                st.markdown("---")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-            st.markdown("</div>", unsafe_allow_html=True)
-
+        # --- Affichage DIRECT du graphique ---
+        st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
+        plot_chart(row["Symbole"])
+        st.markdown("---")
 
 # ======================================
 # SCANNER TECHNIQUE RAPIDE
