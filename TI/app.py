@@ -350,7 +350,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
-                executor.submit(analyze_symbol, symbol, retracement_percent): symbol
+                executor.submit(analyze_symbol, symbol, retracement_percent, bulk_data): symbol
                 for symbol in tickers
             }
 
