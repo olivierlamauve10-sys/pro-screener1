@@ -341,6 +341,12 @@ def plot_chart(symbol):
 #        SCANNER TECHNIQUE RAPIDE
 # ======================================
 if st.button("🚀 LANCER LE SCANNER", type="primary"):
+
+    # 1) Téléchargement groupé
+    with st.spinner("Téléchargement Yahoo Finance (groupé)…"):
+        bulk_data = download_bulk_history(tickers)
+
+    # 2) Analyse
     with st.spinner("Analyse accélérée (multithread + cache)…"):
 
         results = []
@@ -355,12 +361,13 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             }
 
             done = 0
-            total = len(tickers) if len(tickers) > 0 else 1
+            total = len(tickers)
 
             for future in as_completed(futures):
                 result = future.result()
                 if result is not None:
                     results.append(result)
+
                 done += 1
                 progress.progress(done / total)
 
@@ -371,6 +378,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
         else:
             st.warning("Aucun signal trouvé.")
             st.session_state.last_results = None
+
 
 
 # ======================================
