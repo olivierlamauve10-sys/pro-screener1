@@ -181,9 +181,9 @@ def check_conditions(df, retracement_percent):
     )
 
 
-def analyze_symbol(symbol, retracement_percent):
+def analyze_symbol(symbol, retracement_percent, bulk_data):
     try:
-        df = get_data(symbol)
+        df = get_data(symbol, bulk_data)
         if df is None:
             return None
 
@@ -191,11 +191,13 @@ def analyze_symbol(symbol, retracement_percent):
 
         if check_conditions(df, retracement_percent):
 
-            # nom société
-            info = yf.Ticker(symbol).info
+            # Appel très lourd → PROTÉGER
+            polite_delay()
+            info = yf.Ticker(symbol).fast_info  # version moins agressive que .info
             company_name = info.get("shortName", "Nom inconnu")
 
             last = df.iloc[-1]
+
             return {
                 "Symbole": symbol,
                 "Nom": company_name,
