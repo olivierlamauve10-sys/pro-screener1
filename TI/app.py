@@ -16,6 +16,43 @@ import time, random
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
 st.title("📈 Screener TI")
 
+# ===========================
+#   ANTI BAN YAHOO
+# ===========================
+def polite_delay():
+    time.sleep(0.25 + random.uniform(0, 0.35))  # délai anti-robot
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def download_bulk_history(tickers):
+    """
+    Download groupé pour éviter les bans Yahoo Finance.
+    1 seule requête pour toute la liste.
+    Cache 5 min.
+    """
+    if len(tickers) == 0:
+        return {}
+
+    polite_delay()
+
+    try:
+        data = yf.download(
+            tickers=" ".join(tickers),
+            period="1y",
+            interval="1d",
+            group_by="ticker",
+            threads=True
+        )
+
+        # Harmonisation : pour 1 ticker Yahoo renvoie un DataFrame simple
+        if isinstance(data.columns, pd.MultiIndex):
+            return data
+        else:
+            return {tickers[0]: data}
+
+    except Exception:
+        return {}
+
 
 # ======================================
 #        CHARGEMENT DES MARCHÉS
