@@ -180,7 +180,7 @@ def check_conditions(df, retracement_percent):
     retracement_ok = current_price <= highest_52 * retracement_threshold
 
     return (
-        ema200_up_ok
+        ema200_up_ok,
         # and ema50_down_ok
         # and ema7_up_ok
         rsi_ok
