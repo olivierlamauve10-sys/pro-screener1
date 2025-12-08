@@ -443,9 +443,14 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
             cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
-            if cols[5].button("📈 Voir", key=f"btn_{idx}_{row['Symbole']}"):
-                st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
-                plot_chart(row["Symbole"])
-                st.markdown("---")
-
-            st.markdown("</div>", unsafe_allow_html=True)
+        # --- Affichage DIRECT du graphique ---
+            st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
+            plot_chart(row["Symbole"])
+            st.markdown("---")
+            
+       #     if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
+       #         st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
+       #         plot_chart(row["Symbole"])
+       #         st.markdown("---")
+       #
+       #     st.markdown("</div>", unsafe_allow_html=True)
