@@ -9,6 +9,7 @@ import json
 import os
 import pickle
 import time
+import random  # pour petite pause aléatoire
 
 CACHE_DIR = "cache_data"
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -79,6 +80,11 @@ retracement_percent = st.slider(
 # ======================================
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
+    """
+    Récupère l'historique weekly sur 2 ans avec cache disque.
+    On ne gère PAS les erreurs ici : elles sont attrapées dans analyze_symbol
+    pour pouvoir distinguer ban / autres erreurs.
+    """
     cache_path = os.path.join(CACHE_DIR, f"{symbol}.pkl")
 
     # lire cache si valide
@@ -88,20 +94,31 @@ def get_data(symbol):
             try:
                 with open(cache_path, "rb") as f:
                     return pickle.load(f)
-            except:
+            except Exception:
                 pass
 
-    # sinon récupérer depuis Yahoo Finance
+    # sinon récupérer depuis Yahoo Finance (avec petite pause aléatoire)
+    # pour lisser les requêtes et réduire le risque de ban
+    time.sleep(0.1 + 0.2 * random.random())
+
     df = yf.Ticker(symbol).history(period="2y", interval="1wk")
 
     if df is not None and not df.empty:
-        with open(cache_path, "wb") as f:
-            pickle.dump(df, f)
+        try:
+            with open(cache_path, "wb") as f:
+                pickle.dump(df, f)
+        except Exception:
+            # si le cache disque rate, ce n'est pas grave pour le scan
+            pass
 
     return df
 
 
 def audit_symbol(symbol):
+    """
+    Audit basique d'un ticker individuel pour comprendre les rejets.
+    (Bouton 'AUDIT COMPLET DES TICKERS')
+    """
     df = yf.Ticker(symbol).history(period="2y", interval="1wk")
 
     if df is None or df.empty:
@@ -178,11 +195,11 @@ def check_conditions(df, retracement_percent):
 
     retracement_threshold = 1 - (retracement_percent / 100)
     retracement_ok = current_price <= highest_52 * retracement_threshold
-    
-# ======================================
-# CONDITIONS
-# ======================================
-    
+
+    # ======================================
+    # CONDITIONS
+    # ======================================
+
     return (
         # ema200_up_ok
         # and ema50_down_ok
@@ -192,35 +209,58 @@ def check_conditions(df, retracement_percent):
     )
 
 
+def classify_yf_exception(e: Exception) -> str:
+    """Essaie de distinguer 'ban / rate limit' des autres erreurs."""
+    msg = str(e).lower()
+    if "too many requests" in msg or "429" in msg or "rate limit" in msg:
+        return "YF_RATE_LIMIT"
+    return "YF_ERROR"
+
+
 def analyze_symbol(symbol, retracement_percent):
+    """
+    Retourne (result, status) avec status ∈ {
+        'MATCH', 'NO_SIGNAL', 'NO_DATA', 'YF_RATE_LIMIT', 'YF_ERROR'
+    }
+    """
     try:
-        df = get_data(symbol)
-        if df is None:
-            return None
+        try:
+            df = get_data(symbol)
+        except Exception as e:
+            status = classify_yf_exception(e)
+            return None, status
+
+        if df is None or df.empty:
+            return None, "NO_DATA"
 
         df = compute_indicators_cached(df)
 
-        if check_conditions(df, retracement_percent):
+        if not check_conditions(df, retracement_percent):
+            return None, "NO_SIGNAL"
 
-            # nom société
+        # nom société (uniquement si match, pour limiter les requêtes)
+        try:
             info = yf.Ticker(symbol).info
             company_name = info.get("shortName", "Nom inconnu")
+        except Exception:
+            company_name = "Nom inconnu"
 
-            last = df.iloc[-1]
-            return {
-                "Symbole": symbol,
-                "Nom": company_name,
-                "Prix": f"{last['Close']:.2f}",
-                "EMA200": f"{last['EMA200']:.2f}",
-                "EMA50": f"{last['EMA50']:.2f}",
-                "EMA7": f"{last['EMA7']:.2f}",
-                "Signal": "ACHAT (rebond technique)"
-            }
+        last = df.iloc[-1]
+        result = {
+            "Symbole": symbol,
+            "Nom": company_name,
+            "Prix": f"{last['Close']:.2f}",
+            "EMA200": f"{last['EMA200']:.2f}",
+            "EMA50": f"{last['EMA50']:.2f}",
+            "EMA7": f"{last['EMA7']:.2f}",
+            "Signal": "ACHAT (rebond technique)"
+        }
 
-        return None
+        return result, "MATCH"
 
-    except Exception:
-        return None
+    except Exception as e:
+        status = classify_yf_exception(e)
+        return None, status
 
 
 # ======================================
@@ -236,7 +276,9 @@ def compute_heikin_ashi(df):
     ha.iloc[0, ha.columns.get_loc("HA_Open")] = (ha["Open"].iloc[0] + ha["Close"].iloc[0]) / 2
 
     for i in range(1, len(ha)):
-        ha.iloc[i, ha.columns.get_loc("HA_Open")] = (ha["HA_Open"].iloc[i - 1] + ha["HA_Close"].iloc[i - 1]) / 2
+        ha.iloc[i, ha.columns.get_loc("HA_Open")] = (
+            ha["HA_Open"].iloc[i - 1] + ha["HA_Close"].iloc[i - 1]
+        ) / 2
 
     ha["HA_High"] = ha[["High", "HA_Open", "HA_Close"]].max(axis=1)
     ha["HA_Low"] = ha[["Low", "HA_Open", "HA_Close"]].min(axis=1)
@@ -439,7 +481,18 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
         results = []
         progress = st.progress(0)
 
-        max_workers = min(8, len(tickers)) if len(tickers) > 0 else 1
+        # ⚠️ Limiter le nombre de threads pour réduire les bursts de requêtes
+        max_workers = min(4, len(tickers)) if len(tickers) > 0 else 1
+
+        # stats de diagnostics
+        status_counts = {
+            "MATCH": 0,
+            "NO_SIGNAL": 0,
+            "NO_DATA": 0,
+            "YF_RATE_LIMIT": 0,
+            "YF_ERROR": 0,
+            "UNKNOWN": 0,
+        }
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
@@ -451,18 +504,61 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             total = len(tickers) if len(tickers) > 0 else 1
 
             for future in as_completed(futures):
-                result = future.result()
+                try:
+                    result, status = future.result()
+                except Exception as e:
+                    # cas très rare si l'exception échappe à analyze_symbol
+                    result, status = None, classify_yf_exception(e)
+
+                status_counts[status] = status_counts.get(status, 0) + 1
+
                 if result is not None:
                     results.append(result)
+
                 done += 1
                 progress.progress(done / total)
+
+        # ====== Résumé diagnostique ======
+        nb_match = status_counts["MATCH"]
+        nb_no_signal = status_counts["NO_SIGNAL"]
+        nb_no_data = status_counts["NO_DATA"]
+        nb_rate = status_counts["YF_RATE_LIMIT"]
+        nb_err = status_counts["YF_ERROR"]
+
+        st.info(
+            f"""
+**Diagnostic du scan :**
+- {nb_match} tickers correspondent au filtre (MATCH)
+- {nb_no_signal} tickers scannés sans signal (NO_SIGNAL)
+- {nb_no_data} tickers sans données (NO_DATA)
+- {nb_rate} tickers en erreur probable de rate limit / ban Yahoo (YF_RATE_LIMIT)
+- {nb_err} tickers en autre erreur Yahoo / réseau (YF_ERROR)
+"""
+        )
 
         if results:
             df_res = pd.DataFrame(results)
             st.success(f"🚀 {len(df_res)} opportunités détectées")
             st.session_state.last_results = df_res
         else:
-            st.warning("Aucun signal trouvé.")
+            # Aucun résultat : essayer d'expliquer pourquoi
+            if nb_match == 0 and nb_no_signal > 0 and nb_rate == 0 and nb_err == 0:
+                st.warning(
+                    "Aucun signal trouvé, mais **les données Yahoo semblent OK**.\n"
+                    "→ Interprétation : probablement **aucune valeur ne remplit les conditions**."
+                )
+            elif nb_match == 0 and nb_rate > 0 and nb_no_signal == 0:
+                st.error(
+                    "⚠️ Aucun résultat et plusieurs erreurs de type 'rate limit'.\n"
+                    "→ Interprétation : probable **ban / limitation temporaire** de Yahoo Finance "
+                    "sur certaines requêtes. Réessaie plus tard ou réduis la fréquence."
+                )
+            else:
+                st.warning(
+                    "Aucun résultat, avec un mélange de tickers sans signal / sans données / en erreur.\n"
+                    "→ Vois le récapitulatif ci-dessus pour affiner le diagnostic."
+                )
+
             st.session_state.last_results = None
 
 
@@ -474,7 +570,7 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
 
     df_res = st.session_state.last_results.copy()
 
-    st.markdown("Clique sur **📈 Voir** pour afficher le graphique :")
+    st.markdown("Affichage direct des graphiques pour chaque valeur détectée :")
 
     st.markdown("""
     <style>
@@ -496,30 +592,25 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             st.markdown("<div class='result-card'>", unsafe_allow_html=True)
             cols = st.columns([1.2, 1, 1, 1, 1])
 
-        cols[0].markdown(
-            f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
-            unsafe_allow_html=True
-        )
-        cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
-        cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
-        cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
-        cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
+            cols[0].markdown(
+                f"<span class='symbol'>{row['Symbole']} — {row['Nom']}</span>",
+                unsafe_allow_html=True
+            )
+            cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
+            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
+            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
+            cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
-        st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown("</div>", unsafe_allow_html=True)
 
-        # --- Affichage DIRECT du graphique ---
-        st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
-        plot_chart(row["Symbole"])
-        st.markdown("---")
-            
-       #     if cols[5].button("📈 Voir", key=f"btn_{row['Symbole']}"):
-       #         st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
-       #         plot_chart(row["Symbole"])
-       #         st.markdown("---")
-       #
-       #     st.markdown("</div>", unsafe_allow_html=True)
+            # --- Affichage DIRECT du graphique ---
+            st.markdown(f"### 📊 Graphique – {row['Symbole']} — {row['Nom']}")
+            plot_chart(row["Symbole"])
+            st.markdown("---")
+
+
 # ======================================
-# SCANNER TECHNIQUE RAPIDE
+# SCANNER TECHNIQUE RAPIDE (AUDIT)
 # ======================================
 if st.button("🧪 AUDIT COMPLET DES TICKERS"):
     st.write("Analyse des causes des rejets…")
