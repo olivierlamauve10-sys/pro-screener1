@@ -202,6 +202,9 @@ def check_conditions(df, retracement_percent):
         slope = coef[0]
         ema50_flat_ok = abs(slope) < 0.125   # seuil à ajuster si besoin
 
+# ======================================
+# CONDITIONS
+# ======================================
     
     return (
         bullish_trend
