@@ -136,6 +136,10 @@ def check_conditions(df, retracement_percent):
 
     signal_ok = current_price > ema50.iloc[-1]
 
+# ======================================
+# CONDITIONS
+# ======================================
+    
     return (
         ema200_up_ok
         and ema50_down_ok
