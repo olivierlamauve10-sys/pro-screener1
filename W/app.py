@@ -186,7 +186,7 @@ def check_conditions(df):
     # ======================================
 
     return (
-        # ema200_up_ok
+        # ema200_up_ok Trop rare, juste en bonus
         # and ema50_down_ok
         # and ema7_up_ok
         rsi_ok
@@ -513,7 +513,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             f"""
 **Diagnostic du scan :**
 - {nb_match} tickers correspondent au filtre (MATCH)
-- {nb_no_signal} tickers scannés sans signal (NO_SIGNAL)
+- {nb_no_signal} tickers scannés sans signal (NO_MATCH)
 - {nb_no_data} tickers sans données (NO_DATA)
 - {nb_rate} tickers en erreur probable de rate limit / ban Yahoo (YF_RATE_LIMIT)
 - {nb_err} tickers en autre erreur Yahoo / réseau (YF_ERROR)
