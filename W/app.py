@@ -174,6 +174,7 @@ def check_conditions(df):
         and RSI7.iloc[-3] < 30
         and RSI7.iloc[-2] > 30
         and RSI7.iloc[-1] > 30
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
     )
 
     highest_52 = df["High"].tail(52).max()
