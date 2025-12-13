@@ -166,16 +166,20 @@ def check_conditions(df):
 
     RSI7 = df["RSI7"]
     rsi_ok = (
-        RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] < 30
-        and RSI7.iloc[-1] > 30
-        and RSI7.iloc[-1] < 65
+        RSI7.iloc[-5] < 30
+        and RSI7.iloc[-4] < 30
+        and RSI7.iloc[-3] > 30
+        and RSI7.iloc[-2] > and RSI7.iloc[-3]
+        and RSI7.iloc[-1] > and RSI7.iloc[-2]
     ) or (
         RSI7.iloc[-4] < 30
         and RSI7.iloc[-3] < 30
         and RSI7.iloc[-2] > 30
+        and RSI7.iloc[-1] > and RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] < 30
         and RSI7.iloc[-1] > 30
-        and RSI7.iloc[-1] > RSI7.iloc[-2]
     )
 
     highest_52 = df["High"].tail(52).max()
