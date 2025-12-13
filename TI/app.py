@@ -224,15 +224,19 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     retracement_threshold = 1 - (retracement_percent / 100)
     retracement_ok = current_price <= highest_252 * retracement_threshold
 
-    signal_ok = current_price > ema50.iloc[-1]
+    # signal_ok = current_price > ema50.iloc[-1]
 
+    # ======================================
+    # CONDITIONS
+    # ======================================
+    
     return (
         ema200_up_ok
         and ema50_down_ok
         and ema7_up_ok
         and rsi_ok
         and retracement_ok
-        and signal_ok
+        # and signal_ok
     )
 
 
