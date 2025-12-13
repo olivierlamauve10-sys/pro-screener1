@@ -7,7 +7,14 @@ from plotly.subplots import make_subplots
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 import os
+import pickle
+import time
+import random  # pour petite pause aléatoire
 
+CACHE_DIR = "cache_data"
+os.makedirs(CACHE_DIR, exist_ok=True)
+
+CACHE_TTL = 3600  # = 1h cache
 
 # ======================================
 #        CONFIGURATION GÉNÉRALE
@@ -53,7 +60,7 @@ markets = load_markets()
 selected_markets = st.multiselect(
     "Marchés à scanner",
     options=list(markets.keys()),
-    default=["🇫🇷 SBF 120 (France)"]
+    default=["🇫🇷 SBF 120 (France)","🇺🇸 S&P 500 (USA)","EU EUR (Europe)","DECO"]
 )
 
 tickers = [t for m in selected_markets for t in markets[m]]
@@ -78,6 +85,27 @@ retracement_percent = st.slider(
 # ======================================
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
+    """
+    Récupère l'historique weekly sur 2 ans avec cache disque.
+    On ne gère PAS les erreurs ici : elles sont attrapées dans analyze_symbol
+    pour pouvoir distinguer ban / autres erreurs.
+    """
+    cache_path = os.path.join(CACHE_DIR, f"{symbol}.pkl")
+
+    # lire cache si valide
+    if os.path.exists(cache_path):
+        mtime = os.path.getmtime(cache_path)
+        if time.time() - mtime < CACHE_TTL:
+            try:
+                with open(cache_path, "rb") as f:
+                    return pickle.load(f)
+            except Exception:
+                pass
+
+    # sinon récupérer depuis Yahoo Finance (avec petite pause aléatoire)
+    # pour lisser les requêtes et réduire le risque de ban
+    time.sleep(0.1 + 0.2 * random.random())
+
     df = yf.Ticker(symbol).history(period="1y", interval="1d")
     if df is None or df.empty or len(df) < 220:
         return None
@@ -85,6 +113,42 @@ def get_data(symbol):
     df = df[df["Volume"] > 0]          # supprimer week-ends
     df = df.dropna(subset=["Close"])   # supprimer lignes vides
     return df
+
+
+    if df is not None and not df.empty:
+        try:
+            with open(cache_path, "wb") as f:
+                pickle.dump(df, f)
+        except Exception:
+            # si le cache disque rate, ce n'est pas grave pour le scan
+            pass
+
+    return df
+
+
+def audit_symbol(symbol):
+    """
+    Audit basique d'un ticker individuel pour comprendre les rejets.
+    (Bouton 'AUDIT COMPLET DES TICKERS')
+    """
+    df = yf.Ticker(symbol).history(period="2y", interval="1wk")
+
+    if df is None or df.empty:
+        return (symbol, "❗ Aucune donnée Yahoo Finance (empty)")
+
+    if len(df) < 10:
+        return (symbol, f"❗ Historique insuffisant (seulement {len(df)} semaines)")
+
+    df["RSI7"] = ta.rsi(df["Close"], length=7)
+    last_rsi = df["RSI7"].iloc[-1]
+
+    if pd.isna(last_rsi):
+        return (symbol, "❗ RSI NaN (pas assez de points exploitables)")
+
+    if last_rsi > 100 or last_rsi < 0:
+        return (symbol, f"❗ RSI anormal ({last_rsi}) — données suspectes")
+
+    return (symbol, "✔ OK — données valides")
 
 
 @st.cache_data(show_spinner=False)
@@ -150,19 +214,33 @@ def check_conditions(df, retracement_percent):
     )
 
 
-def analyze_symbol(symbol, retracement_percent):
+def analyze_symbol(symbol):
+    """
+    Retourne (result, status) avec status ∈ {
+        'MATCH', 'NO_SIGNAL', 'NO_DATA', 'YF_RATE_LIMIT', 'YF_ERROR'
+    }
+    """
     try:
-        df = get_data(symbol)
-        if df is None:
-            return None
+        try:
+            df = get_data(symbol)
+        except Exception as e:
+            status = classify_yf_exception(e)
+            return None, status
+
+        if df is None or df.empty:
+            return None, "NO_DATA"
 
         df = compute_indicators_cached(df)
 
-        if check_conditions(df, retracement_percent):
+        if not check_conditions(df):
+            return None, "NO_SIGNAL"
 
-            # nom société
+        # nom société (uniquement si match, pour limiter les requêtes)
+        try:
             info = yf.Ticker(symbol).info
             company_name = info.get("shortName", "Nom inconnu")
+        except Exception:
+            company_name = "Nom inconnu"
 
             last = df.iloc[-1]
             return {
@@ -175,11 +253,11 @@ def analyze_symbol(symbol, retracement_percent):
                 "Signal": "ACHAT (rebond technique)"
             }
 
-        return None
+        return result, "MATCH"
 
-    except Exception:
-        return None
-
+    except Exception as e:
+        status = classify_yf_exception(e)
+        return None, status
 
 # ======================================
 #        GRAPHIQUE
@@ -305,7 +383,7 @@ def plot_chart(symbol):
 
 
 # ======================================
-#        SCANNER TECHNIQUE RAPIDE
+# BOUTON SCANNER
 # ======================================
 if st.button("🚀 LANCER LE SCANNER", type="primary"):
     with st.spinner("Analyse accélérée (multithread + cache)…"):
@@ -313,11 +391,22 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
         results = []
         progress = st.progress(0)
 
-        max_workers = min(8, len(tickers)) if len(tickers) > 0 else 1
+        # ⚠️ Limiter le nombre de threads pour réduire les bursts de requêtes
+        max_workers = min(4, len(tickers)) if len(tickers) > 0 else 1
+
+        # stats de diagnostics
+        status_counts = {
+            "MATCH": 0,
+            "NO_SIGNAL": 0,
+            "NO_DATA": 0,
+            "YF_RATE_LIMIT": 0,
+            "YF_ERROR": 0,
+            "UNKNOWN": 0,
+        }
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             futures = {
-                executor.submit(analyze_symbol, symbol, retracement_percent): symbol
+                executor.submit(analyze_symbol, symbol): symbol
                 for symbol in tickers
             }
 
@@ -325,18 +414,61 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             total = len(tickers) if len(tickers) > 0 else 1
 
             for future in as_completed(futures):
-                result = future.result()
+                try:
+                    result, status = future.result()
+                except Exception as e:
+                    # cas très rare si l'exception échappe à analyze_symbol
+                    result, status = None, classify_yf_exception(e)
+
+                status_counts[status] = status_counts.get(status, 0) + 1
+
                 if result is not None:
                     results.append(result)
+
                 done += 1
                 progress.progress(done / total)
+
+        # ====== Résumé diagnostique ======
+        nb_match = status_counts["MATCH"]
+        nb_no_signal = status_counts["NO_SIGNAL"]
+        nb_no_data = status_counts["NO_DATA"]
+        nb_rate = status_counts["YF_RATE_LIMIT"]
+        nb_err = status_counts["YF_ERROR"]
+
+        st.info(
+            f"""
+**Diagnostic du scan :**
+- {nb_match} tickers correspondent au filtre (MATCH)
+- {nb_no_signal} tickers scannés sans signal (NO_SIGNAL)
+- {nb_no_data} tickers sans données (NO_DATA)
+- {nb_rate} tickers en erreur probable de rate limit / ban Yahoo (YF_RATE_LIMIT)
+- {nb_err} tickers en autre erreur Yahoo / réseau (YF_ERROR)
+"""
+        )
 
         if results:
             df_res = pd.DataFrame(results)
             st.success(f"🚀 {len(df_res)} opportunités détectées")
             st.session_state.last_results = df_res
         else:
-            st.warning("Aucun signal trouvé.")
+            # Aucun résultat : essayer d'expliquer pourquoi
+            if nb_match == 0 and nb_no_signal > 0 and nb_rate == 0 and nb_err == 0:
+                st.warning(
+                    "Aucun signal trouvé, mais **les données Yahoo semblent OK**.\n"
+                    "→ Interprétation : probablement **aucune valeur ne remplit les conditions**."
+                )
+            elif nb_match == 0 and nb_rate > 0 and nb_no_signal == 0:
+                st.error(
+                    "⚠️ Aucun résultat et plusieurs erreurs de type 'rate limit'.\n"
+                    "→ Interprétation : probable **ban / limitation temporaire** de Yahoo Finance "
+                    "sur certaines requêtes. Réessaie plus tard ou réduis la fréquence."
+                )
+            else:
+                st.warning(
+                    "Aucun résultat, avec un mélange de tickers sans signal / sans données / en erreur.\n"
+                    "→ Vois le récapitulatif ci-dessus pour affiner le diagnostic."
+                )
+
             st.session_state.last_results = None
 
 
