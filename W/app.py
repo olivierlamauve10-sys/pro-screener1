@@ -193,7 +193,7 @@ def check_conditions(df):
     # =========================
     # CONDITIONS FINALES
     # =========================
-    return rsi_ok and macd_ok
+    return rsi_ok #and macd_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
