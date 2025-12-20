@@ -148,48 +148,52 @@ def check_conditions(df):
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
-    ema200 = df["EMA200"]
-    ema50 = df["EMA50"]
-
-    ema200_up_ok = (
-        # ema200.iloc[-1] > ema200.iloc[-4]
-        # and ema200.iloc[-4] > ema200.iloc[-8]
-        ema200.iloc[-4] > ema200.iloc[-20]
-    )
-
-    ema50_down_ok = (
-        ema50.iloc[-2] < ema50.iloc[-4]
-        and ema50.iloc[-4] < ema50.iloc[-6]
-    )
-
-    ema7_up_ok = last["EMA7"] > prev["EMA7"]
-
+    # =========================
+    # RSI weekly (condition principale)
+    # =========================
     RSI7 = df["RSI7"]
+
     rsi_ok = (
-        RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] < 30
-        and RSI7.iloc[-1] > 30
+        RSI7.iloc[-5] < 30
+        and RSI7.iloc[-4] < 30
+        and RSI7.iloc[-3] > 30
+        and RSI7.iloc[-2] > RSI7.iloc[-3]
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
     ) or (
         RSI7.iloc[-4] < 30
         and RSI7.iloc[-3] < 30
         and RSI7.iloc[-2] > 30
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] < 30
         and RSI7.iloc[-1] > 30
     )
 
-    highest_52 = df["High"].tail(52).max()
-    current_price = last["Close"]
+    if not rsi_ok:
+        return False   # RSI est obligatoire
 
+    # =========================
+    # MACD weekly (condition secondaire)
+    # =========================
+    macd_ok = True  # par défaut on NE BLOQUE PAS
 
-    # ======================================
-    # CONDITIONS
-    # ======================================
+    if all(c in df.columns for c in ["MACD_6_15_3", "MACDs_6_15_3"]):
+        macd = df["MACD_6_15_3"]
+        signal = df["MACDs_6_15_3"]
 
-    return (
-        # ema200_up_ok
-        # and ema50_down_ok
-        # and ema7_up_ok
-        rsi_ok
-    )
+        # vérifier qu'on a assez de points exploitables
+        if len(macd.dropna()) >= 3 and len(signal.dropna()) >= 3:
+            macd_ok = (
+                signal.iloc[-1] > macd.iloc[-1]
+                and signal.iloc[-2] > macd.iloc[-2]
+            )
+        # sinon : MACD non fiable → on laisse macd_ok = True
+
+    # =========================
+    # CONDITIONS FINALES
+    # =========================
+    return rsi_ok and macd_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
