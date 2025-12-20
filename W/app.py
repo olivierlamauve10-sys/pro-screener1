@@ -148,45 +148,47 @@ def check_conditions(df):
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
-    # =========================
-    # RSI weekly
-    # =========================
+    ema200 = df["EMA200"]
+    ema50 = df["EMA50"]
+
+    ema200_up_ok = (
+        # ema200.iloc[-1] > ema200.iloc[-4]
+        # and ema200.iloc[-4] > ema200.iloc[-8]
+        ema200.iloc[-4] > ema200.iloc[-20]
+    )
+
+    ema50_down_ok = (
+        ema50.iloc[-2] < ema50.iloc[-4]
+        and ema50.iloc[-4] < ema50.iloc[-6]
+    )
+
+    ema7_up_ok = last["EMA7"] > prev["EMA7"]
+
     RSI7 = df["RSI7"]
     rsi_ok = (
-        RSI7.iloc[-5] < 30
-        and RSI7.iloc[-4] < 30
-        and RSI7.iloc[-3] > 30
-        and RSI7.iloc[-2] > RSI7.iloc[-3]
-        and RSI7.iloc[-1] > RSI7.iloc[-2]
+        RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] < 30
+        and RSI7.iloc[-1] > 30
     ) or (
         RSI7.iloc[-4] < 30
         and RSI7.iloc[-3] < 30
         and RSI7.iloc[-2] > 30
-        and RSI7.iloc[-1] > RSI7.iloc[-2]
-    ) or (
-        RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] < 30
         and RSI7.iloc[-1] > 30
     )
 
-    # =========================
-    # MACD weekly : signal déjà déclenché
-    # =========================
-    if not all(c in df.columns for c in ["MACD_6_15_3", "MACDs_6_15_3"]):
-        return False
+    highest_52 = df["High"].tail(52).max()
+    current_price = last["Close"]
 
-    macd_signal_above_long = (
-        df["MACDs_6_15_3"].iloc[-1] > df["MACD_6_15_3"].iloc[-1]
-        and
-        df["MACDs_6_15_3"].iloc[-2] > df["MACD_6_15_3"].iloc[-2]
-    )
 
-    # =========================
-    # CONDITIONS FINALES
-    # =========================
+    # ======================================
+    # CONDITIONS
+    # ======================================
+
     return (
+        # ema200_up_ok
+        # and ema50_down_ok
+        # and ema7_up_ok
         rsi_ok
-        and macd_signal_above_long
     )
 
 
@@ -510,7 +512,7 @@ if st.button("🚀 LANCER LE SCANNER", type="primary"):
             f"""
 **Diagnostic du scan :**
 - {nb_match} tickers correspondent au filtre (MATCH)
-- {nb_no_signal} tickers scannés sans signal (NO_MATCH)
+- {nb_no_signal} tickers scannés sans signal (NO_SIGNAL)
 - {nb_no_data} tickers sans données (NO_DATA)
 - {nb_rate} tickers en erreur probable de rate limit / ban Yahoo (YF_RATE_LIMIT)
 - {nb_err} tickers en autre erreur Yahoo / réseau (YF_ERROR)
