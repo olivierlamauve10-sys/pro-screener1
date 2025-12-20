@@ -203,7 +203,7 @@ macd_signal_above_long = (
     # CONDITIONS
     # ======================================
 
-    return (
+return (
         # ema200_up_ok Trop rare, juste en bonus
         # and ema50_down_ok
         # and ema7_up_ok
