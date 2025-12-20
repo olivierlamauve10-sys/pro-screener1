@@ -177,7 +177,7 @@ def check_conditions(df):
     # MACD weekly (condition secondaire)
     # =========================
     
-    macdpr = df["MACD_6_30_3"]
+    macdpr = df["MACD_6_15_3"]
     signal = df["MACDs_6_15_3"]
     macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
     
