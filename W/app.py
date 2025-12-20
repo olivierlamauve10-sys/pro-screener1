@@ -176,24 +176,16 @@ def check_conditions(df):
     # =========================
     # MACD weekly (condition secondaire)
     # =========================
-    macd_ok = True  # par défaut on NE BLOQUE PAS
-
-    if all(c in df.columns for c in ["MACD_6_15_3", "MACDs_6_15_3"]):
-        macd = df["MACD_6_15_3"]
-        signal = df["MACDs_6_15_3"]
-
-        # vérifier qu'on a assez de points exploitables
-        if len(macd.dropna()) >= 3 and len(signal.dropna()) >= 3:
-            macd_ok = (
-                signal.iloc[-1] > macd.iloc[-1]
-                and signal.iloc[-2] > macd.iloc[-2]
-            )
-        # sinon : MACD non fiable → on laisse macd_ok = True
+    
+    macd = df["MACD_6_15_3"]
+    signal = df["MACDs_6_15_3"]
+    macd_ok = signal.iloc[-1] > macd.iloc[-1]
+    
 
     # =========================
     # CONDITIONS FINALES
     # =========================
-    return rsi_ok #and macd_ok
+    return rsi_ok and macd_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
