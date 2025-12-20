@@ -185,6 +185,19 @@ def check_conditions(df):
     highest_52 = df["High"].tail(52).max()
     current_price = last["Close"]
 
+# =========================
+# MACD weekly : signal déjà déclenché
+# =========================
+if not all(c in df.columns for c in ["MACD_6_15_3", "MACDs_6_15_3"]):
+    return False
+
+macd_signal_above_long = (
+    df["MACDs_6_15_3"].iloc[-1] > df["MACD_6_15_3"].iloc[-1]
+    and
+    df["MACDs_6_15_3"].iloc[-2] > df["MACD_6_15_3"].iloc[-2]
+)
+
+    
 
     # ======================================
     # CONDITIONS
@@ -195,6 +208,7 @@ def check_conditions(df):
         # and ema50_down_ok
         # and ema7_up_ok
         rsi_ok
+        and macd_signal_above_long
     )
 
 
