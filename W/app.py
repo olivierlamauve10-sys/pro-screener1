@@ -173,6 +173,10 @@ def check_conditions(df):
     if not rsi_ok:
         return False   # RSI est obligatoire
 
+    # =========================
+    # RSI2 Remontée trop brutale
+    # =========================
+    
     rsi2_ok = RSI7.iloc[-1] < 60
     
     # =========================
