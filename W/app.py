@@ -148,22 +148,9 @@ def check_conditions(df):
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
-    ema200 = df["EMA200"]
-    ema50 = df["EMA50"]
-
-    ema200_up_ok = (
-        # ema200.iloc[-1] > ema200.iloc[-4]
-        # and ema200.iloc[-4] > ema200.iloc[-8]
-        ema200.iloc[-4] > ema200.iloc[-20]
-    )
-
-    ema50_down_ok = (
-        ema50.iloc[-2] < ema50.iloc[-4]
-        and ema50.iloc[-4] < ema50.iloc[-6]
-    )
-
-    ema7_up_ok = last["EMA7"] > prev["EMA7"]
-
+    # =========================
+    # RSI weekly
+    # =========================
     RSI7 = df["RSI7"]
     rsi_ok = (
         RSI7.iloc[-5] < 30
@@ -182,31 +169,22 @@ def check_conditions(df):
         and RSI7.iloc[-1] > 30
     )
 
-    highest_52 = df["High"].tail(52).max()
-    current_price = last["Close"]
+    # =========================
+    # MACD weekly : signal déjà déclenché
+    # =========================
+    if not all(c in df.columns for c in ["MACD_6_15_3", "MACDs_6_15_3"]):
+        return False
 
-# =========================
-# MACD weekly : signal déjà déclenché
-# =========================
-if not all(c in df.columns for c in ["MACD_6_15_3", "MACDs_6_15_3"]):
-    return False
+    macd_signal_above_long = (
+        df["MACDs_6_15_3"].iloc[-1] > df["MACD_6_15_3"].iloc[-1]
+        and
+        df["MACDs_6_15_3"].iloc[-2] > df["MACD_6_15_3"].iloc[-2]
+    )
 
-macd_signal_above_long = (
-    df["MACDs_6_15_3"].iloc[-1] > df["MACD_6_15_3"].iloc[-1]
-    and
-    df["MACDs_6_15_3"].iloc[-2] > df["MACD_6_15_3"].iloc[-2]
-)
-
-    
-
-    # ======================================
-    # CONDITIONS
-    # ======================================
-
+    # =========================
+    # CONDITIONS FINALES
+    # =========================
     return (
-        # ema200_up_ok Trop rare, juste en bonus
-        # and ema50_down_ok
-        # and ema7_up_ok
         rsi_ok
         and macd_signal_above_long
     )
