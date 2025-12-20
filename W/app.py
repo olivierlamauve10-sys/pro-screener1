@@ -169,10 +169,12 @@ def check_conditions(df):
         and RSI7.iloc[-2] < 30
         and RSI7.iloc[-1] > 30
     )
-
+    
     if not rsi_ok:
         return False   # RSI est obligatoire
 
+    rsi2_ok = RSI7.iloc[-1] < 60
+    
     # =========================
     # MACD weekly (condition secondaire)
     # =========================
@@ -185,7 +187,7 @@ def check_conditions(df):
     # =========================
     # CONDITIONS FINALES
     # =========================
-    return rsi_ok #and macd_ok
+    return rsi_ok and rsi2_ok #and macd_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
