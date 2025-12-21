@@ -205,7 +205,7 @@ def check_conditions(df, retracement_percent):
     # ============================
     # 8) Cours de clôture pas beaucoup plus haut que droite et gauche de la tasse
     # ============================
-    cloture = right_top >= close.iloc[-1] * 1.03 * 0.93 and left_top >= close.iloc[-1] * 1.03
+    cloture = right_top >= close.iloc[-1] * 1.05 and left_top >= close.iloc[-1] * 1.05
 
     
     
