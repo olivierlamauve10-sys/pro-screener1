@@ -202,6 +202,13 @@ def check_conditions(df, retracement_percent):
         slope = coef[0]
         ema50_flat_ok = abs(slope) < 0.125   # seuil à ajuster si besoin
 
+    # ============================
+    # 8) Cours de clôture pas beaucoup plus haut que droite et gauche de la tasse
+    # ============================
+    cloture = right_top => close.iloc[-1] * 1.03 * 0.93 and left_top => close.iloc[-1] * 1.03
+
+    
+    
 # ======================================
 # CONDITIONS
 # ======================================
@@ -214,6 +221,7 @@ def check_conditions(df, retracement_percent):
         and breakout
         and coherence
         and ema50_flat_ok
+        and cloture
     )
 
 
