@@ -115,9 +115,9 @@ def check_conditions(df, retracement_percent):
     # ============================
     ema200 = df["EMA200"]
     bullish_trend = (
-        ema200.iloc[-1] > ema200.iloc[-11]
-        and ema200.iloc[-11] > ema200.iloc[-33]
-        and ema200.iloc[-33] > ema200.iloc[-45]
+        ema200.iloc[-1] > ema200.iloc[-15]
+        and ema200.iloc[-15] > ema200.iloc[-30]
+        and ema200.iloc[-30] > ema200.iloc[-45]
     )
     
     # ============================
@@ -140,7 +140,7 @@ def check_conditions(df, retracement_percent):
     cup_bottom = close.loc[cup_bottom_idx]
 
     # droite de la tasse
-    right_search = close.iloc[-35:-15]
+    right_search = close.iloc[-40:-10]
     right_top_idx = right_search.idxmax()
     right_top = close.loc[right_top_idx]
 
