@@ -204,9 +204,9 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     ema50  = df["EMA50"]
 
     ema200_up_ok = (
-        ema200.iloc[-1] > ema200.iloc[-11]
-        and ema200.iloc[-11] > ema200.iloc[-33]
-        and ema200.iloc[-33] > ema200.iloc[-45]
+        ema200.iloc[-1] > ema200.iloc[-15]
+        and ema200.iloc[-15] > ema200.iloc[-30]
+        and ema200.iloc[-30] > ema200.iloc[-45]
     )
 
     ema50_down_ok = (
@@ -216,11 +216,11 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     )
 
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
+    
     rsi_ok = last["RSI7"] < 95
 
     highest_252 = df["High"].tail(252).max()
     current_price = last["Close"]
-
     retracement_threshold = 1 - (retracement_percent / 100)
     retracement_ok = current_price <= highest_252 * retracement_threshold
 
