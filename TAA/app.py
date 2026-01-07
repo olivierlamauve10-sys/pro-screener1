@@ -221,7 +221,7 @@ def check_conditions(df, retracement_percent):
         and breakout
         and coherence
         and ema50_flat_ok
-        # and cloture
+        and cloture
     )
 
 
