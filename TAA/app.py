@@ -91,11 +91,19 @@ def load_markets():
         return {}
 
 markets = load_markets()
+
+if not markets:
+    st.error("❌ Aucun marché chargé. Vérifie markets.json / sp500.json")
+    st.stop()   # ⛔ STOP PROPRE : évite que Streamlit continue
+
+market_keys = list(markets.keys())
+
 selected_markets = st.multiselect(
     "Marchés à scanner",
-    options=list(markets.keys()),
-    default=list(markets.keys())[:2]
+    options=market_keys,
+    default=market_keys[:2] if len(market_keys) >= 2 else market_keys
 )
+
 tickers = [t for m in selected_markets for t in markets.get(m, [])]
 st.write(f"**{len(tickers)} tickers sélectionnés**")
 
