@@ -23,7 +23,7 @@ CACHE_TTL = 3600  # 1h cache disque
 #        CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener TI")
+st.title("📈 Screener TAA")
 
 # ======================================
 #        HELPERS : DIAGNOSTICS YF
