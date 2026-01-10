@@ -129,7 +129,7 @@ market_keys = list(markets.keys())
 selected_markets = st.multiselect(
     "Marchés à scanner",
     options=market_keys,
-    default=["🇫🇷 SBF 120 (France)", "🇺🇸 S&P 500 (USA)"] if "🇫🇷 SBF 120 (France)" in market_keys and "🇺🇸 S&P 500 (USA)" in market_keys else (market_keys[:2] if len(market_keys) >= 2 else market_keys)
+    default=["🇫🇷 SBF 120 (France)","🇺🇸 S&P 500 (USA)","EU EUR (Europe)","DECO"] if "🇫🇷 SBF 120 (France)" in market_keys and "🇺🇸 S&P 500 (USA)" in market_keys else (market_keys[:2] if len(market_keys) >= 2 else market_keys)
 )
 
 tickers = [t for m in selected_markets for t in markets.get(m, [])]
