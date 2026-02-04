@@ -154,20 +154,20 @@ def check_conditions(df):
     RSI7 = df["RSI7"]
 
     rsi_ok = (
-        RSI7.iloc[-5] < 30
-        and RSI7.iloc[-4] < 30
-        and RSI7.iloc[-3] > 30
-        and RSI7.iloc[-2] > RSI7.iloc[-3]
-        and RSI7.iloc[-1] > RSI7.iloc[-2]
+        RSI7.iloc[-5] > 70
+        and RSI7.iloc[-4] > 70
+        and RSI7.iloc[-3] < 70
+        and RSI7.iloc[-2] < RSI7.iloc[-3]
+        and RSI7.iloc[-1] < RSI7.iloc[-2]
     ) or (
-        RSI7.iloc[-4] < 30
-        and RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] > 30
-        and RSI7.iloc[-1] > RSI7.iloc[-2]
+        RSI7.iloc[-4] > 70
+        and RSI7.iloc[-3] > 70
+        and RSI7.iloc[-2] < 70
+        and RSI7.iloc[-1] < RSI7.iloc[-2]
     ) or (
-        RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] < 30
-        and RSI7.iloc[-1] > 30
+        RSI7.iloc[-3] > 70
+        and RSI7.iloc[-2] > 70
+        and RSI7.iloc[-1] < 70
     )
     
     if not rsi_ok:
@@ -177,7 +177,7 @@ def check_conditions(df):
     # RSI2 Remontée trop brutale
     # =========================
     
-    rsi2_ok = RSI7.iloc[-1] < 60
+    rsi2_ok = RSI7.iloc[-1] > 40
     
     # =========================
     # MACD weekly (condition secondaire)
