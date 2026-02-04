@@ -16,11 +16,12 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 
 CACHE_TTL = 3600  # = 1h cache
 
+
 # ======================================
 # CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener W Inv")
+st.title("📈 Screener W")
 
 
 # ======================================
@@ -153,20 +154,20 @@ def check_conditions(df):
     RSI7 = df["RSI7"]
 
     rsi_ok = (
-        RSI7.iloc[-5] > 70
-        and RSI7.iloc[-4] > 70
-        and RSI7.iloc[-3] < 70
-        and RSI7.iloc[-2] < RSI7.iloc[-3]
-        and RSI7.iloc[-1] < RSI7.iloc[-2]
+        RSI7.iloc[-5] < 30
+        and RSI7.iloc[-4] < 30
+        and RSI7.iloc[-3] > 30
+        and RSI7.iloc[-2] > RSI7.iloc[-3]
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
     ) or (
-        RSI7.iloc[-4] > 70
-        and RSI7.iloc[-3] > 70
-        and RSI7.iloc[-2] < 70
-        and RSI7.iloc[-1] < RSI7.iloc[-2]
+        RSI7.iloc[-4] < 30
+        and RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] > 30
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
     ) or (
-        RSI7.iloc[-3] > 70
-        and RSI7.iloc[-2] > 70
-        and RSI7.iloc[-1] < 70
+        RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] < 30
+        and RSI7.iloc[-1] > 30
     )
     
     if not rsi_ok:
@@ -176,7 +177,7 @@ def check_conditions(df):
     # RSI2 Remontée trop brutale
     # =========================
     
-    rsi2_ok = RSI7.iloc[-1] > 40
+    rsi2_ok = RSI7.iloc[-1] < 60
     
     # =========================
     # MACD weekly (condition secondaire)
@@ -185,10 +186,6 @@ def check_conditions(df):
     macdpr = df["MACD_6_15_3"]
     signal = df["MACDs_6_15_3"]
     macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
-
-    # =========================
-    # Volumes et capitalisations
-    # =========================
     
 
     # =========================
