@@ -191,15 +191,15 @@ def check_conditions(df):
     # Volumes et capitalisations
     # =========================
     
-    #info = yf.Ticker(ticker).info
+    MIN_AVG_VOLUME = 500_000  # ajuste
 
-    volume = info.get("averageVolume", 0)
+    hist = yf.Ticker(ticker).history(period="3mo", interval="1d")
+    avg_vol = float(hist["Volume"].tail(20).mean()) if (hist is not None and len(hist) >= 20) else 0.0
+    volume_ok = avg_vol >= MIN_AVG_VOLUME
+    
     #market_cap = info.get("marketCap", 0)
-
-    volume_ok = volume >= 500000
     #capitalisation_ok = market_cap >= 2_000_000_000
     
-
     # =========================
     # CONDITIONS FINALES
     # =========================
