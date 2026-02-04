@@ -60,18 +60,6 @@ selected_markets = st.multiselect(
 tickers = [t for m in selected_markets for t in markets[m]]
 st.write(f"**{len(tickers)} actions sélectionnées**")
 
-###################
-data = yf.download(
-tickers,
-period="3mo",
-interval="1d",
-group_by="ticker",
-threads=True
-)
-####################
-
-
-
 # ======================================
 # FONCTIONS TECHNIQUES
 # ======================================
@@ -201,15 +189,6 @@ def check_conditions(df):
     # =========================
     # Volumes et capitalisations
     # =========================
-    
-    MIN_AVG_VOLUME = 500_000
-
-    try:
-        hist = data[ticker]
-        avg_vol = hist["Volume"].tail(20).mean()
-        volume_ok = avg_vol >= MIN_AVG_VOLUME
-    except:
-        volume_ok = False
     
 
     # =========================
