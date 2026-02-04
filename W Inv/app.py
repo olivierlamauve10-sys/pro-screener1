@@ -191,13 +191,13 @@ def check_conditions(df):
     # Volumes et capitalisations
     # =========================
     
-    info = yf.Ticker(ticker).info
+    #info = yf.Ticker(ticker).info
 
-    volume = info.get("averageVolume", 0)
-    market_cap = info.get("marketCap", 0)
+    #volume = info.get("averageVolume", 0)
+    #market_cap = info.get("marketCap", 0)
 
-    volume_ok = volume >= 500_000
-    capitalisation_ok = market_cap >= 2_000_000_000
+    #volume_ok = volume >= 500_000
+    #capitalisation_ok = market_cap >= 2_000_000_000
     
 
     # =========================
