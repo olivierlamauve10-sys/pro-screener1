@@ -16,16 +16,6 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 
 CACHE_TTL = 3600  # = 1h cache
 
-###################
-data = yf.download(
-tickers,
-period="3mo",
-interval="1d",
-group_by="ticker",
-threads=True
-)
-####################
-
 # ======================================
 # CONFIGURATION GÉNÉRALE
 # ======================================
@@ -69,6 +59,18 @@ selected_markets = st.multiselect(
 
 tickers = [t for m in selected_markets for t in markets[m]]
 st.write(f"**{len(tickers)} actions sélectionnées**")
+
+###################
+data = yf.download(
+tickers,
+period="3mo",
+interval="1d",
+group_by="ticker",
+threads=True
+)
+####################
+
+
 
 # ======================================
 # FONCTIONS TECHNIQUES
