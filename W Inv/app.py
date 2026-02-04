@@ -196,14 +196,14 @@ def check_conditions(df):
     volume = info.get("averageVolume", 0)
     #market_cap = info.get("marketCap", 0)
 
-    volume_ok = volume >= 500_000
+    volume_ok = volume >= 500000
     #capitalisation_ok = market_cap >= 2_000_000_000
     
 
     # =========================
     # CONDITIONS FINALES
     # =========================
-    return rsi_ok and rsi2_ok and volume_ok # and macd_ok and capitalisation_ok
+    return rsi_ok and rsi2_ok and volume_ok #and macd_ok and capitalisation_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
