@@ -16,6 +16,15 @@ os.makedirs(CACHE_DIR, exist_ok=True)
 
 CACHE_TTL = 3600  # = 1h cache
 
+###################
+data = yf.download(
+    tickers,
+    period="3mo",
+    interval="1d",
+    group_by="ticker",
+    threads=True
+)
+####################
 
 # ======================================
 # CONFIGURATION GÉNÉRALE
@@ -191,19 +200,20 @@ def check_conditions(df):
     # Volumes et capitalisations
     # =========================
     
-    MIN_AVG_VOLUME = 500_000  # ajuste
+    MIN_AVG_VOLUME = 500_000
 
-    hist = yf.Ticker(ticker).history(period="3mo", interval="1d")
-    avg_vol = float(hist["Volume"].tail(20).mean()) if (hist is not None and len(hist) >= 20) else 0.0
-    volume_ok = avg_vol >= MIN_AVG_VOLUME
+    try:
+        hist = data[ticker]
+        avg_vol = hist["Volume"].tail(20).mean()
+        volume_ok = avg_vol >= MIN_AVG_VOLUME
+    except:
+        volume_ok = False
     
-    #market_cap = info.get("marketCap", 0)
-    #capitalisation_ok = market_cap >= 2_000_000_000
-    
+
     # =========================
     # CONDITIONS FINALES
     # =========================
-    return rsi_ok and rsi2_ok and volume_ok #and macd_ok and capitalisation_ok
+    return rsi_ok and rsi2_ok and volume_ok #and macd_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
