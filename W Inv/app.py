@@ -18,11 +18,11 @@ CACHE_TTL = 3600  # = 1h cache
 
 ###################
 data = yf.download(
-    tickers,
-    period="3mo",
-    interval="1d",
-    group_by="ticker",
-    threads=True
+tickers,
+period="3mo",
+interval="1d",
+group_by="ticker",
+threads=True
 )
 ####################
 
