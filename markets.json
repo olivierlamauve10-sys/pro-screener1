@@ -107,5 +107,31 @@
     "XLK","XLB","TSLZ","TMF","GBTC","ETHE","JEPI","ARKB","SGOL","SPXS",
     "XLV","BTCZ","SCHB","UNG","MSTU","NVDL","SCHH","KOLD","CRWG","TNA",
     "ZSL","ILF","SPHY","SCHV","PFF","XRT","MUB","BMNG","IVV","CGDV"
-  ]
+  ],
+
+"WInv": [
+    "^FCHI","^DJI","^IXIC","^VIX","^GDAXI","^GSPC","^STOXX50E","BX4P.XD",
+    "MC.PA","RMS.PA","OR.PA","AIR.PA","SU.PA","TTE.PA","SAF.PA","EL.PA","BNP.PA","SAN.PA",
+    "AI.PA","CDI.PA","CS.PA","DG.PA","ENGI.PA","GLE.PA","ACA.PA","HO.PA","BN.PA","SGO.PA","ORA.PA",
+    "LR.PA","KER.PA","DSY.PA","STLAP.PA","AM.PA","ML.PA","VIE.PA","STMPA.PA","CAP.PA","RI.PA",
+    "PUB.PA","EN.PA","DIM.PA","AMUN.PA","URW.PA","BOL.PA","ALO.PA","BVI.PA","FGR.PA","ENX.PA",
+    "ERF.PA","BIM.PA","AC.PA","IPN.PA","ADP.PA","RXL.PA","CA.PA","RNL.PA","AYV.PA","GET.PA","RNO.PA",
+    "LI.PA","IAM.PA","SPIE.PA","ABVX.PA","GTT.PA","SW.PA","ELIS.PA","NEX.PA","COV.PA","GFC.PA","TE.PA",
+    "CBDG.PA","ODET.PA","SCR.PA","AKE.PA","VK.PA","EDEN.PA","FDJU.PA","MF.PA","COVH.PA","RUI.PA",
+    "DEC.PA","BPCMJ.PA","VCT.PA","LOUP.PA","TRI.PA","BPCOG.PA","CAF.PA","RF.PA","TEP.PA","BAIN.PA",
+    "AF.PA","FR.PA","VIRP.PA","TKO.PA","SESG.PA","ALTA.PA","VRLA.PA","SK.PA","JPY=X","EURUSD=X",
+    "EURGBP=X","EURCHF=X","EURCAD=X","EURJPY=X","EURSEK=X","EURHUF=X","GBPUSD=X","CHF=X",
+    "CAD=X","GC=F","SI=F","HG=F","CL=F","BZ=F","NG=F","ZC=F","ZO=F","KE=F","ZS=F","CC=F","KC=F",
+    "CT=F","SB=F","BTC-USD","ETH-USD","XRP-USD","SOL-USD",
+    "ADA-USD","GGLS","SOLT","BND","ETH","NVDX","ARKK","ETHU",
+    "ETHT","TQQQ","MSTX","IBIT","SPY","QQQ","ETHA","BMNU","BITO","SQQQ","JDST",
+    "NVDA","AAPL","GOOGL","GOOG","MSFT","AMZN","TSM","META","TSLA","AVGO","JPM","WMT","LLY","V",
+    "XOM","JNJ","BAC","MU","ORCL","ABBV","BABA","PG","CVX","NFLX","KO","CSCO","AMD","PLTR","MS",
+    "MRK","C","WFC","PM","LRCX","UNH","AMAT","INTC","PEP","TMUS","NVO","SHEL","TXN","VZ","T","ABT",
+    "DIS","BA","NEE","GILD","SCHW","RIO","SAN","CRM","ANET","ADI","UBER","APH","BX","PFE","QCOM",
+    "SHOP","ACN","PDD","COF","MDT","BBVA","COP","SONY","APP","BMY","INTU","GSK","NEM","IBKR","ARM",
+    "BSX","ADBE","CMCSA","IBN","MO","SBUX","NOW","PANW","LYG","BN","UPS","BP","CVS","GLW","PBR",
+    "ITUB","CRWD","PBR-A","NKE","USB","KKR","WDC","STX","BCS","20Y.MU","20Y.F","IS05D.XD",
+    "I20MX.XD","CEB1.MU"
+  ],
 }
