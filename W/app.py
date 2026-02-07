@@ -286,7 +286,7 @@ def plot_chart(symbol):
         # ===========================
         # DATA DAILY + EMA7 + EMA20
         # ===========================
-        df_daily = yf.Ticker(symbol).history(period="2mo", interval="1d")
+        df_daily = yf.Ticker(symbol).history(period="4mo", interval="1d")
 
         if df_daily is None or df_daily.empty:
             st.warning("⚠️ Pas de données daily pour le zoom")
