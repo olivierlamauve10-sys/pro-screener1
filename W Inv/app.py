@@ -396,8 +396,8 @@ def plot_chart(symbol):
                 line=dict(color="orange", width=1.3)
             ), row=1, col=2)
 
-            if len(df_daily) > 50:
-                fig.update_xaxes(range=[df_daily.index[-50], df_daily.index[-1]], row=1, col=2)
+            if len(df_daily) > 90:
+                fig.update_xaxes(range=[df_daily.index[-90], df_daily.index[-1]], row=1, col=2)
 
         # ===========================
         # RSI weekly
