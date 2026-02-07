@@ -55,7 +55,7 @@ markets = load_markets()
 selected_markets = st.multiselect(
     "Marchés à scanner",
     options=list(markets.keys()),
-    default=["W Inv"]
+    default=["WInv"]
 )
 
 tickers = [t for m in selected_markets for t in markets[m]]
