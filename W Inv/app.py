@@ -301,7 +301,7 @@ def plot_chart(symbol):
         # ===========================
         # DATA DAILY + EMA7 + EMA20
         # ===========================
-        df_daily = yf.Ticker(symbol).history(period="3mo", interval="1d")
+        df_daily = yf.Ticker(symbol).history(period="4mo", interval="1d")
 
         if df_daily is None or df_daily.empty:
             st.warning("⚠️ Pas de données daily pour le zoom")
@@ -396,8 +396,8 @@ def plot_chart(symbol):
                 line=dict(color="orange", width=1.3)
             ), row=1, col=2)
 
-            if len(df_daily) > 180:
-                fig.update_xaxes(range=[df_daily.index[-180], df_daily.index[-1]], row=1, col=2)
+            if len(df_daily) > 50:
+                fig.update_xaxes(range=[df_daily.index[-50], df_daily.index[-1]], row=1, col=2)
 
         # ===========================
         # RSI weekly
