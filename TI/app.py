@@ -206,13 +206,13 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     ema200_up_ok = (
         ema200.iloc[-50] > ema200.iloc[-75]
         and ema200.iloc[-75] > ema200.iloc[-100]
-        and ema200.iloc[-100] > ema200.iloc[-145]
+        # and ema200.iloc[-100] > ema200.iloc[-125]
     )
 
     ema50_down_ok = (
         ema50.iloc[-2] < ema50.iloc[-4]
         and ema50.iloc[-4] < ema50.iloc[-6]
-        and ema50.iloc[-6] < ema50.iloc[-8]
+        # and ema50.iloc[-6] < ema50.iloc[-8]
     )
 
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
