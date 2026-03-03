@@ -225,7 +225,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     ema7_down1_ok = (
         ema7.iloc[-5] < ema7.iloc[-25]
         or ema7.iloc[-1] < ema7.iloc[-20]
-        #and ema7.iloc[-25] < ema7.iloc[-35]
+        or ema7.iloc[-10] < ema7.iloc[-30]
     )
        
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
