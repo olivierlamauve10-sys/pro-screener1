@@ -20,7 +20,7 @@ if os.path.exists("cache_data"):
 
 os.makedirs("cache_data", exist_ok=True)
 
-
+st.cache_data.clear()
 
 # ======================================
 #        CONFIG & CACHE
