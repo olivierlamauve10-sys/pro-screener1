@@ -156,7 +156,7 @@ def get_data(symbol: str):
     # 2) Sinon requête Yahoo (petit jitter)
     time.sleep(0.08 + 0.18 * random.random())
 
-    df = yf.Ticker(symbol).history(period="1y", interval="1d")
+    df = yf.Ticker(symbol).history(period="2y", interval="1d")
 
     if df is None or df.empty:
         return None
