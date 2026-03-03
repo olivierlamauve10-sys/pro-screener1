@@ -279,7 +279,7 @@ def check_conditions(df: pd.DataFrame) -> bool:
         and cup_shape_ok
         and handle_ok
         and rsi_ok
-        #and breakout
+        and breakout
         and coherence
         and ema50_flat_ok
     )
