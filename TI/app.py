@@ -204,9 +204,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     ema50  = df["EMA50"]
 
     ema200_up_ok = (
-        ema200.iloc[-25] > ema200.iloc[-40]
-        and ema200.iloc[-40] > ema200.iloc[-50]
-        and ema200.iloc[-50] > ema200.iloc[-55]
+        #ema200.iloc[-25] > ema200.iloc[-40]
+        #and ema200.iloc[-40] > ema200.iloc[-50]
+        #and ema200.iloc[-50] > ema200.iloc[-55]
+        ema200.iloc[-25] / ema200.iloc[-55] > 1,05
     )
     
     ema50_down1_ok = (
