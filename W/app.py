@@ -183,7 +183,8 @@ def check_conditions(df):
     # Dans le sens de la tendance LT
     # ===============================
     
-    # tendanceLT_ok = close.iloc[-1] * 0 > EMA200.iloc[-1] * 0
+    EMA200 = df["EMA200"]
+    tendanceLT_ok = EMA200.iloc[-2] < EMA200.iloc[-1]
     
     # =========================
     # MACD weekly (condition secondaire)
