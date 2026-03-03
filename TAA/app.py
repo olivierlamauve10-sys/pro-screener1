@@ -217,9 +217,10 @@ def check_conditions(df: pd.DataFrame) -> bool:
     # ============================
     ema200 = df["EMA200"]
     bullish_trend = (
-        ema200.iloc[-1] > ema200.iloc[-15]
-        and ema200.iloc[-15] > ema200.iloc[-30]
-        and ema200.iloc[-30] > ema200.iloc[-45]
+        #ema200.iloc[-1] > ema200.iloc[-15]
+        #and ema200.iloc[-15] > ema200.iloc[-30]
+        #and ema200.iloc[-30] > ema200.iloc[-45]
+        ema200.iloc[-1] / ema200.iloc[-45]>1.01
     )
 
     # ============================
