@@ -211,7 +211,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and ema200.iloc[-50] > ema200.iloc[-55]
     )
     
-    ema300_up_ok = ema300.iloc[-1] > ema300.iloc[-20]
+    ema300_up_ok = ema300.iloc[-1] > ema300.iloc[-2]
     
     ema50_down1_ok = (
         ema50.iloc[-2] < ema50.iloc[-4]
