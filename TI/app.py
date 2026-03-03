@@ -164,7 +164,7 @@ def get_data(symbol: str):
     df = df[df["Volume"] > 0]
     df = df.dropna(subset=["Close"])
 
-    if len(df) < 220:
+    if len(df) < 500:
         return None
 
     # 3) Écrire cache disque
