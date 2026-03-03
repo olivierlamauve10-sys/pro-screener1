@@ -251,7 +251,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and ema7_up_ok
         and rsi_ok
         and retracement_ok
-        #and signal_ok
+        and signal_ok
     )
 
 
