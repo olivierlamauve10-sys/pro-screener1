@@ -256,7 +256,7 @@ def check_conditions(df: pd.DataFrame) -> bool:
     # ===========
     # 5) Breakout
     # ===========
-    breakout = (last_close >= right_top * 0.99) and (last_close <= right_top * 1.1)
+    breakout = (last_close >= right_top * 0.97) and (last_close <= right_top * 1.1)
 
     # ============================
     # 6) Cohérence entre hauts gauche/droite (intervalle => AND)
