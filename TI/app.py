@@ -183,7 +183,6 @@ def compute_indicators_cached(df: pd.DataFrame):
     close = df["Close"]
 
     df["EMA200"] = ta.ema(close, length=200)
-    df["EMA300"] = ta.ema(close, length=300)
     df["EMA50"]  = ta.ema(close, length=50)
     df["EMA7"]   = ta.ema(close, length=7)
 
@@ -202,7 +201,6 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     prev = df.iloc[-2]
 
     ema200 = df["EMA200"]
-    ema300 = df["EMA300"]
     ema50  = df["EMA50"]
 
     ema200_up_ok = (
@@ -210,8 +208,6 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and ema200.iloc[-40] > ema200.iloc[-50]
         and ema200.iloc[-50] > ema200.iloc[-55]
     )
-    
-    #ema300_up_ok = ema300.iloc[-1] > ema300.iloc[-2]
     
     ema50_down1_ok = (
         ema50.iloc[-2] < ema50.iloc[-4]
@@ -242,7 +238,6 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     return (
         (ema50_down1_ok or ema50_down2_ok)
         and ema200_up_ok
-        #or ema300_up_ok
         #and ema7_up_ok
         #and rsi_ok
         #and retracement_ok
