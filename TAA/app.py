@@ -253,10 +253,10 @@ def check_conditions(df: pd.DataFrame) -> bool:
     # ============================
     rsi_ok = df["RSI7"].iloc[-1] > 40
 
-    # ============================
-    # 5) Breakout permissif
-    # ============================
-    breakout = (last_close >= right_top * 1.00) and (last_close <= right_top * 1.075)
+    # ===========
+    # 5) Breakout
+    # ===========
+    breakout = (last_close >= right_top * 0.99) and (last_close <= right_top * 1.1)
 
     # ============================
     # 6) Cohérence entre hauts gauche/droite (intervalle => AND)
