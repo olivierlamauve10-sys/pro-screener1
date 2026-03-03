@@ -10,7 +10,6 @@ import os
 import pickle
 import time
 import random
-import shutil
 
 # ======================================
 #        CONFIG & CACHE
