@@ -13,23 +13,12 @@ import random
 import shutil
 
 # ======================================
-#        NETTOYAGE CACHE SI BESOIN
-# ======================================
-if os.path.exists("cache_data"):
-    shutil.rmtree("cache_data")
-
-os.makedirs("cache_data", exist_ok=True)
-
-st.cache_data.clear()
-
-# ======================================
 #        CONFIG & CACHE
 # ======================================
 CACHE_DIR = "cache_data"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
 CACHE_TTL = 3600  # 1h cache disque
-# CACHE_TTL = 60  # 1mn cache disque
 
 # ======================================
 #        CONFIGURATION GÉNÉRALE
