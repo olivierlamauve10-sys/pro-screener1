@@ -244,7 +244,8 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     
     return (
         (ema50_down1_ok or ema50_down2_ok)
-        and (ema200_up_ok or ema300_up_ok)
+        and ema200_up_ok
+        #or ema300_up_ok
         #and ema7_up_ok
         #and rsi_ok
         #and retracement_ok
