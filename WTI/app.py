@@ -294,9 +294,9 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 # ======================================
 
     emact_ecarte_ok = (
-        ema5.iloc[-1] / ema8.iloc[-1] > 1.005
-        and ema8.iloc[-1] / ema13.iloc[-1] > 1.005
-        and ema13.iloc[-1] / ema21.iloc[-1] > 1.005
+        ema5.iloc[-1] / ema8.iloc[-1] > 1.0075
+        and ema8.iloc[-1] / ema13.iloc[-1] > 1.0075
+        and ema13.iloc[-1] / ema21.iloc[-1] > 1.0075
     )
     
 # ======================================
