@@ -319,10 +319,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     
     return (
         sma200_up_ok
-        and (ema50_down1_ok or ema50_down2_ok or ema8_down1_ok)
-        and ema8_up_ok
+        # and (ema50_down1_ok or ema50_down2_ok or ema8_down1_ok)
+        # and ema8_up_ok
         and rsi_ok
-        and retracement_ok
+        # and retracement_ok
         and emact_aligne_ok
         and emact_ecarte_ok
         and prix_dansruban_ok
