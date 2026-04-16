@@ -208,7 +208,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     ema7 = df["EMA7"]
 
 # ======================================
-#     C1 EMA UP
+#     C1 SMA200 UP
 # ======================================
 # Paramètre modifiable: degré de la pente
     
@@ -219,6 +219,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         sma200.iloc[-25] / sma200.iloc[-55] > 1.001
         or sma200.iloc[-15] / sma200.iloc[-45] > 1.001
     )
+
+# ======================================
+#     C2 EMA50 OU EMA7 EN RETRACEMENT
+# ======================================
     
     ema50_down1_ok = (
         ema50.iloc[-2] < ema50.iloc[-4]
@@ -230,28 +234,44 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         ema50.iloc[-30] < ema50.iloc[-45]
         and ema50.iloc[-45] < ema50.iloc[-60]
     )
-
+  
     ema7_down1_ok = (
         ema7.iloc[-5] < ema7.iloc[-25]
         or ema7.iloc[-1] < ema7.iloc[-10]
         or ema7.iloc[-2] < ema7.iloc[-20]
         or ema7.iloc[-10] < ema7.iloc[-30]
     )
-       
+
+# ======================================
+#     C3 EMA7 up
+# ======================================
+         
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
+
+# ======================================
+#     C4 RSI < 95
+# ======================================
     
     rsi_ok = last["RSI7"] < 95
 
+# ======================================
+#     C5 RETRACEMENT VS PLUS HAUT 1 AN
+# ======================================
+ 
     highest_252 = df["High"].tail(252).max()
     current_price = last["Close"]
     retracement_threshold = 1 - (retracement_percent / 100)
     retracement_ok = current_price <= highest_252 * retracement_threshold
-
+    
+# ======================================
+#     C6 PRIX > EMA50
+# ======================================
+ 
     signal_ok = current_price > ema50.iloc[-1]
 
-    # ======================================
-    # CONDITIONS
-    # ======================================
+# ======================================
+#     RUN CONDITIONS
+# ======================================
     
     return (
         sma200_up_ok
