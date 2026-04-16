@@ -306,12 +306,12 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 #  C9 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
 # ===============================================
 
-low = df["Low"]
+    low = df["Low"]
 
-prix_dansruban_ok = any(
-    ema21.iloc[-i] <= low.iloc[-i] <= ema8.iloc[-i]
-    for i in range(1, 5)
-)
+    prix_dansruban_ok = any(
+        ema21.iloc[-i] <= low.iloc[-i] <= ema8.iloc[-i]
+        for i in range(1, 5)
+    )
         
 # ======================================
 #     RUN CONDITIONS
