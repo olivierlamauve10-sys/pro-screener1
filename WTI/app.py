@@ -384,6 +384,23 @@ def plot_chart(symbol: str):
             line=dict(color="purple", width=1.5)
         ), row=1, col=1)
 
+# GRAPHIQUE: EMA21
+        
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df["ema21"],
+            mode="lines", name="ema21",
+            line=dict(color="cyan", width=2.5)
+        ), row=1, col=1)
+
+# GRAPHIQUE: EMA13
+        
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df["ema13"],
+            mode="lines", name="ema13",
+            line=dict(color="cyan", width=2)
+        ), row=1, col=1)
+
+        
 # GRAPHIQUE: EMA8
         
         fig.add_trace(go.Scatter(
@@ -397,7 +414,7 @@ def plot_chart(symbol: str):
         fig.add_trace(go.Scatter(
             x=df.index, y=df["ema5"],
             mode="lines", name="ema5",
-            line=dict(color="cyan", width=1.5)
+            line=dict(color="cyan", width=1)
         ), row=1, col=1)
 
 # GRAPHIQUE: EMA200
