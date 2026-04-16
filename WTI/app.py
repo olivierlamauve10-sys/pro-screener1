@@ -131,7 +131,7 @@ retracement_percent = st.slider(
 )
 
 # ======================================
-#        DATA + INDICATEURS
+#        DATA EN CASH
 # ======================================
 @st.cache_data(show_spinner=False)
 def get_data(symbol: str):
@@ -177,13 +177,16 @@ def get_data(symbol: str):
 
     return df
 
+# ======================================
+#     DEFINITIONS INDICATORS EN CASH
+# ======================================
 
 @st.cache_data(show_spinner=False)
 def compute_indicators_cached(df: pd.DataFrame):
     df = df.copy()
     close = df["Close"]
 
-    df["EMA200"] = ta.ema(close, length=200)
+    df["SMA200"] = ta.sma(close, length=200)
     df["EMA50"]  = ta.ema(close, length=50)
     df["EMA7"]   = ta.ema(close, length=7)
 
@@ -196,21 +199,25 @@ def compute_indicators_cached(df: pd.DataFrame):
 
     return df
 
-
 def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
-    ema200 = df["EMA200"]
+    sma200 = df["SMA200"]
     ema50  = df["EMA50"]
     ema7 = df["EMA7"]
+
+# ======================================
+#     C1 EMA UP
+# ======================================
+# Paramètre modifiable: degré de la pente
     
-    ema200_up_ok = (
-        #ema200.iloc[-25] > ema200.iloc[-40]
-        #and ema200.iloc[-40] > ema200.iloc[-50]
-        #and ema200.iloc[-50] > ema200.iloc[-55]
-        ema200.iloc[-25] / ema200.iloc[-55] > 1.025
-        or ema200.iloc[-15] / ema200.iloc[-45] > 1.025
+    sma200_up_ok = (
+        #sma200.iloc[-25] > sma200.iloc[-40]
+        #and sma200.iloc[-40] > sma200.iloc[-50]
+        #and sma200.iloc[-50] > sma200.iloc[-55]
+        sma200.iloc[-25] / sma200.iloc[-55] > 1.001
+        or sma200.iloc[-15] / sma200.iloc[-45] > 1.001
     )
     
     ema50_down1_ok = (
@@ -247,7 +254,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     # ======================================
     
     return (
-        ema200_up_ok
+        sma200_up_ok
         and (ema50_down1_ok or ema50_down2_ok or ema7_down1_ok)
         and ema7_up_ok
         and rsi_ok
@@ -283,7 +290,7 @@ def analyze_symbol(symbol: str, retracement_percent: int):
             "Symbole": symbol,
             "Nom": company_name,
             "Prix": f"{last['Close']:.2f}",
-            "EMA200": f"{last['EMA200']:.2f}",
+            "SMA200": f"{last['SMA200']:.2f}",
             "EMA50": f"{last['EMA50']:.2f}",
             "EMA7": f"{last['EMA7']:.2f}",
             "Signal": "ACHAT (rebond technique)"
@@ -339,13 +346,13 @@ def plot_chart(symbol: str):
         ), row=1, col=1)
 
         for i in range(1, len(df)):
-            color = "blue" if df["EMA200"].iloc[i] >= df["EMA200"].iloc[i - 1] else "red"
+            color = "blue" if df["SMA200"].iloc[i] >= df["SMA200"].iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
                 x=df.index[i - 1:i + 1],
-                y=df["EMA200"].iloc[i - 1:i + 1],
+                y=df["SMA200"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2),
-                name="EMA200" if i == 1 else None,
+                name="SMA200" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
@@ -518,7 +525,7 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
                 unsafe_allow_html=True
             )
             cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
-            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
+            cols[2].markdown(f"<span class='metric'>SMA200: {row['SMA200']}</span>", unsafe_allow_html=True)
             cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
             cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
