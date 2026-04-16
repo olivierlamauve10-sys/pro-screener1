@@ -1,7 +1,7 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import pandas_ta as ta
+#import pandas_ta as ta
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -23,7 +23,7 @@ CACHE_TTL = 3600  # 1h cache disque
 #        CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener TI")
+st.title("📈 Screener WTI")
 
 # ======================================
 #        HELPERS : DIAGNOSTICS YF
