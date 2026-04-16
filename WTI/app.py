@@ -220,6 +220,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         or sma200.iloc[-15] / sma200.iloc[-45] > 1.001
     )
 
+# ========================================
+# RSI Week en vraie réintégration Strat W
+# ========================================
+    
 # ======================================
 #     C2 EMA50 OU EMA7 EN RETRACEMENT
 # ======================================
@@ -264,10 +268,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     retracement_ok = current_price <= highest_252 * retracement_threshold
     
 # ======================================
-#     C6 PRIX > EMA50
+#     C6 PRIX > SMA200
 # ======================================
  
-    signal_ok = current_price > ema50.iloc[-1]
+    signal_ok = current_price > sma200.iloc[-1]
 
 # ======================================
 #     RUN CONDITIONS
