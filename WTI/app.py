@@ -297,9 +297,9 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 # ======================================
 
     emact_ecarte_ok = (
-        ema5.iloc[-1] / ema8.iloc[-1] > 1.0075
-        and ema8.iloc[-1] / ema13.iloc[-1] > 1.0075
-        and ema13.iloc[-1] / ema21.iloc[-1] > 1.0075
+        ema5.iloc[-1] / ema8.iloc[-1] > 1.005
+        and ema8.iloc[-1] / ema13.iloc[-1] > 1.005
+        and ema13.iloc[-1] / ema21.iloc[-1] > 1.005
     )
 
 # ===============================================
@@ -310,7 +310,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 
     prix_dansruban_ok = any(
         ema21.iloc[-i] <= low.iloc[-i] <= ema8.iloc[-i]
-        for i in range(1, 5)
+        for i in range(2, 7)
     )
         
 # ======================================
