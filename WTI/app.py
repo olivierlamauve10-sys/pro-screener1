@@ -436,12 +436,12 @@ def plot_chart(symbol: str):
 # GRAPHIQUE: EMA5
         
         for i in range(1, len(df)):
-            color = "blue" if df["ema5"].iloc[i] >= df["ema5"].iloc[i - 1] else "red"
+            color = "cyan" if df["ema5"].iloc[i] >= df["ema5"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
                 x=df.index[i - 1:i + 1],
                 y=df["ema5"].iloc[i - 1:i + 1],
                 mode="lines",
-                line=dict(color=color, width=2),
+                line=dict(color=color, width=1),
                 name="ema5" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
