@@ -306,13 +306,12 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 #  C9 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
 # ===============================================
 
-#    prix_dansruban_ok = (
-#        Close.iloc[-1] < ema5.iloc[-1]
-#        or Close.iloc[-1] < ema5.iloc[-1]
-#        or Close.iloc[-2] < ema5.iloc[-2]
-#        or Close.iloc[-3] < ema5.iloc[-3]
-#        or Close.iloc[-4] < ema5.iloc[-4]        
-#    )
+low = df["Low"]
+
+prix_dansruban_ok = any(
+    ema21.iloc[-i] <= low.iloc[-i] <= ema8.iloc[-i]
+    for i in range(1, 5)
+)
         
 # ======================================
 #     RUN CONDITIONS
@@ -326,7 +325,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and retracement_ok
         and emact_aligne_ok
         and emact_ecarte_ok
-        # and prix_dansruban_ok
+        and prix_dansruban_ok
         and signal_ok
     )
 
