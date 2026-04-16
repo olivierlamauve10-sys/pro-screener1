@@ -152,9 +152,12 @@ def get_data(symbol: str):
                     return df
         except Exception:
             pass
-
+# ======================================
+#     TIME SLEEP
+# ======================================
+    
     # 2) Sinon requête Yahoo (petit jitter)
-    time.sleep(0.08 + 0.18 * random.random())
+    time.sleep(0.08 + 0.25 * random.random())
 
     df = yf.Ticker(symbol).history(period="1y", interval="1d")
     # df = yf.Ticker(symbol).history(period="2y", interval="1d")
