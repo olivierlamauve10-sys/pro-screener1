@@ -288,7 +288,17 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and ema13.iloc[-1] < ema8.iloc[-1]
         and ema8.iloc[-1] < ema5.iloc[-1]
     )
-     
+
+# ======================================
+#     C8 EMA CT ECARTEES ENTRE ELLES
+# ======================================
+
+    emact_ecarte_ok = (
+        ema5.iloc[-1] / ema8.iloc[-1] > 1.01
+        and ema8.iloc[-1] / ema13.iloc[-1] > 1.01
+        and ema13.iloc[-1] / ema21.iloc[-1] > 1.01
+    )
+    
 # ======================================
 #     RUN CONDITIONS
 # ======================================
@@ -300,6 +310,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and rsi_ok
         and retracement_ok
         and emact_aligne_ok
+        and emact_ecarte_ok
         and signal_ok
     )
 
