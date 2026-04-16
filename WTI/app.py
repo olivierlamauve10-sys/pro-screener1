@@ -323,7 +323,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and retracement_ok
         and emact_aligne_ok
         and emact_ecarte_ok
-        and prix_dansruban_ok
+        # and prix_dansruban_ok
         and signal_ok
     )
 
