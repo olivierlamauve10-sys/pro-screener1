@@ -159,8 +159,8 @@ def get_data(symbol: str):
     # 2) Sinon requête Yahoo (petit jitter)
     time.sleep(0.08 + 0.25 * random.random())
 
-    df = yf.Ticker(symbol).history(period="1y", interval="1d")
-    # df = yf.Ticker(symbol).history(period="2y", interval="1d")
+    # df = yf.Ticker(symbol).history(period="1y", interval="1d")
+    df = yf.Ticker(symbol).history(period="2y", interval="1d")
 
     if df is None or df.empty:
         return None
@@ -473,7 +473,9 @@ def plot_chart(symbol: str):
                 name="SMA200" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
-
+            
+# GRAPHIQUE: RSI
+        
         rsi = df["RSI32"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
@@ -486,6 +488,8 @@ def plot_chart(symbol: str):
                 showlegend=(i == 1)
             ), row=2, col=1)
 
+# GRAPHIQUE: MACD
+        
         fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
