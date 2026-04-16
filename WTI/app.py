@@ -410,20 +410,30 @@ def plot_chart(symbol: str):
 
 # GRAPHIQUE: EMA21
         
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df["ema21"],
-            mode="lines", name="ema21",
-            line=dict(color="cyan", width=2.5)
-        ), row=1, col=1)
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema21"].iloc[i] >= df["ema21"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema21"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2.5),
+                name="ema21" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
 
 # GRAPHIQUE: EMA13
         
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df["ema13"],
-            mode="lines", name="ema13",
-            line=dict(color="cyan", width=2)
-        ), row=1, col=1)
-
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema13"].iloc[i] >= df["ema13"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema13"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2),
+                name="ema13" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
         
 # GRAPHIQUE: EMA8
         
