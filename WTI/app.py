@@ -233,33 +233,6 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 # RSI Week en vraie réintégration Strat W
 # ========================================
     
-# ======================================
-#     C2 EMA50 OU ema8 EN RETRACEMENT
-# ======================================
-    
-    ema50_down1_ok = (
-        ema50.iloc[-2] < ema50.iloc[-4]
-        and ema50.iloc[-4] < ema50.iloc[-6]
-        and ema50.iloc[-6] < ema50.iloc[-8]
-    )
-
-    ema50_down2_ok = (
-        ema50.iloc[-30] < ema50.iloc[-45]
-        and ema50.iloc[-45] < ema50.iloc[-60]
-    )
-  
-    ema8_down1_ok = (
-        ema8.iloc[-5] < ema8.iloc[-25]
-        or ema8.iloc[-1] < ema8.iloc[-10]
-        or ema8.iloc[-2] < ema8.iloc[-20]
-        or ema8.iloc[-10] < ema8.iloc[-30]
-    )
-
-# ======================================
-#     C3 ema8 up
-# ======================================
-         
-    ema8_up_ok = last["ema8"] > prev["ema8"]
 
 # ======================================
 #     C4 RSI < 95
@@ -280,7 +253,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 #     C6 PRIX > SMA200
 # ======================================
  
-    signal_ok = current_price > sma200.iloc[-1]
+    prixhalt_ok = current_price > sma200.iloc[-1]
 
 # ======================================
 #     C7 EMA CT ALIGNEES
@@ -313,21 +286,45 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         ema21.iloc[-i] <= low.iloc[-i] <= ema8.iloc[-i]
         for i in range(1, 7)
     )
-        
+
+# ===============================================
+#  C10 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
+# ===============================================
+    
+    open_ = df["Open"]
+    close = df["Close"]
+    high = df["High"]
+    low = df["Low"]
+
+    bougie_reprise_ok = (
+        close.iloc[-1] > open_.iloc[-1]  # bougie verte
+        and close.iloc[-1] > close.iloc[-2]  # momentum
+        and (high.iloc[-1] - close.iloc[-1]) / (high.iloc[-1] - low.iloc[-1] + 1e-6) < 0.3
+    )
+
+    bougie_engulfing_ok = (
+        close.iloc[-1] > open_.iloc[-1]
+        and close.iloc[-1] > open_.iloc[-2]
+        and open_.iloc[-1] < close.iloc[-2]
+    )
+
+    bougie_signal_ok = (
+        bougie_reprise_ok or bougie_engulfing_ok
+    )
+    
 # ======================================
 #     RUN CONDITIONS
 # ======================================
     
     return (
         sma200_up_ok
-        # and (ema50_down1_ok or ema50_down2_ok or ema8_down1_ok)
-        # and ema8_up_ok
+        and prixhalt_ok
         and rsi_ok
         # and retracement_ok
         and emact_aligne_ok
         and emact_ecarte_ok
         and prix_dansruban_ok
-        and signal_ok
+        and bougie_signal_ok
     )
 
 
