@@ -310,7 +310,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 
     prix_dansruban_ok = any(
         ema21.iloc[-i] <= low.iloc[-i] <= ema8.iloc[-i]
-        for i in range(2, 7)
+        for i in range(1, 8)
     )
         
 # ======================================
