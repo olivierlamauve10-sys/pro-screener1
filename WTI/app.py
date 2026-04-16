@@ -435,11 +435,22 @@ def plot_chart(symbol: str):
 
 # GRAPHIQUE: EMA5
         
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df["ema5"],
-            mode="lines", name="ema5",
-            line=dict(color="cyan", width=1)
-        ), row=1, col=1)
+        for i in range(1, len(df)):
+            color = "blue" if df["ema5"].iloc[i] >= df["ema5"].iloc[i - 1] else "red"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema5"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2),
+                name="ema5" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+ #       fig.add_trace(go.Scatter(
+ #           x=df.index, y=df["ema5"],
+ #           mode="lines", name="ema5",
+ #           line=dict(color="cyan", width=1)
+ #       ), row=1, col=1)
 
 # GRAPHIQUE: EMA200
         
