@@ -365,6 +365,8 @@ def plot_chart(symbol: str):
             ]
         )
 
+# GRAPHIQUE: CANDELSTICKS
+
         fig.add_trace(go.Candlestick(
             x=df.index,
             open=df["Open"], high=df["High"],
@@ -374,18 +376,32 @@ def plot_chart(symbol: str):
             decreasing_line_color="red"
         ), row=1, col=1)
 
+# GRAPHIQUE: EMA49
+        
         fig.add_trace(go.Scatter(
             x=df.index, y=df["EMA50"],
             mode="lines", name="EMA50",
             line=dict(color="purple", width=1.5)
         ), row=1, col=1)
 
+# GRAPHIQUE: EMA8
+        
         fig.add_trace(go.Scatter(
             x=df.index, y=df["ema8"],
             mode="lines", name="ema8",
             line=dict(color="cyan", width=1.5)
         ), row=1, col=1)
 
+# GRAPHIQUE: EMA5
+        
+        fig.add_trace(go.Scatter(
+            x=df.index, y=df["ema5"],
+            mode="lines", name="ema5",
+            line=dict(color="cyan", width=1.5)
+        ), row=1, col=1)
+
+# GRAPHIQUE: EMA200
+        
         for i in range(1, len(df)):
             color = "blue" if df["SMA200"].iloc[i] >= df["SMA200"].iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
