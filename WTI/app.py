@@ -433,7 +433,7 @@ def plot_chart(symbol: str):
                 x=df.index[i - 1:i + 1],
                 y=df["ema8"].iloc[i - 1:i + 1],
                 mode="lines",
-                line=dict(color=color, width=1,5),
+                line=dict(color=color, width=1.5),
                 name="ema8" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
