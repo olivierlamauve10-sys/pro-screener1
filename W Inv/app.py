@@ -21,7 +21,7 @@ CACHE_TTL = 3600  # = 1h cache
 # CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener W et W Inv Signaux estéthiques -> Retournement entre S et S+10, espérance 70% \n -> à suivre en liste W de ZoneBourse")
+st.title("📈 Screener W et W Inv Signaux esthétiques -> Retournement entre S et S+10, espérance 70% -> à suivre en liste W de ZoneBourse")
 
 
 # ======================================
