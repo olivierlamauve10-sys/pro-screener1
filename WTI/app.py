@@ -247,7 +247,8 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 # ======================================
 #     C5 RETRACEMENT VS PLUS HAUT 1 AN
 # ======================================
- 
+# Inactif
+    
     highest_252 = df["High"].tail(252).max()
     current_price = last["Close"]
     retracement_threshold = 1 - (retracement_percent / 100)
