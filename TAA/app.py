@@ -194,9 +194,19 @@ def compute_indicators_cached(df: pd.DataFrame):
     df["EMA200"] = ta.ema(close, length=200)
     df["EMA50"]  = ta.ema(close, length=50)
     df["EMA7"]   = ta.ema(close, length=7)
-
     df["RSI7"]   = ta.rsi(close, length=7)
     df["RSI32"]  = ta.rsi(close, length=32)
+#    
+    df["ema21"]   = ta.ema(close, length=21)
+    df["ema13"]   = ta.ema(close, length=13)
+    df["ema8"]   = ta.ema(close, length=8)
+    df["ema5"]   = ta.ema(close, length=5)
+
+    ema21  = df["ema21"]
+    ema13  = df["ema13"]
+    ema8 = df["ema8"]
+    ema5 = df["ema5"]
+#
 
     macd = ta.macd(close, fast=10, slow=104, signal=10)
     if macd is not None:
@@ -374,7 +384,61 @@ def plot_chart(symbol: str):
                 name="EMA200" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
+#
+# GRAPHIQUE: EMA21
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema21"].iloc[i] >= df["ema21"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema21"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2.5),
+                name="ema21" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
 
+
+# GRAPHIQUE: EMA13
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema13"].iloc[i] >= df["ema13"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema13"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2),
+                name="ema13" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+        
+# GRAPHIQUE: EMA8
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema8"].iloc[i] >= df["ema8"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema8"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1.5),
+                name="ema8" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+# GRAPHIQUE: EMA5
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema5"].iloc[i] >= df["ema5"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema5"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1),
+                name="ema5" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+            
+#        
         rsi = df["RSI32"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
