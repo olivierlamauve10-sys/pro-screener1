@@ -239,7 +239,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     
 
 # ======================================
-#     C4 RSI < 95
+#     C4 RSI PAS EN EXTREME SURACHAT
 # ======================================
     
     rsi_ok = last["RSI7"] < 95
@@ -288,7 +288,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     low = df["Low"]
 
     prix_dansruban_ok = any(
-        ema21.iloc[-i] <= low.iloc[-i] <= ema8.iloc[-i]
+        ema21.iloc[-i] <= low.iloc[-i] <= ema13.iloc[-i]
         for i in range(1, 7)
     )
 
