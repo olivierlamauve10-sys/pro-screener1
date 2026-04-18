@@ -368,11 +368,6 @@ def plot_chart(symbol: str):
             line=dict(color="purple", width=1.5)
         ), row=1, col=1)
 
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df["EMA7"],
-            mode="lines", name="EMA7",
-            line=dict(color="cyan", width=1.5)
-        ), row=1, col=1)
 
         for i in range(1, len(df)):
             color = "blue" if df["EMA200"].iloc[i] >= df["EMA200"].iloc[i - 1] else "red"
