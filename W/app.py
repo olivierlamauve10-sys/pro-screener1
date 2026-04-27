@@ -18,7 +18,7 @@ CACHE_TTL = 3600  # = 1h cache
 
 
 # ======================================
-# CONFIGURATION GÉNÉRALE
+# PAGE D ACCEUIL
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
 st.title("📈 W esthétic ->")
@@ -188,8 +188,8 @@ def check_conditions(df):
     # Inutile car stratégie W parie sur un RETOURNEMENT de tendance 
     # ===============================
     
-    EMA200 = df["EMA200"]
-    tendanceLT_ok = EMA200.iloc[-20] < EMA200.iloc[-1] or EMA200.iloc[-2] < EMA200.iloc[-1]
+    # EMA200 = df["EMA200"]
+    # tendanceLT_ok = EMA200.iloc[-20] < EMA200.iloc[-1] or EMA200.iloc[-2] < EMA200.iloc[-1]
 
     # =======================================
     # EMA200 assez éloignée pour rentabilité
@@ -202,9 +202,9 @@ def check_conditions(df):
     # MACD weekly (condition secondaire)
     # =========================
     
-    macdpr = df["MACD_6_15_3"]
-    signal = df["MACDs_6_15_3"]
-    macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
+    # macdpr = df["MACD_6_15_3"]
+    # signal = df["MACDs_6_15_3"]
+    # macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
     
 
     # =========================
