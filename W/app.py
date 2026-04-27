@@ -21,7 +21,7 @@ CACHE_TTL = 3600  # = 1h cache
 # CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 W                 Signaux estéthiques \n -> Retournement entre S et S+10, espérance 70% \n -> à suivre en liste W de ZoneBourse")
+st.title("📈 W                 Signaux estéthiques \n -> Retournement entre S+1 et S+7: 50% retour SMA200 \n -> à suivre en liste W de ZoneBourse")
 
 
 # ======================================
@@ -181,6 +181,7 @@ def check_conditions(df):
     
     # ===============================
     # Dans le sens de la tendance LT
+    # Inutile car stratégie W parie sur un RETOURNEMENT de tendance 
     # ===============================
     
     EMA200 = df["EMA200"]
