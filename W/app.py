@@ -212,7 +212,8 @@ def check_conditions(df):
     # =========================
     # CONDITIONS DE RESTITUTION
     # =========================
-    return rsi_ok and rsi2_ok and seuil_ok
+    return rsi_ok and rsi2_ok 
+    # and seuil_ok
     # and macd_ok
     # and tendanceLT_ok
     # return rsi_ok and rsi2_ok and (tendanceLT_ok or macd_ok)
