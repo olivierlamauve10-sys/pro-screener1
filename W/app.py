@@ -182,24 +182,23 @@ def check_conditions(df):
     # =========================
     
     rsi2_ok = RSI7.iloc[-1] < 60
-    
-    # ===============================
-    # Dans le sens de la tendance LT
-    # Inutile car stratégie W parie sur un RETOURNEMENT de tendance 
-    # ===============================
-    
-    # ema200 = df["ema200"]
-    # tendanceLT_ok = ema200.iloc[-20] < ema200.iloc[-1] or ema200.iloc[-2] < ema200.iloc[-1]
 
     # =======================================
-    # ema200 assez éloignée pour rentabilité
+    # ema200 assez éloignée pour rentabilité: 10%
     # =======================================
     
     close = df["Close"]
     current_price = last["Close"]
     df["sma200"] = ta.sma(close, length=40)
     sma200 = df["sma200"]
-    seuil_ok = (sma200.iloc[-1] / current_price) > 2
+    seuil_ok = (sma200.iloc[-1] / current_price) > 1.1
+
+    # ===============================
+    # Dans le sens de la tendance LT
+    # Inutile car stratégie W parie sur un RETOURNEMENT de tendance 
+    # ===============================
+    
+    tendanceLT_ok = sma200.iloc[-5] < ema200.iloc[-1] or ema200.iloc[-2] < ema200.iloc[-1]
     
     # =========================
     # MACD weekly (condition secondaire)
@@ -213,9 +212,8 @@ def check_conditions(df):
     # =========================
     # CONDITIONS DE RESTITUTION
     # =========================
-    return rsi_ok and rsi2_ok and seuil_ok
+    return rsi_ok and rsi2_ok and (seuil_ok or tendanceLT_ok)
     # and macd_ok
-    # and tendanceLT_ok
     # return rsi_ok and rsi2_ok and (tendanceLT_ok or macd_ok)
 
 
