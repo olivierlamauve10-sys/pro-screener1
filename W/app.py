@@ -316,7 +316,7 @@ def plot_chart(symbol):
         else:
             zoom_daily_available = True
             df_daily["EMA7"] = ta.ema(df_daily["Close"], length=7)
-            df_daily["EMA200"] = ta.ema(df_daily["Close"], length=20)
+            df_daily["EMA200"] = ta.ema(df_daily["Close"], length=75)
 
         # =================================
         # ❶ SUBPLOTS = 3 lignes × 2 colonnes
