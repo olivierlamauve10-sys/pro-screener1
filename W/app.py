@@ -197,8 +197,9 @@ def check_conditions(df):
     
     close = df["Close"]
     current_price = last["Close"]
-    # ema200 = df["ema200"]
-    seuil_ok = current_price < ema200.iloc[-1]
+    df["sma200"] = ta.sma(close, length=200)
+    sma200 = df["sma200"]
+    seuil_ok = current_price < sma200.iloc[-1]
     
     # =========================
     # MACD weekly (condition secondaire)
