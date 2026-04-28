@@ -195,6 +195,7 @@ def check_conditions(df):
     # ema200 assez éloignée pour rentabilité
     # =======================================
     
+    # close = df["Close"]
     # ema200 = df["ema200"]
     # seuil_ok = close < ema200
     
