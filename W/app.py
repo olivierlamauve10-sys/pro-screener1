@@ -195,9 +195,10 @@ def check_conditions(df):
     # ema200 assez éloignée pour rentabilité
     # =======================================
     
-    # close = df["Close"]
-    # ema200 = df["ema200"]
-    # seuil_ok = close < ema200
+    close = df["Close"]
+    current_price = last["Close"]
+    ema200 = df["ema200"]
+    seuil_ok = current_price < ema200
     
     # =========================
     # MACD weekly (condition secondaire)
@@ -211,8 +212,7 @@ def check_conditions(df):
     # =========================
     # CONDITIONS DE RESTITUTION
     # =========================
-    return rsi_ok and rsi2_ok 
-    # and seuil_ok
+    return rsi_ok and rsi2_ok and seuil_ok
     # and macd_ok
     # and tendanceLT_ok
     # return rsi_ok and rsi2_ok and (tendanceLT_ok or macd_ok)
