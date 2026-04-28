@@ -307,7 +307,7 @@ def plot_chart(symbol):
         df = compute_indicators_cached(df)
 
         # ===========================
-        # DATA DAILY + EMA7 + EMA20
+        # DATA DAILY DUREE
         # ===========================
         df_daily = yf.Ticker(symbol).history(period="4mo", interval="1d")
 
@@ -317,7 +317,7 @@ def plot_chart(symbol):
         else:
             zoom_daily_available = True
             df_daily["EMA7"] = ta.ema(df_daily["Close"], length=7)
-            df_daily["EMA20"] = ta.ema(df_daily["Close"], length=20)
+            df_daily["EMA200"] = ta.ema(df_daily["Close"], length=200)
 
         # =================================
         # ❶ SUBPLOTS = 3 lignes × 2 colonnes
@@ -389,8 +389,8 @@ def plot_chart(symbol):
             ), row=1, col=2)
 
             fig.add_trace(go.Scatter(
-                x=df_daily.index, y=df_daily["EMA20"],
-                mode="lines", name="EMA20 daily",
+                x=df_daily.index, y=df_daily["EMA200"],
+                mode="lines", name="EMA200 daily",
                 line=dict(color="orange", width=1.3)
             ), row=1, col=2)
 
