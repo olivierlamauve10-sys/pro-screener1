@@ -360,7 +360,7 @@ def plot_chart(symbol):
         fig.add_trace(go.Scatter(
             x=df.index, y=df["EMA50"],
             mode="lines", name="EMA50",
-            line=dict(color="purple", width=1.5)
+            line=dict(color="purple", width=3.5)
         ), row=1, col=1)
 
         fig.add_trace(go.Scatter(
