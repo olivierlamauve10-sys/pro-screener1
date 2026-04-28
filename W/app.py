@@ -196,7 +196,7 @@ def check_conditions(df):
     # =======================================
     
     close = df["Close"]
-    # current_price = last["Close"]
+    current_price = last["Close"]
     # ema200 = df["ema200"]
     # seuil_ok = current_price < ema200
     
