@@ -197,7 +197,7 @@ def check_conditions(df):
     
     close = df["Close"]
     current_price = last["Close"]
-    df["sma200"] = ta.sma(close, length=200)
+    df["sma200"] = ta.sma(close, length=40)
     sma200 = df["sma200"]
     seuil_ok = current_price < sma200.iloc[-1]
     
