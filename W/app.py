@@ -388,7 +388,7 @@ def plot_chart(symbol):
                 line=dict(color="cyan", width=1.3)
             ), row=1, col=2)
 
-        for i in range(1, len(df)):
+        for i in range(1, len(df)-150):
             color = "blue" if df["ema200"].iloc[i] >= df["ema200"].iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
                 x=df.index[i - 1:i + 1],
