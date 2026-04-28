@@ -198,7 +198,7 @@ def check_conditions(df):
     # Inutile car stratégie W parie sur un RETOURNEMENT de tendance 
     # ===============================
     
-    tendanceLT_ok = sma200.iloc[-5] < ema200.iloc[-1] or ema200.iloc[-2] < ema200.iloc[-1]
+    tendanceLT_ok = sma200.iloc[-5] < sma200.iloc[-1] or sma200.iloc[-2] < sma200.iloc[-1]
     
     # =========================
     # MACD weekly (condition secondaire)
