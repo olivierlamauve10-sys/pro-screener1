@@ -134,7 +134,7 @@ def compute_indicators_cached(df):
     df = df.copy()
     close = df["Close"]
 
-    df["EMA200"] = ta.ema(close, length=40)
+    df["SMA200"] = ta.ema(close, length=40)
     df["EMA50"] = ta.ema(close, length=10)
     df["EMA7"] = ta.ema(close, length=4)
 
@@ -188,15 +188,15 @@ def check_conditions(df):
     # Inutile car stratégie W parie sur un RETOURNEMENT de tendance 
     # ===============================
     
-    # EMA200 = df["EMA200"]
-    # tendanceLT_ok = EMA200.iloc[-20] < EMA200.iloc[-1] or EMA200.iloc[-2] < EMA200.iloc[-1]
+    # SMA200 = df["SMA200"]
+    # tendanceLT_ok = SMA200.iloc[-20] < SMA200.iloc[-1] or SMA200.iloc[-2] < SMA200.iloc[-1]
 
     # =======================================
-    # EMA200 assez éloignée pour rentabilité
+    # SMA200 assez éloignée pour rentabilité
     # =======================================
     
-    # EMA200 = df["EMA200"]
-    # seuil_ok = close < EMA200
+    # SMA200 = df["SMA200"]
+    # seuil_ok = close < SMA200
     
     # =========================
     # MACD weekly (condition secondaire)
@@ -258,7 +258,7 @@ def analyze_symbol(symbol):
             "Symbole": symbol,
             "Nom": company_name,
             "Prix": f"{last['Close']:.2f}",
-            "EMA200": f"{last['EMA200']:.2f}",
+            "SMA200": f"{last['SMA200']:.2f}",
             "EMA50": f"{last['EMA50']:.2f}",
             "EMA7": f"{last['EMA7']:.2f}",
             "Signal": "ACHAT (rebond technique)"
@@ -359,13 +359,13 @@ def plot_chart(symbol):
         # ===========================
 
         for i in range(1, len(df)):
-            color = "blue" if df["EMA200"].iloc[i] >= df["EMA200"].iloc[i - 1] else "red"
+            color = "blue" if df["SMA200"].iloc[i] >= df["SMA200"].iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
                 x=df.index[i - 1:i + 1],
-                y=df["EMA200"].iloc[i - 1:i + 1],
+                y=df["SMA200"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2),
-                name="EMA200" if i == 1 else None,
+                name="SMA200" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
@@ -595,7 +595,7 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
                 unsafe_allow_html=True
             )
             cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
-            cols[2].markdown(f"<span class='metric'>EMA200: {row['EMA200']}</span>", unsafe_allow_html=True)
+            cols[2].markdown(f"<span class='metric'>SMA200: {row['SMA200']}</span>", unsafe_allow_html=True)
             cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
             cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
