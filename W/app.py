@@ -139,7 +139,7 @@ def compute_indicators_cached(df):
     df["EMA7"] = ta.ema(close, length=4)
 
     df["RSI7"] = ta.rsi(close, length=7)
-    df["RSI32"] = ta.rsi(close, length=32)
+    # df["RSI32"] = ta.rsi(close, length=32)
 
     macd = ta.macd(close, fast=6, slow=15, signal=3)
     if macd is not None:
