@@ -388,11 +388,6 @@ def plot_chart(symbol):
                 line=dict(color="cyan", width=1.3)
             ), row=1, col=2)
 
-            fig.add_trace(go.Scatter(
-                x=df_daily.index, y=df_daily["EMA200"],
-                mode="lines", name="EMA200 daily",
-                line=dict(color="orange", width=1.3)
-            ), row=1, col=2)
 
             if len(df_daily) > 100:
                 fig.update_xaxes(range=[df_daily.index[-100], df_daily.index[-1]], row=1, col=2)
