@@ -194,8 +194,8 @@ def check_conditions(df):
     seuil_ok = (sma200.iloc[-1] / current_price) > 1.1
 
     # ===============================
-    # Dans le sens de la tendance LT
-    # Inutile car stratégie W parie sur un RETOURNEMENT de tendance 
+    # Exception au seuil de 10%: si dans le sens de la tendance LT
+    # Rare cas, car W vise un retournement vers SMA200
     # ===============================
     
     tendanceLT_ok = sma200.iloc[-5] < sma200.iloc[-1] or sma200.iloc[-2] < sma200.iloc[-1]
