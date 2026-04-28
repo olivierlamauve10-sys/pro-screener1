@@ -134,7 +134,7 @@ def compute_indicators_cached(df):
     df = df.copy()
     close = df["Close"]
 
-    df["ema200"] = ta.ema(close, length=40)
+    df["ema200"] = ta.sma(close, length=40)
     df["EMA50"] = ta.ema(close, length=10)
     df["EMA7"] = ta.ema(close, length=4)
 
