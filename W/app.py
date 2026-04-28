@@ -388,7 +388,18 @@ def plot_chart(symbol):
                 line=dict(color="cyan", width=1.3)
             ), row=1, col=2)
 
+        for i in range(1, len(df)):
+            color = "blue" if df["ema200"].iloc[i] >= df["ema200"].iloc[i - 1] else "red"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema200"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2),
+                name="ema200" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=2)
 
+            
             if len(df_daily) > 100:
                 fig.update_xaxes(range=[df_daily.index[-100], df_daily.index[-1]], row=1, col=2)
 
