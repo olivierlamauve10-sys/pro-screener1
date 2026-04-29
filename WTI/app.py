@@ -163,7 +163,8 @@ def get_data(symbol: str):
 #     ZONE DE GRAPH
 # ======================================
         
-    df = yf.Ticker(symbol).history(period="1y", interval="1d")
+    df = yf.Ticker(symbol).history(period="8mo", interval="1d")
+    # df = yf.Ticker(symbol).history(period="1y", interval="1d")
     # df = yf.Ticker(symbol).history(period="2y", interval="1d")
 
     if df is None or df.empty:
