@@ -253,7 +253,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
        
     ema7_up_ok = last["EMA7"] > prev["EMA7"]
     
-    rsi_ok = last["RSI7"] < 95
+    prixsupsma200_ok = current_price > sma200.iloc[-1]
 
     highest_252 = df["High"].tail(252).max()
     current_price = last["Close"]
@@ -272,7 +272,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and (ema13_down1_ok or ema13_down2_ok or ema13_down3_ok)
         # or ema7_down1_ok
         and ema7_up_ok
-        and rsi_ok
+        and prixsupsma200_ok
         and retracement_ok
         # and signal_ok
     )
