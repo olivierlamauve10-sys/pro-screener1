@@ -315,8 +315,6 @@ def analyze_symbol(symbol: str, retracement_percent: int):
             "Nom": company_name,
             "Prix": f"{last['Close']:.2f}",
             "SMA200": f"{last['SMA200']:.2f}",
-            # "EMA13": f"{last['EMA13']:.2f}",
-            # "EMA7": f"{last['EMA7']:.2f}",
             "Signal": "ACHAT (rebond technique)"
         }
         return result, "MATCH"
@@ -538,8 +536,6 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             )
             cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
             cols[2].markdown(f"<span class='metric'>SMA200: {row['SMA200']}</span>", unsafe_allow_html=True)
-            # cols[3].markdown(f"<span class='metric'>EMA13: {row['EMA13']}</span>", unsafe_allow_html=True)
-            # cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
 
