@@ -277,6 +277,17 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     signal_ok = current_price > ema13.iloc[-1]
 
     # ======================================
+    #     C9 EMA CT ALIGNEES
+    # ======================================
+    
+    emact_aligne_ok = (
+        ema21.iloc[-1] < ema13.iloc[-1]
+        and ema13.iloc[-1] < ema8.iloc[-1]
+        and ema8.iloc[-1] < ema5.iloc[-1]
+    )
+
+    
+    # ======================================
     # CONDITIONS
     # ======================================
     
@@ -288,6 +299,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and ema8_up_ok
         and retracement_ok
         and signal_ok
+        and emact_aligne_ok
     )
 
 
