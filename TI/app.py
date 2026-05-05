@@ -272,7 +272,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and (ema13_down1_ok or ema13_down2_ok or ema13_down3_ok)
         # or ema7_down1_ok
         and ema7_up_ok
-        and prixsupsma200_ok
+        # and prixsupsma200_ok
         and retracement_ok
         # and signal_ok
     )
