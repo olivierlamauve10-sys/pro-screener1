@@ -226,6 +226,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         or sma200.iloc[-15] / sma200.iloc[-45] > 1.025
     )
     
+    # ======================================
+    # C4 EMA13 EN D-5 < EMA13 MT
+    # ======================================
+    
     ema50_down1_ok = (
         ema50.iloc[-2] < ema50.iloc[-4]
         and ema50.iloc[-4] < ema50.iloc[-6]
