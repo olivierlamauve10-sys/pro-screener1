@@ -244,22 +244,32 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         ema13.iloc[-7] < ema13.iloc[-30]
         and ema13.iloc[-20] < ema13.iloc[-40]
     )
-
-    ema7_down1_ok = (
-        ema7.iloc[-2] < ema7.iloc[-12]
-        and ema7.iloc[-5] < ema7.iloc[-15]
-        and ema7.iloc[-7] < ema7.iloc[-17]
-    )
        
-    ema7_up_ok = last["EMA7"] > prev["EMA7"]
-
+    # ======================================
+    # C5 PRIX > SMA200
+    # ======================================
+    
     current_price = last["Close"]
     prixsupsma200_ok = current_price > sma200.iloc[-1]
 
+    # ======================================
+    # C6 DEBUT RETOURNEMENT
+    # ======================================
+  
+    ema7_up_ok = last["EMA7"] > prev["EMA7"]
+
+    # ======================================
+    # C7 RETRACEMENT MINIMAL 5%
+    # ======================================
+      
     highest_252 = df["High"].tail(252).max()
     retracement_threshold = 1 - (retracement_percent / 100)
     retracement_ok = current_price <= highest_252 * retracement_threshold
 
+    # ======================================
+    # C8 SIGNAL
+    # ======================================
+  
     signal_ok = current_price > ema13.iloc[-1]
 
     # ======================================
@@ -270,9 +280,8 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         sma200_up1_ok
         and sma200_up2_ok
         and (ema13_down1_ok or ema13_down2_ok or ema13_down3_ok)
-        # or ema7_down1_ok
-        and ema7_up_ok
         and prixsupsma200_ok
+        and ema7_up_ok
         and retracement_ok
         # and signal_ok
     )
