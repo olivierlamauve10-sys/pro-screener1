@@ -378,7 +378,7 @@ def plot_chart(symbol: str):
                 x=df.index[i - 1:i + 1],
                 y=df["EMA21"].iloc[i - 1:i + 1],
                 mode="lines",
-                line=dict(color=color, width=2.5),
+                line=dict(color=color, width=2.5, dash="dash"),
                 name="EMA21" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
@@ -391,7 +391,7 @@ def plot_chart(symbol: str):
                 x=df.index[i - 1:i + 1],
                 y=df["EMA13"].iloc[i - 1:i + 1],
                 mode="lines",
-                line=dict(color=color, width=2),
+                line=dict(color=color, width=2, dash="dash"),
                 name="EMA13" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
@@ -404,7 +404,7 @@ def plot_chart(symbol: str):
                 x=df.index[i - 1:i + 1],
                 y=df["EMA8"].iloc[i - 1:i + 1],
                 mode="lines",
-                line=dict(color=color, width=1.5),
+                line=dict(color=color, width=1.5, dash="dash"),
                 name="EMA8" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
@@ -417,7 +417,7 @@ def plot_chart(symbol: str):
                 x=df.index[i - 1:i + 1],
                 y=df["EMA5"].iloc[i - 1:i + 1],
                 mode="lines",
-                line=dict(color=color, width=1),
+                line=dict(color=color, width=1, dash="dash"),
                 name="EMA53" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
