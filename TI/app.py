@@ -184,10 +184,10 @@ def compute_indicators_cached(df: pd.DataFrame):
     close = df["Close"]
 
     df["SMA200"] = ta.sma(close, length=200)
-    df["ema21"]   = ta.ema(close, length=21)
+    # df["ema21"]   = ta.ema(close, length=21)
     df["ema13"]  = ta.ema(close, length=13)
     df["ema8"]   = ta.ema(close, length=8)
-    df["ema5"]   = ta.ema(close, length=5)
+    # df["ema5"]   = ta.ema(close, length=5)
 
     df["RSI7"]   = ta.rsi(close, length=7)
     df["RSI32"]  = ta.rsi(close, length=32)
