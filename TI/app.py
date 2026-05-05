@@ -185,9 +185,9 @@ def compute_indicators_cached(df: pd.DataFrame):
 
     df["SMA200"] = ta.sma(close, length=200)
     df["ema21"]   = ta.ema(close, length=21)
-    df["EMA13"]  = ta.ema(close, length=13)
-    df["EMA8"]   = ta.ema(close, length=8)
-    df["EMA5"]   = ta.ema(close, length=5)
+    df["ema13"]  = ta.ema(close, length=13)
+    df["ema8"]   = ta.ema(close, length=8)
+    df["ema5"]   = ta.ema(close, length=5)
 
     df["RSI7"]   = ta.rsi(close, length=7)
     df["RSI32"]  = ta.rsi(close, length=32)
@@ -205,9 +205,9 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 
     sma200 = df["SMA200"]
     ema21  = df["ema21"]
-    ema13  = df["EMA13"]
-    ema8 = df["EMA8"]
-    ema5 = df["EMA5"]
+    ema13  = df["ema13"]
+    ema8 = df["ema8"]
+    ema5 = df["ema5"]
 
     # ======================================
     # C1 SMA NON FRANCHEMENT BAISSERE EN N-1
