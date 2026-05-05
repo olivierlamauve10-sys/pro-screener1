@@ -241,8 +241,8 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     )
 
     ema13_down3_ok = (
-        # ema13.iloc[-5] < ema13.iloc[-20]
         ema13.iloc[-10] < ema13.iloc[-30]
+        and ema13.iloc[-20] < ema13.iloc[-40]
     )
 
     ema7_down1_ok = (
