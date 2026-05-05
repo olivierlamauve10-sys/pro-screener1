@@ -395,6 +395,32 @@ def plot_chart(symbol: str):
                 name="EMA13" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
+
+    # GRAPHIQUE: EMA8
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["EMA8"].iloc[i] >= df["EMA8"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["EMA8"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1.5),
+                name="EMA8" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+    # GRAPHIQUE: EMA5
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["EMA5"].iloc[i] >= df["EMA5"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["EMA5"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1),
+                name="EMA53" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
         
         rsi = df["RSI32"]
         for i in range(1, len(rsi)):
