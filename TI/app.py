@@ -343,13 +343,21 @@ def analyze_symbol(symbol: str, retracement_percent: int):
 #        GRAPHIQUE
 # ======================================
 def plot_chart(symbol: str):
+    DISPLAY_MONTHS = 6  # change ici : 6, 8, 12...
+
     try:
         df = get_data(symbol)
         if df is None:
             st.error("Données introuvables.")
             return
 
+        # df complet = calculs indicateurs
         df = compute_indicators_cached(df)
+
+        # df_plot = affichage uniquement
+        df_plot = df.loc[
+            df.index >= df.index.max() - pd.DateOffset(months=DISPLAY_MONTHS)
+        ].copy()
 
         fig = make_subplots(
             rows=3, cols=1, shared_xaxes=True,
@@ -363,82 +371,82 @@ def plot_chart(symbol: str):
         )
 
         fig.add_trace(go.Candlestick(
-            x=df.index,
-            open=df["Open"], high=df["High"],
-            low=df["Low"], close=df["Close"],
+            x=df_plot.index,
+            open=df_plot["Open"],
+            high=df_plot["High"],
+            low=df_plot["Low"],
+            close=df_plot["Close"],
             name="Prix",
             increasing_line_color="green",
             decreasing_line_color="red"
         ), row=1, col=1)
 
-        for i in range(1, len(df)):
-            color = "blue" if df["SMA200"].iloc[i] >= df["SMA200"].iloc[i - 1] else "red"
+        # SMA200
+        for i in range(1, len(df_plot)):
+            color = "blue" if df_plot["SMA200"].iloc[i] >= df_plot["SMA200"].iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["SMA200"].iloc[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["SMA200"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2),
                 name="SMA200" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
-    # GRAPHIQUE: EMA21
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["EMA21"].iloc[i] >= df["EMA21"].iloc[i - 1] else "pink"
+        # EMA21
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA21"].iloc[i] >= df_plot["EMA21"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["EMA21"].iloc[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA21"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2.5, dash="dot"),
                 name="EMA21" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
-    # GRAPHIQUE: EMA13
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["EMA13"].iloc[i] >= df["EMA13"].iloc[i - 1] else "pink"
+        # EMA13
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA13"].iloc[i] >= df_plot["EMA13"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["EMA13"].iloc[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA13"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2, dash="dot"),
                 name="EMA13" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
-    # GRAPHIQUE: EMA8
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["EMA8"].iloc[i] >= df["EMA8"].iloc[i - 1] else "pink"
+        # EMA8
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA8"].iloc[i] >= df_plot["EMA8"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["EMA8"].iloc[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA8"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=1.5, dash="dot"),
                 name="EMA8" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
-    # GRAPHIQUE: EMA5
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["EMA5"].iloc[i] >= df["EMA5"].iloc[i - 1] else "pink"
+        # EMA5
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA5"].iloc[i] >= df_plot["EMA5"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["EMA5"].iloc[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA5"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=1, dash="dot"),
-                name="EMA53" if i == 1 else None,
+                name="EMA5" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
-        
-        rsi = df["RSI32"]
+
+        # RSI32
+        rsi = df_plot["RSI32"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
                 y=rsi.iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2),
@@ -449,22 +457,27 @@ def plot_chart(symbol: str):
         fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
-        if all(c in df.columns for c in ["MACD_10_104_10", "MACDs_10_104_10", "MACDh_10_104_10"]):
+        # MACD
+        if all(c in df_plot.columns for c in ["MACD_10_104_10", "MACDs_10_104_10", "MACDh_10_104_10"]):
             fig.add_trace(go.Bar(
-                x=df.index, y=df["MACDh_10_104_10"],
-                name="MACD Hist", opacity=0.5
+                x=df_plot.index,
+                y=df_plot["MACDh_10_104_10"],
+                name="MACD Hist",
+                opacity=0.5
             ), row=3, col=1)
 
             fig.add_trace(go.Scatter(
-                x=df.index,
-                y=df["MACD_10_104_10"],
-                mode="lines", name="MACD"
+                x=df_plot.index,
+                y=df_plot["MACD_10_104_10"],
+                mode="lines",
+                name="MACD"
             ), row=3, col=1)
 
             fig.add_trace(go.Scatter(
-                x=df.index,
-                y=df["MACDs_10_104_10"],
-                mode="lines", name="Signal"
+                x=df_plot.index,
+                y=df_plot["MACDs_10_104_10"],
+                mode="lines",
+                name="Signal"
             ), row=3, col=1)
 
         fig.update_layout(
@@ -474,10 +487,11 @@ def plot_chart(symbol: str):
             showlegend=True,
             dragmode="drawline",
             newshape_line_color="red",
-            modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape']
+            modebar_add=["drawline", "drawopenpath", "drawrect", "eraseshape"]
         )
 
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+
         for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
 
