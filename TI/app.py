@@ -185,7 +185,7 @@ def compute_indicators_cached(df: pd.DataFrame):
 
     df["SMA200"] = ta.sma(close, length=200)
     df["EMA13"]  = ta.ema(close, length=13)
-    df["EMA7"]   = ta.ema(close, length=7)
+    df["EMA8"]   = ta.ema(close, length=8)
 
     df["RSI7"]   = ta.rsi(close, length=7)
     df["RSI32"]  = ta.rsi(close, length=32)
@@ -203,7 +203,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
 
     sma200 = df["SMA200"]
     ema13  = df["EMA13"]
-    ema7 = df["EMA7"]
+    ema8 = df["EMA8"]
 
     # ======================================
     # C1 SMA NON FRANCHEMENT BAISSERE EN N-1
@@ -256,7 +256,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     # C6 DEBUT RETOURNEMENT
     # ======================================
   
-    ema7_up_ok = last["EMA7"] > prev["EMA7"]
+    ema8_up_ok = last["EMA8"] > prev["EMA8"]
 
     # ======================================
     # C7 RETRACEMENT MINIMAL 5%
@@ -281,7 +281,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         and sma200_up2_ok
         and (ema13_down1_ok or ema13_down2_ok or ema13_down3_ok)
         and prixsupsma200_ok
-        and ema7_up_ok
+        and ema8_up_ok
         and retracement_ok
         and signal_ok
     )
