@@ -383,6 +383,18 @@ def plot_chart(symbol: str):
                 showlegend=(i == 1)
             ), row=1, col=1)
 
+    # GRAPHIQUE: EMA13
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["EMA13"].iloc[i] >= df["EMA13"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["EMA13"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2),
+                name="EMA13" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
         
         rsi = df["RSI32"]
         for i in range(1, len(rsi)):
