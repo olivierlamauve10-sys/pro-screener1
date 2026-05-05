@@ -204,8 +204,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     prev = df.iloc[-2]
 
     sma200 = df["SMA200"]
+    ema21  = df["EMA21"]
     ema13  = df["EMA13"]
     ema8 = df["EMA8"]
+    ema5 = df["EMA5"]
 
     # ======================================
     # C1 SMA NON FRANCHEMENT BAISSERE EN N-1
