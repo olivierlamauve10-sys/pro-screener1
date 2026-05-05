@@ -373,13 +373,13 @@ def plot_chart(symbol: str):
     # GRAPHIQUE: EMA21
         
         for i in range(1, len(df)):
-            color = "cyan" if df["ema21"].iloc[i] >= df["ema21"].iloc[i - 1] else "pink"
+            color = "cyan" if df["EMA21"].iloc[i] >= df["EMA21"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
                 x=df.index[i - 1:i + 1],
-                y=df["ema21"].iloc[i - 1:i + 1],
+                y=df["EMA21"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2.5),
-                name="ema21" if i == 1 else None,
+                name="EMA21" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
