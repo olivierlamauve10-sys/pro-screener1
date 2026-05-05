@@ -221,10 +221,10 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         or sma200.iloc[-5] / sma200.iloc[-15] > 1.001
     )
     
-    # sma200_up3_ok = (
-    #     sma200.iloc[-25] / sma200.iloc[-55] > 1.025
-    #     or sma200.iloc[-15] / sma200.iloc[-45] > 1.025
-    # )
+    sma200_up3_ok = (
+        sma200.iloc[-25] / sma200.iloc[-55] > 1.025
+        or sma200.iloc[-15] / sma200.iloc[-45] > 1.025
+    )
     
     ema50_down1_ok = (
         ema50.iloc[-2] < ema50.iloc[-4]
@@ -260,8 +260,8 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     # ======================================
     
     return (
-        sma200_up1_ok
-        and sma200_up2_ok
+        sma200_up3_ok
+        # and sma200_up2_ok
         and (ema50_down1_ok or ema50_down2_ok or ema7_down1_ok)
         and ema7_up_ok
         and rsi_ok
