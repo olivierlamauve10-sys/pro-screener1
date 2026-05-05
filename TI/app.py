@@ -370,6 +370,62 @@ def plot_chart(symbol: str):
                 showlegend=(i == 1)
             ), row=1, col=1)
 
+# GRAPHIQUE: EMA21
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema21"].iloc[i] >= df["ema21"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema21"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2.5),
+                name="ema21" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+
+# GRAPHIQUE: EMA13
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema13"].iloc[i] >= df["ema13"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema13"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2),
+                name="ema13" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+        
+# GRAPHIQUE: EMA8
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema8"].iloc[i] >= df["ema8"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema8"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1.5),
+                name="ema8" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+# GRAPHIQUE: EMA5
+        
+        for i in range(1, len(df)):
+            color = "cyan" if df["ema5"].iloc[i] >= df["ema5"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df.index[i - 1:i + 1],
+                y=df["ema5"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1),
+                name="ema5" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+
+        
+        
         rsi = df["RSI32"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
