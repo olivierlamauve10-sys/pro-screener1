@@ -184,7 +184,7 @@ def compute_indicators_cached(df: pd.DataFrame):
     close = df["Close"]
 
     df["SMA200"] = ta.sma(close, length=200)
-    df["EMA50"]  = ta.ema(close, length=50)
+    df["EMA13"]  = ta.ema(close, length=13)
     df["EMA7"]   = ta.ema(close, length=7)
 
     df["RSI7"]   = ta.rsi(close, length=7)
@@ -202,7 +202,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     prev = df.iloc[-2]
 
     sma200 = df["SMA200"]
-    ema50  = df["EMA50"]
+    ema13  = df["EMA13"]
     ema7 = df["EMA7"]
 
     # ======================================
@@ -230,16 +230,11 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     # C4 EMA13 EN D-5 < EMA13 MT
     # ======================================
     
-    ema50_down1_ok = (
-        ema50.iloc[-2] < ema50.iloc[-4]
-        and ema50.iloc[-4] < ema50.iloc[-6]
-        and ema50.iloc[-6] < ema50.iloc[-8]
-    )
-
-    ema50_down2_ok = (
-        ema50.iloc[-15] < ema50.iloc[-30]
-        and ema50.iloc[-30] < ema50.iloc[-45]
-        and ema50.iloc[-45] < ema50.iloc[-60]
+    ema13_down1_ok = (
+        ema13.iloc[-5] < ema13.iloc[-10]
+        or ema13.iloc[-5] < ema13.iloc[-20]
+        or ema13.iloc[-5] < ema13.iloc[-30]
+        or ema13.iloc[-5] < ema13.iloc[-40]
     )
 
     ema7_down1_ok = (
@@ -257,7 +252,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     retracement_threshold = 1 - (retracement_percent / 100)
     retracement_ok = current_price <= highest_252 * retracement_threshold
 
-    signal_ok = current_price > ema50.iloc[-1]
+    signal_ok = current_price > ema13.iloc[-1]
 
     # ======================================
     # CONDITIONS
@@ -266,7 +261,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     return (
         sma200_up1_ok
         and sma200_up2_ok
-        and (ema50_down1_ok or ema50_down2_ok or ema7_down1_ok)
+        and (ema13_down1_ok or ema7_down1_ok)
         and ema7_up_ok
         and rsi_ok
         and retracement_ok
@@ -302,7 +297,7 @@ def analyze_symbol(symbol: str, retracement_percent: int):
             "Nom": company_name,
             "Prix": f"{last['Close']:.2f}",
             "SMA200": f"{last['SMA200']:.2f}",
-            "EMA50": f"{last['EMA50']:.2f}",
+            "ema13": f"{last['ema13']:.2f}",
             "EMA7": f"{last['EMA7']:.2f}",
             "Signal": "ACHAT (rebond technique)"
         }
@@ -345,8 +340,8 @@ def plot_chart(symbol: str):
         ), row=1, col=1)
 
         fig.add_trace(go.Scatter(
-            x=df.index, y=df["EMA50"],
-            mode="lines", name="EMA50",
+            x=df.index, y=df["ema13"],
+            mode="lines", name="ema13",
             line=dict(color="purple", width=1.5)
         ), row=1, col=1)
 
@@ -537,7 +532,7 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             )
             cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
             cols[2].markdown(f"<span class='metric'>SMA200: {row['SMA200']}</span>", unsafe_allow_html=True)
-            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
+            cols[3].markdown(f"<span class='metric'>ema13: {row['ema13']}</span>", unsafe_allow_html=True)
             cols[4].markdown(f"<span class='metric'>EMA7: {row['EMA7']}</span>", unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
