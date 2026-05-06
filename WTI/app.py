@@ -23,7 +23,7 @@ CACHE_TTL = 3600  # 1h cache disque
 #        CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener 4EMA")
+st.title("📈 Screener TI")
 
 # ======================================
 #        HELPERS : DIAGNOSTICS YF
@@ -131,7 +131,7 @@ retracement_percent = st.slider(
 )
 
 # ======================================
-#        DATA EN CASH
+#        DATA + INDICATEURS
 # ======================================
 @st.cache_data(show_spinner=False)
 def get_data(symbol: str):
@@ -152,18 +152,12 @@ def get_data(symbol: str):
                     return df
         except Exception:
             pass
-# ======================================
-#     TIME SLEEP
-# ======================================
-    
-    # 2) Sinon requête Yahoo (petit jitter)
-    time.sleep(0.08 + 0.25 * random.random())
 
-# ======================================
-#     ZONE DE GRAPH
-# ======================================
-        
+    # 2) Sinon requête Yahoo (petit jitter)
+    time.sleep(0.08 + 0.18 * random.random())
+
     df = yf.Ticker(symbol).history(period="1y", interval="1d")
+    # df = yf.Ticker(symbol).history(period="2y", interval="1d")
 
     if df is None or df.empty:
         return None
@@ -183,9 +177,6 @@ def get_data(symbol: str):
 
     return df
 
-# ======================================
-#     DEFINITIONS INDICATORS EN CASH
-# ======================================
 
 @st.cache_data(show_spinner=False)
 def compute_indicators_cached(df: pd.DataFrame):
@@ -193,10 +184,10 @@ def compute_indicators_cached(df: pd.DataFrame):
     close = df["Close"]
 
     df["SMA200"] = ta.sma(close, length=200)
-    df["ema21"]   = ta.ema(close, length=21)
-    df["ema13"]   = ta.ema(close, length=13)
-    df["ema8"]   = ta.ema(close, length=8)
-    df["ema5"]   = ta.ema(close, length=5)
+    df["EMA21"]  = ta.ema(close, length=21)
+    df["EMA13"]  = ta.ema(close, length=13)
+    df["EMA8"]   = ta.ema(close, length=8)
+    df["EMA5"]  = ta.ema(close, length=5)
 
     df["RSI7"]   = ta.rsi(close, length=7)
     df["RSI32"]  = ta.rsi(close, length=32)
@@ -207,114 +198,108 @@ def compute_indicators_cached(df: pd.DataFrame):
 
     return df
 
+
 def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
     sma200 = df["SMA200"]
-    ema21  = df["ema21"]
-    ema13  = df["ema13"]
-    ema8 = df["ema8"]
-    ema5 = df["ema5"]
+    ema21  = df["EMA21"]
+    ema13  = df["EMA13"]
+    ema8 = df["EMA8"]
+    ema5  = df["EMA5"]
+
+    # ======================================
+    # C1 SMA NON FRANCHEMENT BAISSERE EN N-1
+    # C2 SMA200 REMONTANTE A CT
+    # C3 SMA200 REMONTANTE A MT inactif
+    # ======================================
+   
     
-# ======================================
-#     C1 SMA200 UP
-# ======================================
-# Paramètre modifiable: degré de la pente
+    sma200_up1_ok = (
+        sma200.iloc[-40] / sma200.iloc[-55] > 0.95
+    )
     
-    sma200_up_ok = (
-        #sma200.iloc[-25] > sma200.iloc[-40]
-        #and sma200.iloc[-40] > sma200.iloc[-50]
-        #and sma200.iloc[-50] > sma200.iloc[-55]
-        sma200.iloc[-25] / sma200.iloc[-55] > 1.001
-        or sma200.iloc[-15] / sma200.iloc[-45] > 1.001
+    sma200_up2_ok = (
+        sma200.iloc[-1] / sma200.iloc[-5] > 1.001
+        or sma200.iloc[-5] / sma200.iloc[-15] > 1.001
+    )
+    
+    sma200_up3_ok = (
+        sma200.iloc[-25] / sma200.iloc[-55] > 1.025
+        or sma200.iloc[-15] / sma200.iloc[-45] > 1.025
+    )
+    
+    # ======================================
+    # C4 EMA13 EN D-5 < EMA13 MT
+    # ======================================
+    
+    ema13_down1_ok = (
+        ema13.iloc[-5] < ema13.iloc[-10]
+        and ema13.iloc[-7] < ema13.iloc[-15]
     )
 
-# ======================================
-#     C2 RETRACEMENT VS PLUS HAUT 1 AN
-# ======================================
-# Inactif
-#    
-#    highest_252 = df["High"].tail(252).max()
-#    current_price = last["Close"]
-#    retracement_threshold = 1 - (retracement_percent / 100)
-#    retracement_ok = current_price <= highest_252 * retracement_threshold
-#    
-# ======================================
-#     C3 PRIX > SMA200
-# ======================================
- 
-    prixhalt_ok = current_price > sma200.iloc[-1]
+    ema13_down2_ok = (
+        ema13.iloc[-5] < ema13.iloc[-15]
+        and ema13.iloc[-10] < ema13.iloc[-25]
+    )
 
-# ======================================
-#     C4 EMA CT ALIGNEES
-# ======================================
+    ema13_down3_ok = (
+        ema13.iloc[-7] < ema13.iloc[-30]
+        and ema13.iloc[-20] < ema13.iloc[-40]
+    )
+       
+    # ======================================
+    # C5 PRIX > SMA200
+    # ======================================
+    
+    current_price = last["Close"]
+    prixsupsma200_ok = current_price > sma200.iloc[-1]
+
+    # ======================================
+    # C6 DEBUT RETOURNEMENT
+    # ======================================
+  
+    ema8_up_ok = last["EMA8"] > prev["EMA8"]
+
+    # ======================================
+    # C7 RETRACEMENT MINIMAL 5%
+    # ======================================
+      
+    highest_252 = df["High"].tail(252).max()
+    retracement_threshold = 1 - (retracement_percent / 100)
+    retracement_ok = current_price <= highest_252 * retracement_threshold
+
+    # ======================================
+    # C8 SIGNAL
+    # ======================================
+  
+    signal_ok = current_price > ema13.iloc[-1]
+
+    # ======================================
+    #     C9 EMA CT COMMENCENT A S'ALIGNER
+    # ======================================
     
     emact_aligne_ok = (
-        ema21.iloc[-1] < ema13.iloc[-1]
-        and ema13.iloc[-1] < ema8.iloc[-1]
-        and ema8.iloc[-1] < ema5.iloc[-1]
+        ema21.iloc[-1] < ema5.iloc[-1]
+        # and ema13.iloc[-1] < ema8.iloc[-1]
+        # and ema8.iloc[-1] < ema5.iloc[-1]
     )
 
-# ======================================
-#     C5 EMA CT ECARTEES ENTRE ELLES
-# ======================================
-
-    emact_ecarte_ok = (
-        ema5.iloc[-1] / ema8.iloc[-1] > 1.006
-        and ema8.iloc[-1] / ema13.iloc[-1] > 1.006
-        and ema13.iloc[-1] / ema21.iloc[-1] > 1.006
-    )
-
-# ===============================================
-#  C6 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
-# ===============================================
-# PARAMETRAGE: ema5 = laxiste, ema13 = plus stricte
     
-    low = df["Low"]
-
-    prix_dansruban_ok = any(
-        ema21.iloc[-i] <= low.iloc[-i] <= ema13.iloc[-i]
-        for i in range(1, 7)
-    )
-
-# ===============================================
-#  C7 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
-# ===============================================
-    
-    open_ = df["Open"]
-    close = df["Close"]
-    high = df["High"]
-    low = df["Low"]
-
-    bougie_reprise_ok = (
-        close.iloc[-1] > open_.iloc[-1]  # bougie verte
-        and close.iloc[-1] > close.iloc[-2]  # momentum
-        and (high.iloc[-1] - close.iloc[-1]) / (high.iloc[-1] - low.iloc[-1] + 1e-6) < 0.3
-    )
-
-    bougie_engulfing_ok = (
-        close.iloc[-1] > open_.iloc[-1]
-        and close.iloc[-1] > open_.iloc[-2]
-        and open_.iloc[-1] < close.iloc[-2]
-    )
-
-    bougie_signal_ok = (
-        bougie_reprise_ok or bougie_engulfing_ok
-    )
-    
-# ======================================
-#     RUN CONDITIONS
-# ======================================
+    # ======================================
+    # CONDITIONS
+    # ======================================
     
     return (
-        sma200_up_ok
-        and prixhalt_ok
-        # and retracement_ok
+        sma200_up1_ok
+        and sma200_up2_ok
+        and (ema13_down1_ok or ema13_down2_ok or ema13_down3_ok)
+        and prixsupsma200_ok
+        and ema8_up_ok
+        and retracement_ok
+        and signal_ok
         and emact_aligne_ok
-        and emact_ecarte_ok
-        and prix_dansruban_ok
-        and bougie_signal_ok
     )
 
 
@@ -346,7 +331,6 @@ def analyze_symbol(symbol: str, retracement_percent: int):
             "Nom": company_name,
             "Prix": f"{last['Close']:.2f}",
             "SMA200": f"{last['SMA200']:.2f}",
-            "ema8": f"{last['ema8']:.2f}",
             "Signal": "ACHAT (rebond technique)"
         }
         return result, "MATCH"
@@ -359,13 +343,21 @@ def analyze_symbol(symbol: str, retracement_percent: int):
 #        GRAPHIQUE
 # ======================================
 def plot_chart(symbol: str):
+    DISPLAY_MONTHS = 8  # change ici : 6, 8, 12...
+
     try:
         df = get_data(symbol)
         if df is None:
             st.error("Données introuvables.")
             return
 
+        # df complet = calculs indicateurs
         df = compute_indicators_cached(df)
+
+        # df_plot = affichage uniquement
+        df_plot = df.loc[
+            df.index >= df.index.max() - pd.DateOffset(months=DISPLAY_MONTHS)
+        ].copy()
 
         fig = make_subplots(
             rows=3, cols=1, shared_xaxes=True,
@@ -378,90 +370,83 @@ def plot_chart(symbol: str):
             ]
         )
 
-# GRAPHIQUE: CANDELSTICKS
-
         fig.add_trace(go.Candlestick(
-            x=df.index,
-            open=df["Open"], high=df["High"],
-            low=df["Low"], close=df["Close"],
+            x=df_plot.index,
+            open=df_plot["Open"],
+            high=df_plot["High"],
+            low=df_plot["Low"],
+            close=df_plot["Close"],
             name="Prix",
             increasing_line_color="green",
             decreasing_line_color="red"
         ), row=1, col=1)
 
-# GRAPHIQUE: EMA21
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["ema21"].iloc[i] >= df["ema21"].iloc[i - 1] else "pink"
+        # SMA200
+        for i in range(1, len(df_plot)):
+            color = "blue" if df_plot["SMA200"].iloc[i] >= df_plot["SMA200"].iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["ema21"].iloc[i - 1:i + 1],
-                mode="lines",
-                line=dict(color=color, width=2.5),
-                name="ema21" if i == 1 else None,
-                showlegend=(i == 1)
-            ), row=1, col=1)
-
-
-# GRAPHIQUE: EMA13
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["ema13"].iloc[i] >= df["ema13"].iloc[i - 1] else "pink"
-            fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["ema13"].iloc[i - 1:i + 1],
-                mode="lines",
-                line=dict(color=color, width=2),
-                name="ema13" if i == 1 else None,
-                showlegend=(i == 1)
-            ), row=1, col=1)
-        
-# GRAPHIQUE: EMA8
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["ema8"].iloc[i] >= df["ema8"].iloc[i - 1] else "pink"
-            fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["ema8"].iloc[i - 1:i + 1],
-                mode="lines",
-                line=dict(color=color, width=1.5),
-                name="ema8" if i == 1 else None,
-                showlegend=(i == 1)
-            ), row=1, col=1)
-
-# GRAPHIQUE: EMA5
-        
-        for i in range(1, len(df)):
-            color = "cyan" if df["ema5"].iloc[i] >= df["ema5"].iloc[i - 1] else "pink"
-            fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["ema5"].iloc[i - 1:i + 1],
-                mode="lines",
-                line=dict(color=color, width=1),
-                name="ema5" if i == 1 else None,
-                showlegend=(i == 1)
-            ), row=1, col=1)
-
-# GRAPHIQUE: EMA200
-        
-        for i in range(1, len(df)):
-            color = "blue" if df["SMA200"].iloc[i] >= df["SMA200"].iloc[i - 1] else "red"
-            fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
-                y=df["SMA200"].iloc[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["SMA200"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2),
                 name="SMA200" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
-            
-# GRAPHIQUE: RSI
-        
-        rsi = df["RSI32"]
+
+        # EMA21
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA21"].iloc[i] >= df_plot["EMA21"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA21"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2.5, dash="dot"),
+                name="EMA21" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+        # EMA13
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA13"].iloc[i] >= df_plot["EMA13"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA13"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=2, dash="dot"),
+                name="EMA13" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+        # EMA8
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA8"].iloc[i] >= df_plot["EMA8"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA8"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1.5, dash="dot"),
+                name="EMA8" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+        # EMA5
+        for i in range(1, len(df_plot)):
+            color = "cyan" if df_plot["EMA5"].iloc[i] >= df_plot["EMA5"].iloc[i - 1] else "pink"
+            fig.add_trace(go.Scatter(
+                x=df_plot.index[i - 1:i + 1],
+                y=df_plot["EMA5"].iloc[i - 1:i + 1],
+                mode="lines",
+                line=dict(color=color, width=1, dash="dot"),
+                name="EMA5" if i == 1 else None,
+                showlegend=(i == 1)
+            ), row=1, col=1)
+
+        # RSI32
+        rsi = df_plot["RSI32"]
         for i in range(1, len(rsi)):
             color = "blue" if rsi.iloc[i] >= rsi.iloc[i - 1] else "red"
             fig.add_trace(go.Scatter(
-                x=df.index[i - 1:i + 1],
+                x=df_plot.index[i - 1:i + 1],
                 y=rsi.iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2),
@@ -469,27 +454,30 @@ def plot_chart(symbol: str):
                 showlegend=(i == 1)
             ), row=2, col=1)
 
-# GRAPHIQUE: MACD
-        
         fig.add_hline(y=65, line_dash="dash", line_color="red", row=2, col=1)
         fig.add_hline(y=35, line_dash="dash", line_color="green", row=2, col=1)
 
-        if all(c in df.columns for c in ["MACD_10_104_10", "MACDs_10_104_10", "MACDh_10_104_10"]):
+        # MACD
+        if all(c in df_plot.columns for c in ["MACD_10_104_10", "MACDs_10_104_10", "MACDh_10_104_10"]):
             fig.add_trace(go.Bar(
-                x=df.index, y=df["MACDh_10_104_10"],
-                name="MACD Hist", opacity=0.5
+                x=df_plot.index,
+                y=df_plot["MACDh_10_104_10"],
+                name="MACD Hist",
+                opacity=0.5
             ), row=3, col=1)
 
             fig.add_trace(go.Scatter(
-                x=df.index,
-                y=df["MACD_10_104_10"],
-                mode="lines", name="MACD"
+                x=df_plot.index,
+                y=df_plot["MACD_10_104_10"],
+                mode="lines",
+                name="MACD"
             ), row=3, col=1)
 
             fig.add_trace(go.Scatter(
-                x=df.index,
-                y=df["MACDs_10_104_10"],
-                mode="lines", name="Signal"
+                x=df_plot.index,
+                y=df_plot["MACDs_10_104_10"],
+                mode="lines",
+                name="Signal"
             ), row=3, col=1)
 
         fig.update_layout(
@@ -499,10 +487,11 @@ def plot_chart(symbol: str):
             showlegend=True,
             dragmode="drawline",
             newshape_line_color="red",
-            modebar_add=['drawline', 'drawopenpath', 'drawrect', 'eraseshape']
+            modebar_add=["drawline", "drawopenpath", "drawrect", "eraseshape"]
         )
 
         fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+
         for i in range(1, 4):
             fig.update_yaxes(side="right", row=i, col=1)
 
@@ -629,7 +618,6 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             )
             cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
             cols[2].markdown(f"<span class='metric'>SMA200: {row['SMA200']}</span>", unsafe_allow_html=True)
-            cols[4].markdown(f"<span class='metric'>ema8: {row['ema8']}</span>", unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
 
