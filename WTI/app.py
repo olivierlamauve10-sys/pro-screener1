@@ -23,7 +23,7 @@ CACHE_TTL = 3600  # 1h cache disque
 #        CONFIGURATION GÉNÉRALE
 # ======================================
 st.set_page_config(page_title="ProScreener Pro", layout="wide")
-st.title("📈 Screener TI")
+st.title("📈 Screener 4EMA")
 
 # ======================================
 #        HELPERS : DIAGNOSTICS YF
@@ -178,16 +178,21 @@ def get_data(symbol: str):
     return df
 
 
+# ======================================
+#     DEFINITIONS INDICATORS EN CASH
+# ======================================
+
 @st.cache_data(show_spinner=False)
 def compute_indicators_cached(df: pd.DataFrame):
     df = df.copy()
     close = df["Close"]
 
     df["SMA200"] = ta.sma(close, length=200)
-    df["EMA21"]  = ta.ema(close, length=21)
-    df["EMA13"]  = ta.ema(close, length=13)
-    df["EMA8"]   = ta.ema(close, length=8)
-    df["EMA5"]  = ta.ema(close, length=5)
+    df["EMA50"]  = ta.ema(close, length=49)
+    df["ema21"]   = ta.ema(close, length=21)
+    df["ema13"]   = ta.ema(close, length=13)
+    df["ema8"]   = ta.ema(close, length=8)
+    df["ema5"]   = ta.ema(close, length=5)
 
     df["RSI7"]   = ta.rsi(close, length=7)
     df["RSI32"]  = ta.rsi(close, length=32)
@@ -198,108 +203,127 @@ def compute_indicators_cached(df: pd.DataFrame):
 
     return df
 
-
 def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
     sma200 = df["SMA200"]
-    ema21  = df["EMA21"]
-    ema13  = df["EMA13"]
-    ema8 = df["EMA8"]
-    ema5  = df["EMA5"]
-
-    # ======================================
-    # C1 SMA NON FRANCHEMENT BAISSERE EN N-1
-    # C2 SMA200 REMONTANTE A CT
-    # C3 SMA200 REMONTANTE A MT inactif
-    # ======================================
-   
+    ema50  = df["EMA50"]
+    ema21  = df["ema21"]
+    ema13  = df["ema13"]
+    ema8 = df["ema8"]
+    ema5 = df["ema5"]
     
-    sma200_up1_ok = (
-        sma200.iloc[-40] / sma200.iloc[-55] > 0.95
-    )
+# ======================================
+#     C1 SMA200 UP
+# ======================================
+# Paramètre modifiable: degré de la pente
     
-    sma200_up2_ok = (
-        sma200.iloc[-1] / sma200.iloc[-5] > 1.001
-        or sma200.iloc[-5] / sma200.iloc[-15] > 1.001
-    )
-    
-    sma200_up3_ok = (
-        sma200.iloc[-25] / sma200.iloc[-55] > 1.025
-        or sma200.iloc[-15] / sma200.iloc[-45] > 1.025
-    )
-    
-    # ======================================
-    # C4 EMA13 EN D-5 < EMA13 MT
-    # ======================================
-    
-    ema13_down1_ok = (
-        ema13.iloc[-5] < ema13.iloc[-10]
-        and ema13.iloc[-7] < ema13.iloc[-15]
+    sma200_up_ok = (
+        #sma200.iloc[-25] > sma200.iloc[-40]
+        #and sma200.iloc[-40] > sma200.iloc[-50]
+        #and sma200.iloc[-50] > sma200.iloc[-55]
+        sma200.iloc[-25] / sma200.iloc[-55] > 1.001
+        or sma200.iloc[-15] / sma200.iloc[-45] > 1.001
     )
 
-    ema13_down2_ok = (
-        ema13.iloc[-5] < ema13.iloc[-15]
-        and ema13.iloc[-10] < ema13.iloc[-25]
-    )
-
-    ema13_down3_ok = (
-        ema13.iloc[-7] < ema13.iloc[-30]
-        and ema13.iloc[-20] < ema13.iloc[-40]
-    )
-       
-    # ======================================
-    # C5 PRIX > SMA200
-    # ======================================
+# ========================================
+# RSI Week en vraie réintégration Strat W
+# ========================================
     
-    current_price = last["Close"]
-    prixsupsma200_ok = current_price > sma200.iloc[-1]
 
-    # ======================================
-    # C6 DEBUT RETOURNEMENT
-    # ======================================
-  
-    ema8_up_ok = last["EMA8"] > prev["EMA8"]
+# ======================================
+#     C4 RSI PAS EN EXTREME SURACHAT
+# ======================================
+    
+    rsi_ok = last["RSI7"] < 95
 
-    # ======================================
-    # C7 RETRACEMENT MINIMAL 5%
-    # ======================================
-      
+# ======================================
+#     C5 RETRACEMENT VS PLUS HAUT 1 AN
+# ======================================
+# Inactif
+    
     highest_252 = df["High"].tail(252).max()
+    current_price = last["Close"]
     retracement_threshold = 1 - (retracement_percent / 100)
     retracement_ok = current_price <= highest_252 * retracement_threshold
+    
+# ======================================
+#     C6 PRIX > SMA200
+# ======================================
+ 
+    prixhalt_ok = current_price > sma200.iloc[-1]
 
-    # ======================================
-    # C8 SIGNAL
-    # ======================================
-  
-    signal_ok = current_price > ema13.iloc[-1]
-
-    # ======================================
-    #     C9 EMA CT COMMENCENT A S'ALIGNER
-    # ======================================
+# ======================================
+#     C7 EMA CT ALIGNEES
+# ======================================
     
     emact_aligne_ok = (
-        ema21.iloc[-1] < ema5.iloc[-1]
-        # and ema13.iloc[-1] < ema8.iloc[-1]
-        # and ema8.iloc[-1] < ema5.iloc[-1]
+        ema21.iloc[-1] < ema13.iloc[-1]
+        and ema13.iloc[-1] < ema8.iloc[-1]
+        and ema8.iloc[-1] < ema5.iloc[-1]
     )
 
+# ======================================
+#     C8 EMA CT ECARTEES ENTRE ELLES
+# ======================================
+
+    emact_ecarte_ok = (
+        ema5.iloc[-1] / ema8.iloc[-1] > 1.006
+        and ema8.iloc[-1] / ema13.iloc[-1] > 1.006
+        and ema13.iloc[-1] / ema21.iloc[-1] > 1.006
+    )
+
+# ===============================================
+#  C9 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
+# ===============================================
+# PARAMETRAGE: ema5 = laxiste, ema13 = plus stricte
     
-    # ======================================
-    # CONDITIONS
-    # ======================================
+    low = df["Low"]
+
+    prix_dansruban_ok = any(
+        ema21.iloc[-i] <= low.iloc[-i] <= ema13.iloc[-i]
+        for i in range(1, 7)
+    )
+
+# ===============================================
+#  C10 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
+# ===============================================
+    
+    open_ = df["Open"]
+    close = df["Close"]
+    high = df["High"]
+    low = df["Low"]
+
+    bougie_reprise_ok = (
+        close.iloc[-1] > open_.iloc[-1]  # bougie verte
+        and close.iloc[-1] > close.iloc[-2]  # momentum
+        and (high.iloc[-1] - close.iloc[-1]) / (high.iloc[-1] - low.iloc[-1] + 1e-6) < 0.3
+    )
+
+    bougie_engulfing_ok = (
+        close.iloc[-1] > open_.iloc[-1]
+        and close.iloc[-1] > open_.iloc[-2]
+        and open_.iloc[-1] < close.iloc[-2]
+    )
+
+    bougie_signal_ok = (
+        bougie_reprise_ok or bougie_engulfing_ok
+    )
+    
+# ======================================
+#     RUN CONDITIONS
+# ======================================
     
     return (
-        sma200_up1_ok
-        and sma200_up2_ok
-        and (ema13_down1_ok or ema13_down2_ok or ema13_down3_ok)
-        and prixsupsma200_ok
-        and ema8_up_ok
-        and retracement_ok
-        and signal_ok
+        sma200_up_ok
+        and prixhalt_ok
+        and rsi_ok
+        # and retracement_ok
         and emact_aligne_ok
+        and emact_ecarte_ok
+        and prix_dansruban_ok
+        and bougie_signal_ok
     )
 
 
