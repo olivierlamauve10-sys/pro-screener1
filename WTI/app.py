@@ -230,35 +230,24 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
         or sma200.iloc[-15] / sma200.iloc[-45] > 1.001
     )
 
-# ========================================
-# RSI Week en vraie réintégration Strat W
-# ========================================
-    
-
 # ======================================
-#     C4 RSI PAS EN EXTREME SURACHAT
-# ======================================
-    
-    rsi_ok = last["RSI7"] < 95
-
-# ======================================
-#     C5 RETRACEMENT VS PLUS HAUT 1 AN
+#     C2 RETRACEMENT VS PLUS HAUT 1 AN
 # ======================================
 # Inactif
-    
-    highest_252 = df["High"].tail(252).max()
-    current_price = last["Close"]
-    retracement_threshold = 1 - (retracement_percent / 100)
-    retracement_ok = current_price <= highest_252 * retracement_threshold
-    
+#    
+#    highest_252 = df["High"].tail(252).max()
+#    current_price = last["Close"]
+#    retracement_threshold = 1 - (retracement_percent / 100)
+#    retracement_ok = current_price <= highest_252 * retracement_threshold
+#    
 # ======================================
-#     C6 PRIX > SMA200
+#     C3 PRIX > SMA200
 # ======================================
  
     prixhalt_ok = current_price > sma200.iloc[-1]
 
 # ======================================
-#     C7 EMA CT ALIGNEES
+#     C4 EMA CT ALIGNEES
 # ======================================
     
     emact_aligne_ok = (
@@ -268,7 +257,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     )
 
 # ======================================
-#     C8 EMA CT ECARTEES ENTRE ELLES
+#     C5 EMA CT ECARTEES ENTRE ELLES
 # ======================================
 
     emact_ecarte_ok = (
@@ -278,7 +267,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     )
 
 # ===============================================
-#  C9 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
+#  C6 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
 # ===============================================
 # PARAMETRAGE: ema5 = laxiste, ema13 = plus stricte
     
@@ -290,7 +279,7 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     )
 
 # ===============================================
-#  C10 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
+#  C7 PRIX DANS LE RUBAN DES EMA CT PASSE RECENT
 # ===============================================
     
     open_ = df["Open"]
@@ -321,7 +310,6 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     return (
         sma200_up_ok
         and prixhalt_ok
-        and rsi_ok
         # and retracement_ok
         and emact_aligne_ok
         and emact_ecarte_ok
