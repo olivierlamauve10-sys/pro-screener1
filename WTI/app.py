@@ -163,9 +163,7 @@ def get_data(symbol: str):
 #     ZONE DE GRAPH
 # ======================================
         
-    # df = yf.Ticker(symbol).history(period="8mo", interval="1d")
     df = yf.Ticker(symbol).history(period="1y", interval="1d")
-    # df = yf.Ticker(symbol).history(period="2y", interval="1d")
 
     if df is None or df.empty:
         return None
@@ -195,7 +193,6 @@ def compute_indicators_cached(df: pd.DataFrame):
     close = df["Close"]
 
     df["SMA200"] = ta.sma(close, length=200)
-    df["EMA50"]  = ta.ema(close, length=49)
     df["ema21"]   = ta.ema(close, length=21)
     df["ema13"]   = ta.ema(close, length=13)
     df["ema8"]   = ta.ema(close, length=8)
@@ -215,7 +212,6 @@ def check_conditions(df: pd.DataFrame, retracement_percent: int) -> bool:
     prev = df.iloc[-2]
 
     sma200 = df["SMA200"]
-    ema50  = df["EMA50"]
     ema21  = df["ema21"]
     ema13  = df["ema13"]
     ema8 = df["ema8"]
@@ -362,7 +358,6 @@ def analyze_symbol(symbol: str, retracement_percent: int):
             "Nom": company_name,
             "Prix": f"{last['Close']:.2f}",
             "SMA200": f"{last['SMA200']:.2f}",
-            "EMA50": f"{last['EMA50']:.2f}",
             "ema8": f"{last['ema8']:.2f}",
             "Signal": "ACHAT (rebond technique)"
         }
@@ -404,14 +399,6 @@ def plot_chart(symbol: str):
             name="Prix",
             increasing_line_color="green",
             decreasing_line_color="red"
-        ), row=1, col=1)
-
-# GRAPHIQUE: EMA49
-        
-        fig.add_trace(go.Scatter(
-            x=df.index, y=df["EMA50"],
-            mode="lines", name="EMA50",
-            line=dict(color="purple", width=1.5)
         ), row=1, col=1)
 
 # GRAPHIQUE: EMA21
@@ -654,7 +641,6 @@ if "last_results" in st.session_state and st.session_state.last_results is not N
             )
             cols[1].markdown(f"<span class='price'>{row['Prix']}</span>", unsafe_allow_html=True)
             cols[2].markdown(f"<span class='metric'>SMA200: {row['SMA200']}</span>", unsafe_allow_html=True)
-            cols[3].markdown(f"<span class='metric'>EMA50: {row['EMA50']}</span>", unsafe_allow_html=True)
             cols[4].markdown(f"<span class='metric'>ema8: {row['ema8']}</span>", unsafe_allow_html=True)
 
             st.markdown("</div>", unsafe_allow_html=True)
