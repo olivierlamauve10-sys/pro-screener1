@@ -419,49 +419,49 @@ def plot_chart(symbol: str):
 
         # EMA21
         for i in range(1, len(df_plot)):
-            color = "cyan" if df_plot["EMA21"].iloc[i] >= df_plot["EMA21"].iloc[i - 1] else "pink"
+            color = "cyan" if df_plot["ema21"].iloc[i] >= df_plot["ema21"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
                 x=df_plot.index[i - 1:i + 1],
-                y=df_plot["EMA21"].iloc[i - 1:i + 1],
+                y=df_plot["ema21"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2.5, dash="dot"),
-                name="EMA21" if i == 1 else None,
+                name="ema21" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
         # EMA13
         for i in range(1, len(df_plot)):
-            color = "cyan" if df_plot["EMA13"].iloc[i] >= df_plot["EMA13"].iloc[i - 1] else "pink"
+            color = "cyan" if df_plot["ema13"].iloc[i] >= df_plot["ema13"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
                 x=df_plot.index[i - 1:i + 1],
-                y=df_plot["EMA13"].iloc[i - 1:i + 1],
+                y=df_plot["ema13"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=2, dash="dot"),
-                name="EMA13" if i == 1 else None,
+                name="ema13" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
         # EMA8
         for i in range(1, len(df_plot)):
-            color = "cyan" if df_plot["EMA8"].iloc[i] >= df_plot["EMA8"].iloc[i - 1] else "pink"
+            color = "cyan" if df_plot["ema8"].iloc[i] >= df_plot["ema8"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
                 x=df_plot.index[i - 1:i + 1],
-                y=df_plot["EMA8"].iloc[i - 1:i + 1],
+                y=df_plot["ema8"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=1.5, dash="dot"),
-                name="EMA8" if i == 1 else None,
+                name="ema8" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
         # EMA5
         for i in range(1, len(df_plot)):
-            color = "cyan" if df_plot["EMA5"].iloc[i] >= df_plot["EMA5"].iloc[i - 1] else "pink"
+            color = "cyan" if df_plot["emaA5"].iloc[i] >= df_plot["ema5"].iloc[i - 1] else "pink"
             fig.add_trace(go.Scatter(
                 x=df_plot.index[i - 1:i + 1],
-                y=df_plot["EMA5"].iloc[i - 1:i + 1],
+                y=df_plot["ema5"].iloc[i - 1:i + 1],
                 mode="lines",
                 line=dict(color=color, width=1, dash="dot"),
-                name="EMA5" if i == 1 else None,
+                name="ema5" if i == 1 else None,
                 showlegend=(i == 1)
             ), row=1, col=1)
 
