@@ -376,13 +376,21 @@ def plot_chart(symbol: str):
             return
             
 # =========================
-# PRIX LIVE
+# PRIX LIVE A GAUCHE
 # =========================
         ticker = yf.Ticker(symbol)
         
         try:
             live_price = ticker.fast_info["lastPrice"]
-            st.metric(label=f"{symbol} Live", value=f"{live_price:.2f}")
+            prev_close = df["Close"].iloc[-1]  # clôture de la veille / dernière clôture daily
+
+            variation_pct = (live_price / prev_close - 1) * 100
+
+            st.metric(
+                label=f"{symbol} Live",
+                value=f"{live_price:.2f}",
+                delta=f"{variation_pct:+.2f}%"
+            )
         except:
             pass
 # =========================
