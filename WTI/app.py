@@ -385,11 +385,6 @@ def plot_chart(symbol: str):
             st.metric(label=f"{symbol} Live", value=f"{live_price:.2f}")
         except:
             pass
-
-        st.metric(
-            label=f"{symbol} Live",
-            value=f"{live_price:.2f}"
-        )
 # =========================
         
         # df complet = calculs indicateurs
