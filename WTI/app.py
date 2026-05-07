@@ -374,7 +374,24 @@ def plot_chart(symbol: str):
         if df is None:
             st.error("Données introuvables.")
             return
+            
+# =========================
+# PRIX LIVE
+# =========================
+        ticker = yf.Ticker(symbol)
+        
+        try:
+            live_price = ticker.fast_info["lastPrice"]
+            st.metric(label=f"{symbol} Live", value=f"{live_price:.2f}")
+        except:
+            pass
 
+        st.metric(
+            label=f"{symbol} Live",
+            value=f"{live_price:.2f}"
+        )
+# =========================
+        
         # df complet = calculs indicateurs
         df = compute_indicators_cached(df)
 
