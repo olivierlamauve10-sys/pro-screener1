@@ -367,7 +367,7 @@ def analyze_symbol(symbol: str, retracement_percent: int):
 #        GRAPHIQUE
 # ======================================
 def plot_chart(symbol: str):
-    DISPLAY_MONTHS = 8  # change ici : 6, 8, 12...
+    DISPLAY_MONTHS = 6  # change ici : 6, 8, 12...
 
     try:
         df = get_data(symbol)
