@@ -151,12 +151,12 @@ def check_conditions(df):
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
-# =========================
-# RSI weekly (condition principale)
-# =========================
-RSI7 = df["RSI7"]
+    # =========================
+    # RSI weekly (condition principale)
+    # =========================
+    RSI7 = df["RSI7"]
 
-rsi_ok = (
+    rsi_ok = (
         RSI7.iloc[-7] < 30
         and RSI7.iloc[-6] < 30
         and RSI7.iloc[-5] > 30
@@ -218,7 +218,7 @@ rsi_ok = (
         and RSI7.iloc[-1] < 70
     )
     
-if not rsi_ok:
+    if not rsi_ok:
         return False   # RSI est obligatoire
 
 
