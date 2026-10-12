@@ -195,7 +195,7 @@ def check_conditions(df):
     # RSI2 Remontée trop brutale
     # =========================
     
-    rsi2_ok = RSI7.iloc[-1] > 40
+    rsi2_ok = RSI7.iloc[-1] > 30 and RSI7.iloc[-1] < 70
     
     # =========================
     # MACD weekly (condition secondaire)
