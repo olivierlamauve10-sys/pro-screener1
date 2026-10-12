@@ -187,6 +187,14 @@ def check_conditions(df):
         and RSI7.iloc[-2] < 30
         and RSI7.iloc[-1] > 30
     ) or (
+        RSI7.iloc[-4] > 70
+        and RSI7.iloc[-6] > 70
+        and RSI7.iloc[-5] < 70
+        and RSI7.iloc[-4] < RSI7.iloc[-5]
+        and RSI7.iloc[-3] < RSI7.iloc[-4]
+        and RSI7.iloc[-2] < RSI7.iloc[-3]
+        and RSI7.iloc[-1] < RSI7.iloc[-2]
+    ) or (
         RSI7.iloc[-6] > 70
         and RSI7.iloc[-5] > 70
         and RSI7.iloc[-4] < 70
