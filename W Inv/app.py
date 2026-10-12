@@ -156,8 +156,8 @@ def check_conditions(df):
 # =========================
 RSI7 = df["RSI7"]
 
-    rsi_ok = (
-        RSI7.iloc[-7] < 30
+rsi_ok = (
+        RSI7.iloc[-7] < 30
         and RSI7.iloc[-6] < 30
         and RSI7.iloc[-5] > 30
         and RSI7.iloc[-4] > RSI7.iloc[-5]
@@ -218,7 +218,7 @@ RSI7 = df["RSI7"]
         and RSI7.iloc[-1] < 70
     )
     
-    if not rsi_ok:
+if not rsi_ok:
         return False   # RSI est obligatoire
 
 
