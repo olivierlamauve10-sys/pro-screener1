@@ -14,7 +14,8 @@ import random  # pour petite pause aléatoire
 CACHE_DIR = "cache_data"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-CACHE_TTL = 3600  # = 1h cache
+CACHE_TTL = 60  # = 1mn cache
+# CACHE_TTL = 3600  # = 1h cache
 
 
 # ======================================
