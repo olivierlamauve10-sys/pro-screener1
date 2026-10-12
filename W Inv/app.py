@@ -75,7 +75,9 @@ def get_data(symbol):
     On ne gère PAS les erreurs ici : elles sont attrapées dans analyze_symbol
     pour pouvoir distinguer ban / autres erreurs.
     """
+    # DEBUT FORCE LE NETTOYAGE DU CASH 
     get_data.clear()
+    # FIN FORCE LE NETTOYAGE DU CASH 
     cache_path = os.path.join(CACHE_DIR, f"{symbol}.pkl")
 
     # lire cache si valide
