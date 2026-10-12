@@ -68,7 +68,6 @@ st.write(f"**{len(tickers)} actions sélectionnées**")
 # ======================================
 # FONCTIONS TECHNIQUES
 # ======================================
-get_data.clear()
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
     """
@@ -76,6 +75,7 @@ def get_data(symbol):
     On ne gère PAS les erreurs ici : elles sont attrapées dans analyze_symbol
     pour pouvoir distinguer ban / autres erreurs.
     """
+    get_data.clear()
     cache_path = os.path.join(CACHE_DIR, f"{symbol}.pkl")
 
     # lire cache si valide
