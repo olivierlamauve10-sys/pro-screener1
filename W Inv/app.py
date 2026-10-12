@@ -14,8 +14,8 @@ import random  # pour petite pause aléatoire
 CACHE_DIR = "cache_data"
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-CACHE_TTL = 0 # = 0mn cache
-# CACHE_TTL = 3600  # = 1h cache
+# CACHE_TTL = 0 # = 0mn cache
+CACHE_TTL = 3600  # = 1h cache
 
 
 # ======================================
@@ -68,6 +68,7 @@ st.write(f"**{len(tickers)} actions sélectionnées**")
 # ======================================
 # FONCTIONS TECHNIQUES
 # ======================================
+get_data.clear()
 @st.cache_data(show_spinner=False)
 def get_data(symbol):
     """
