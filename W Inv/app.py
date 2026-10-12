@@ -151,45 +151,77 @@ def check_conditions(df):
     last = df.iloc[-1]
     prev = df.iloc[-2]
 
-    # =========================
-    # RSI weekly (condition principale)
-    # =========================
-    RSI7 = df["RSI7"]
+    # =========================
+    # RSI weekly (condition principale)
+    # =========================
+    RSI7 = df["RSI7"]
 
-    rsi_ok = (
-        RSI7.iloc[-5] < 30
-        and RSI7.iloc[-4] < 30
-        and RSI7.iloc[-3] > 30
-        and RSI7.iloc[-2] > RSI7.iloc[-3]
-        and RSI7.iloc[-1] > RSI7.iloc[-2]
-    ) or (
-        RSI7.iloc[-4] < 30
-        and RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] > 30
-        and RSI7.iloc[-1] > RSI7.iloc[-2]
-    ) or (
-        RSI7.iloc[-3] < 30
-        and RSI7.iloc[-2] < 30
-        and RSI7.iloc[-1] > 30
-    ) or (
-        RSI7.iloc[-5] > 70
-        and RSI7.iloc[-4] > 70
-        and RSI7.iloc[-3] < 70
-        and RSI7.iloc[-2] < RSI7.iloc[-3]
-        and RSI7.iloc[-1] < RSI7.iloc[-2]
-    ) or (
-        RSI7.iloc[-4] > 70
-        and RSI7.iloc[-3] > 70
-        and RSI7.iloc[-2] < 70
-        and RSI7.iloc[-1] < RSI7.iloc[-2]
-    ) or (
-        RSI7.iloc[-3] > 70
-        and RSI7.iloc[-2] > 70
-        and RSI7.iloc[-1] < 70
-    )
-    
-    if not rsi_ok:
-        return False   # RSI est obligatoire
+    rsi_ok = (
+        RSI7.iloc[-7] < 30
+        and RSI7.iloc[-6] < 30
+        and RSI7.iloc[-5] > 30
+        and RSI7.iloc[-4] > RSI7.iloc[-5]
+        and RSI7.iloc[-3] > RSI7.iloc[-4]
+        and RSI7.iloc[-2] > RSI7.iloc[-3]
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-6] < 30
+        and RSI7.iloc[-5] < 30
+        and RSI7.iloc[-4] > 30
+        and RSI7.iloc[-3] > RSI7.iloc[-4]
+        and RSI7.iloc[-2] > RSI7.iloc[-3]
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-5] < 30
+        and RSI7.iloc[-4] < 30
+        and RSI7.iloc[-3] > 30
+        and RSI7.iloc[-2] > RSI7.iloc[-3]
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-4] < 30
+        and RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] > 30
+        and RSI7.iloc[-1] > RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-3] < 30
+        and RSI7.iloc[-2] < 30
+        and RSI7.iloc[-1] > 30
+    ) or (
+        RSI7.iloc[-7] > 70
+        and RSI7.iloc[-6] > 70
+        and RSI7.iloc[-5] < 70
+        and RSI7.iloc[-4] < RSI7.iloc[-5]
+        and RSI7.iloc[-3] < RSI7.iloc[-4]
+        and RSI7.iloc[-2] < RSI7.iloc[-3]
+        and RSI7.iloc[-1] < RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-6] > 70
+        and RSI7.iloc[-5] > 70
+        and RSI7.iloc[-4] < 70
+        and RSI7.iloc[-3] < RSI7.iloc[-4]
+        and RSI7.iloc[-2] < RSI7.iloc[-3]
+        and RSI7.iloc[-1] < RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-5] > 70
+        and RSI7.iloc[-4] > 70
+        and RSI7.iloc[-3] < 70
+        and RSI7.iloc[-2] < RSI7.iloc[-3]
+        and RSI7.iloc[-1] < RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-4] > 70
+        and RSI7.iloc[-3] > 70
+        and RSI7.iloc[-2] < 70
+        and RSI7.iloc[-1] < RSI7.iloc[-2]
+    ) or (
+        RSI7.iloc[-3] > 70
+        and RSI7.iloc[-2] > 70
+        and RSI7.iloc[-1] < 70
+    )
+    
+    if not rsi_ok:
+        return False   # RSI est obligatoire
+
+
 
     # =========================
     # RSI2 Remontée trop brutale
