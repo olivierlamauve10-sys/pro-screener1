@@ -235,15 +235,15 @@ def check_conditions(df):
     # MACD weekly (condition secondaire)
     # =========================
     
-    macdpr = df["MACD_6_15_3"]
-    signal = df["MACDs_6_15_3"]
-    macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
-    
+    # macdpr = df["MACD_6_15_3"]
+    # signal = df["MACDs_6_15_3"]
+    # macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
+    # NON car exclut toutes les valeurs intéressantes
 
     # =========================
     # CONDITIONS FINALES
     # =========================
-    return rsi_ok and rsi2_ok and macd_ok
+    return rsi_ok and rsi2_ok #and macd_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
