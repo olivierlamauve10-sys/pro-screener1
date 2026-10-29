@@ -220,7 +220,7 @@ def check_conditions(df):
     
     macdpr = df["MACD_6_15_3"]
     signal = df["MACDs_6_15_3"]
-    macd_ok = signal.iloc[-1] < macdpr.iloc[-1]*0.85    
+    macd_ok = signal.iloc[-1] < macdpr.iloc[-1]*0.82    
 
     # =========================
     # CONDITIONS DE RESTITUTION
