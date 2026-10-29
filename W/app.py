@@ -218,16 +218,15 @@ def check_conditions(df):
     # MACD weekly (condition secondaire)
     # =========================
     
-    # macdpr = df["MACD_6_15_3"]
-    # signal = df["MACDs_6_15_3"]
-    # macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
+    macdpr = df["MACD_6_15_3"]
+    signal = df["MACDs_6_15_3"]
+    macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
     
 
     # =========================
     # CONDITIONS DE RESTITUTION
     # =========================
-    return rsi_ok and rsi2_ok and (seuil_ok or tendanceLT_ok)
-    # and macd_ok
+    return rsi_ok and rsi2_ok and (seuil_ok or tendanceLT_ok) and macd_ok
     # return rsi_ok and rsi2_ok and (tendanceLT_ok or macd_ok)
 
 
