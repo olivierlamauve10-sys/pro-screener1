@@ -237,13 +237,15 @@ def check_conditions(df):
     
     # macdpr = df["MACD_6_15_3"]
     # signal = df["MACDs_6_15_3"]
-    # macd_ok = signal.iloc[-1] > macdpr.iloc[-1]
-    # NON car exclut toutes les valeurs intéressantes
+    # macd1_ok = signal.iloc[-1] < macdpr.iloc[-1]*0.9
+    # Pour signal haussier
+    # macd2_ok = signal.iloc[-1] > macdpr.iloc[-1]*1.1
+    # Pour signal baissier
 
     # =========================
     # CONDITIONS FINALES
     # =========================
-    return rsi_ok and rsi2_ok #and macd_ok
+    return rsi_ok and rsi2_ok #and macd1_ok or macd2_ok
 
 
 def classify_yf_exception(e: Exception) -> str:
